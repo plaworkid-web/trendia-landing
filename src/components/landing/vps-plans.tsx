@@ -9,6 +9,7 @@ import {
   Building,
   Settings,
 } from "lucide-react";
+import { contactUrl, type Locale } from "@/lib/site";
 
 interface VpsPlan {
   icon: React.ReactNode;
@@ -18,6 +19,7 @@ interface VpsPlan {
   original?: string;
   period: string;
   features: string[];
+  lockedFeatures: string[];
   badge?: string;
   variant: "default" | "outline";
   ctaHref: string;
@@ -43,6 +45,7 @@ const plans: VpsPlan[] = [
       "Basic DDoS Protection",
       "24/7 Monitoring",
     ],
+    lockedFeatures: ["Daily Auto Backup", "Dedicated Support", "GPU Support"],
   },
   {
     icon: <Rocket />,
@@ -65,6 +68,7 @@ const plans: VpsPlan[] = [
       "Priority Support",
       "Auto Backup Daily",
     ],
+    lockedFeatures: ["Dedicated Support", "GPU Support"],
   },
   {
     icon: <Building />,
@@ -87,6 +91,7 @@ const plans: VpsPlan[] = [
       "Auto Backup + Snapshot",
       "Pre-installed AI Tools",
     ],
+    lockedFeatures: ["Dedicated GPU", "Personal Account Manager"],
   },
   {
     icon: <Settings />,
@@ -105,44 +110,22 @@ const plans: VpsPlan[] = [
       "Personal Account Manager",
       "GPU Support Available",
     ],
+    lockedFeatures: [],
   },
 ];
 
-export function VpsPlans() {
+export function VpsPlanCards({ locale = "id" }: { locale?: Locale }) {
+  const isId = locale === "id";
   return (
-    <section id="vps-plans" className="relative overflow-hidden bg-muted/30 py-20 sm:py-28">
-      {/* Subtle dotted grid */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage:
-            "radial-gradient(rgba(128,128,128,0.08) 0.8px, transparent 0.8px)",
-          backgroundSize: "14px 14px",
-          maskImage:
-            "radial-gradient(circle at 50% 10%, rgba(0,0,0,1), rgba(0,0,0,0.2) 40%, rgba(0,0,0,0) 70%)",
-        }}
-      />
-
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-            VPS Hosting
-          </p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-            Virtual Private Servers Built for Speed
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Enterprise-grade infrastructure with NVMe SSD, dedicated resources, and
-            99.9% uptime guarantee.
-          </p>
-        </div>
-
-        {/* Plans Grid */}
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {plans.map((plan) => (
-            <PricingCard.Card className="md:min-w-[220px]" key={plan.name}>
+            <PricingCard.Card
+              className={cn(
+                "md:min-w-[220px]",
+                plan.badge && "border-orange-500/50 shadow-[0_20px_60px_rgba(249,115,22,0.12)]"
+              )}
+              key={plan.name}
+            >
               <PricingCard.Header>
                 <PricingCard.Plan>
                   <PricingCard.PlanName>
@@ -163,13 +146,13 @@ export function VpsPlans() {
                   )}
                 </PricingCard.Price>
                 <Link
-                  href={plan.ctaHref}
+                  href={contactUrl}
                   className={cn(
-                    buttonVariants({ variant: plan.variant }),
-                    "w-full font-semibold"
+                    buttonVariants({ variant: "default" }),
+                    "w-full bg-primary font-semibold text-primary-foreground hover:bg-primary/80"
                   )}
                 >
-                  {plan.ctaText}
+                    {isId ? "Hubungi Sales" : plan.ctaText}
                 </Link>
               </PricingCard.Header>
 
@@ -177,6 +160,7 @@ export function VpsPlans() {
                 <PricingCard.Description>
                   {plan.description}
                 </PricingCard.Description>
+                <PricingCard.Separator>Included</PricingCard.Separator>
                 <PricingCard.List>
                   {plan.features.map((item) => (
                     <PricingCard.ListItem key={item}>
@@ -188,11 +172,24 @@ export function VpsPlans() {
                     </PricingCard.ListItem>
                   ))}
                 </PricingCard.List>
+                {plan.lockedFeatures.length > 0 && (
+                  <>
+                    <PricingCard.Separator>Higher-tier features</PricingCard.Separator>
+                    <PricingCard.List>
+                      {plan.lockedFeatures.map((item) => (
+                        <PricingCard.ListItem className="opacity-60" key={item}>
+                          <span className="mt-0.5 size-4 shrink-0 text-center text-destructive">
+                            ×
+                          </span>
+                          <span>{item}</span>
+                        </PricingCard.ListItem>
+                      ))}
+                    </PricingCard.List>
+                  </>
+                )}
               </PricingCard.Body>
             </PricingCard.Card>
           ))}
-        </div>
-      </div>
-    </section>
+    </div>
   );
 }

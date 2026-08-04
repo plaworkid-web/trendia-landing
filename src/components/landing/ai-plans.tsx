@@ -10,9 +10,11 @@ import {
   FlaskConical,
 } from "lucide-react";
 import type { AiPlan } from "@/types/landing";
+import { portalUrl, type Locale } from "@/lib/site";
 
 interface AiPlansProps {
   plans: AiPlan[];
+  locale?: Locale;
 }
 
 function formatNumber(num: number | null | undefined): string {
@@ -187,57 +189,34 @@ const fallbackPlans: AiPlan[] = [
   },
 ];
 
-export function AiPlans({ plans }: AiPlansProps) {
+export function AiPlanCards({ plans, locale = "id" }: AiPlansProps) {
   const items = plans.length > 0 ? plans : fallbackPlans;
+  const isId = locale === "id";
 
   return (
-    <section id="ai-plans" className="relative overflow-hidden py-20 sm:py-28">
-      {/* Subtle dotted grid */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage:
-            "radial-gradient(rgba(128,128,128,0.08) 0.8px, transparent 0.8px)",
-          backgroundSize: "14px 14px",
-          maskImage:
-            "radial-gradient(circle at 50% 90%, rgba(0,0,0,1), rgba(0,0,0,0.2) 40%, rgba(0,0,0,0) 70%)",
-        }}
-      />
-
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-            AI API Platform
-          </p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-            Access World-Class AI Models via API
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            One API key, multiple models. Pay only for what you use with flexible
-            credit-based pricing.
-          </p>
-        </div>
-
-        {/* Plans Grid */}
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((plan, idx) => {
             const { price, original, period } = formatPrice(plan);
             const badgeText = plan.is_featured
-              ? "Recommended"
+              ? isId ? "Rekomendasi" : "Recommended"
               : plan.is_trial
-              ? "Free Trial"
+              ? isId ? "Uji Coba" : "Free Trial"
               : undefined;
-            const variant = plan.is_featured ? "default" : "outline";
             const ctaLabel = plan.is_trial
-              ? "Start Free Trial"
+              ? isId ? "Mulai Uji Coba" : "Start Free Trial"
               : plan.prices.length === 0
-              ? "Contact Sales"
-              : "Get Started";
+              ? isId ? "Hubungi Sales" : "Contact Sales"
+              : isId ? "Mulai" : "Get Started";
 
             return (
-              <PricingCard.Card className="md:min-w-[220px]" key={plan.id}>
+              <PricingCard.Card
+                className={cn(
+                  "md:min-w-[220px]",
+                  plan.is_featured &&
+                    "border-orange-500/50 shadow-[0_20px_60px_rgba(249,115,22,0.12)]"
+                )}
+                key={plan.id}
+              >
                 <PricingCard.Header>
                   <PricingCard.Plan>
                     <PricingCard.PlanName>
@@ -269,10 +248,10 @@ export function AiPlans({ plans }: AiPlansProps) {
                   </div>
 
                   <Link
-                    href="/register"
+                    href={`${portalUrl}/register?plan=${encodeURIComponent(plan.slug)}`}
                     className={cn(
-                      buttonVariants({ variant }),
-                      "w-full font-semibold"
+                      buttonVariants({ variant: "default" }),
+                      "w-full bg-primary font-semibold text-primary-foreground hover:bg-primary/80"
                     )}
                   >
                     {ctaLabel}
@@ -283,6 +262,7 @@ export function AiPlans({ plans }: AiPlansProps) {
                   <PricingCard.Description>
                     {plan.description}
                   </PricingCard.Description>
+                  <PricingCard.Separator>Plan features</PricingCard.Separator>
                   {plan.features && plan.features.length > 0 && (
                     <PricingCard.List>
                       {plan.features.map((feature, fidx) => (
@@ -304,8 +284,6 @@ export function AiPlans({ plans }: AiPlansProps) {
               </PricingCard.Card>
             );
           })}
-        </div>
-      </div>
-    </section>
+    </div>
   );
 }

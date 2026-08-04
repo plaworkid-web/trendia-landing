@@ -12,7 +12,7 @@ function Card({
     <div
       data-slot="pricing-card"
       className={cn(
-        "relative flex flex-col rounded-2xl border border-border bg-card p-0 text-card-foreground shadow-sm transition-shadow hover:shadow-md",
+        "relative min-w-0 max-w-full overflow-hidden flex flex-col rounded-2xl border border-border bg-card p-0 text-card-foreground shadow-sm transition-shadow hover:shadow-md",
         className
       )}
       {...props}
@@ -110,7 +110,7 @@ function Price({
   return (
     <div
       data-slot="pricing-card-price"
-      className={cn("flex items-baseline gap-1", className)}
+        className={cn("flex min-w-0 flex-wrap items-baseline gap-1", className)}
       {...props}
     >
       {children}
@@ -128,7 +128,7 @@ function MainPrice({
   return (
     <span
       data-slot="pricing-card-main-price"
-      className={cn("text-4xl font-bold tracking-tight", className)}
+        className={cn("break-words text-4xl font-bold tracking-tight", className)}
       {...props}
     >
       {children}
@@ -246,6 +246,26 @@ function ListItem({
   );
 }
 
+/* ─── Separator ─────────────────────────────────────────── */
+
+function Separator({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="pricing-card-separator"
+      className={cn("flex items-center gap-3 text-xs text-muted-foreground", className)}
+      {...props}
+    >
+      <span className="h-px flex-1 bg-border" />
+      {children && <span>{children}</span>}
+      <span className="h-px flex-1 bg-border" />
+    </div>
+  );
+}
+
 /* ─── Exports ───────────────────────────────────────────── */
 
 export {
@@ -262,4 +282,5 @@ export {
   Description,
   List,
   ListItem,
+  Separator,
 };

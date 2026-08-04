@@ -131,6 +131,34 @@ export interface AiPlan {
   prices: AiPlanPrice[];
 }
 
+export interface AiModelPrice {
+  currency_code: "IDR" | "USD";
+  input_price_per_1m: number;
+  output_price_per_1m: number;
+}
+
+export interface AiModel {
+  id: string;
+  model_id: string;
+  display_name: string;
+  description: string | null;
+  provider_name: string;
+  provider_slug: string;
+  provider_logo_url: string | null;
+  category: string;
+  context_window: number | null;
+  max_output_tokens: number | null;
+  supports_streaming: boolean;
+  supports_vision: boolean;
+  supports_function_calling: boolean;
+  supports_json_mode: boolean;
+  status: string;
+  deprecation_notice: string | null;
+  is_featured: boolean;
+  sort_order: number;
+  prices: AiModelPrice[];
+}
+
 export interface AppSettings {
   app_name: string;
   app_description: string | null;

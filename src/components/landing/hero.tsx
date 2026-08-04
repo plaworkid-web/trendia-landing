@@ -1,25 +1,33 @@
 import ResponsiveHeroBanner from "@/components/ui/responsive-hero-banner";
+import { copy, localizedPath, otherLocalePath, portalUrl, type Locale } from "@/lib/site";
+import type { AppSettings } from "@/types/landing";
 
-export function Hero() {
+export function Hero({ locale, appSettings }: { locale: Locale; appSettings: AppSettings | null }) {
+  const t = copy[locale];
+  const brandName = appSettings?.app_name || "Trendia";
   return (
     <ResponsiveHeroBanner
-      badgeLabel="New"
-      badgeText="High-Performance Cloud Infrastructure"
-      title="VPS & AI Platform"
-      titleLine2="For Modern Developers"
-      description="Deploy blazing-fast virtual servers and access cutting-edge AI models through a single, unified platform. Scale your infrastructure and intelligence on demand."
-      primaryButtonText="Explore VPS Plans"
-      primaryButtonHref="#vps-plans"
-      secondaryButtonText="Try AI API"
-      secondaryButtonHref="#ai-plans"
-      ctaButtonText="Get Started"
-      ctaButtonHref="/register"
-      partnersTitle="Trusted by developers & teams worldwide"
+      logoUrl={appSettings?.logo_dark_url || appSettings?.logo_light_url || undefined}
+      brandName={brandName}
+      badgeLabel={brandName}
+      badgeText={t.hero.badge}
+      title={t.hero.title}
+      titleLine2={t.hero.titleLine2}
+      description={t.hero.description}
+      primaryButtonText={t.hero.primary}
+      primaryButtonHref={localizedPath(locale, "/vps")}
+      secondaryButtonText={t.hero.secondary}
+      secondaryButtonHref={localizedPath(locale, "/models")}
+      ctaButtonText={t.nav.start}
+      ctaButtonHref={`${portalUrl}/register`}
+      languageHref={otherLocalePath(locale)}
+      languageLabel={locale === "id" ? "Switch to English" : "Ganti ke Bahasa Indonesia"}
       navLinks={[
-        { label: "Features", href: "#features" },
-        { label: "VPS", href: "#vps-plans" },
-        { label: "AI API", href: "#ai-plans" },
-        { label: "FAQ", href: "#faq" },
+        { label: t.nav.home, href: localizedPath(locale) },
+        { label: t.nav.vps, href: localizedPath(locale, "/vps") },
+        { label: t.nav.models, href: localizedPath(locale, "/models") },
+        { label: t.nav.pricing, href: localizedPath(locale, "/pricing") },
+        { label: t.nav.docs, href: localizedPath(locale, "/docs") },
       ]}
     />
   );

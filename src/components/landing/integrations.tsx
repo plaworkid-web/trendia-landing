@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
 import React from "react";
+import { copy, localizedPath, type Locale } from "@/lib/site";
 
 // --- SVG Icons for AI Model Integrations ---
 
@@ -85,7 +86,8 @@ const IntegrationCard = ({
   );
 };
 
-export function IntegrationsSection() {
+export function IntegrationsSection({ locale }: { locale: Locale }) {
+  const t = copy[locale].integrations;
   return (
     <section id="integrations">
       <div className="py-24 md:py-32">
@@ -134,18 +136,16 @@ export function IntegrationsSection() {
           </div>
           <div className="bg-linear-to-t from-background relative z-20 mx-auto mt-12 max-w-lg space-y-6 from-55% text-center">
             <h2 className="text-balance text-3xl font-semibold md:text-4xl">
-              One API, All Leading AI Models
+              {t.title}
             </h2>
             <p className="text-muted-foreground">
-              Access GPT-4, Claude, Gemini, Llama, Mistral, and more through a
-              single unified API. Switch models effortlessly without changing
-              your code.
+              {t.description}
             </p>
             <Link
-              href="#ai-plans"
+              href={localizedPath(locale, "/models")}
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >
-              View AI Plans
+              {t.action}
             </Link>
           </div>
         </div>

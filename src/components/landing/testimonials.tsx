@@ -4,9 +4,12 @@ import {
   type Testimonial as CardTestimonial,
 } from "@/components/ui/testimonial-card";
 import type { Testimonial as BackendTestimonial } from "@/types/landing";
+import { localizedPath, portalUrl, type Locale } from "@/lib/site";
 
 interface TestimonialsProps {
   testimonials: BackendTestimonial[];
+  locale: Locale;
+  brandName?: string;
 }
 
 const statsData: Stat[] = [
@@ -43,12 +46,13 @@ const fallbackTestimonials: CardTestimonial[] = [
 ];
 
 function mapBackendToCard(
-  items: BackendTestimonial[]
+  items: BackendTestimonial[],
+  brandName: string,
 ): CardTestimonial[] {
   return items.map((t) => ({
     name: t.name,
     title: [t.position, t.company].filter(Boolean).join(" at ") || t.company || "",
-    quote: t.content,
+    quote: t.content.replace(/Trendia(?:\.id)?/gi, brandName),
     avatarSrc: t.avatar_url ?? undefined,
     avatarFallback: t.name
       .split(" ")
@@ -60,23 +64,24 @@ function mapBackendToCard(
   }));
 }
 
-export function Testimonials({ testimonials }: TestimonialsProps) {
+export function Testimonials({ testimonials, locale, brandName = "Trendia" }: TestimonialsProps) {
+  const isId = locale === "id";
   const cards =
     testimonials.length > 0
-      ? mapBackendToCard(testimonials)
+      ? mapBackendToCard(testimonials, brandName)
       : fallbackTestimonials;
 
   return (
     <ClientsSection
-      tagLabel="Testimonials"
-      title="Trusted by Developers & Teams"
-      description="See what our customers say about our VPS hosting and AI API platform."
+      tagLabel={isId ? "Testimoni" : "Testimonials"}
+      title={isId ? "Dipercaya Developer & Tim" : "Trusted by Developers & Teams"}
+      description={isId ? `Pengalaman pelanggan menggunakan VPS hosting dan AI API ${brandName}.` : `See what customers say about ${brandName} VPS hosting and AI API.`}
       stats={statsData}
       testimonials={cards}
-      primaryActionLabel="Get Started Free"
-      primaryActionHref="/register"
-      secondaryActionLabel="View AI Plans"
-      secondaryActionHref="#ai-plans"
+      primaryActionLabel={isId ? "Mulai sekarang" : "Get started"}
+      primaryActionHref={`${portalUrl}/register`}
+      secondaryActionLabel={isId ? "Lihat Harga" : "View Pricing"}
+      secondaryActionHref={localizedPath(locale, "/pricing")}
     />
   );
 }

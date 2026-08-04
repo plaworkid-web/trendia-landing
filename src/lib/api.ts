@@ -1,4 +1,4 @@
-import type { LandingData, AiPlan, AppSettings, AppearanceSettings } from "@/types/landing";
+import type { LandingData, AiPlan, AiModel, AppSettings, AppearanceSettings } from "@/types/landing";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
@@ -7,6 +7,16 @@ async function fetchApi<T>(endpoint: string): Promise<T | null> {
     const res = await fetch(`${API_BASE}${endpoint}`, {
       next: { revalidate: 300 },
     });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
+async function fetchUncachedApi<T>(endpoint: string): Promise<T | null> {
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`, { cache: "no-store" });
     if (!res.ok) return null;
     return res.json();
   } catch {
@@ -23,8 +33,12 @@ export async function fetchAiPlans(): Promise<AiPlan[]> {
   return data ?? [];
 }
 
+export async function fetchAiModels(): Promise<AiModel[] | null> {
+  return fetchApi<AiModel[]>("/public/ai-models");
+}
+
 export async function fetchAppSettings(): Promise<AppSettings | null> {
-  return fetchApi<AppSettings>("/admin/settings/public");
+  return fetchUncachedApi<AppSettings>("/admin/settings/public");
 }
 
 export async function fetchAppearance(): Promise<AppearanceSettings | null> {

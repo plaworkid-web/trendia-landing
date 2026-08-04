@@ -1,8 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useTheme } from 'next-themes';
-import { Sun, Moon, Monitor } from 'lucide-react';
+import React, { useState } from 'react';
+import Image from 'next/image';
+import type { StaticImageData } from 'next/image';
+import Link from 'next/link';
+import { useTheme } from '@/components/providers/theme-provider';
+import { Globe, Moon, Sun } from 'lucide-react';
+import heroBackground from '../../../public/bg.png';
+import OrbitingCirclesGlobe from '@/components/ui/orbiting-circles-02';
 
 interface NavLink {
     label: string;
@@ -10,14 +15,10 @@ interface NavLink {
     isActive?: boolean;
 }
 
-interface Partner {
-    logoUrl: string;
-    href: string;
-}
-
 interface ResponsiveHeroBannerProps {
     logoUrl?: string;
-    backgroundImageUrl?: string;
+    brandName?: string;
+    backgroundImageUrl?: string | StaticImageData;
     navLinks?: NavLink[];
     ctaButtonText?: string;
     ctaButtonHref?: string;
@@ -30,13 +31,14 @@ interface ResponsiveHeroBannerProps {
     primaryButtonHref?: string;
     secondaryButtonText?: string;
     secondaryButtonHref?: string;
-    partnersTitle?: string;
-    partners?: Partner[];
+    languageHref?: string;
+    languageLabel?: string;
 }
 
 const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
     logoUrl = "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/febf2421-4a9a-42d6-871d-ff4f9518021c_1600w.png",
-    backgroundImageUrl = "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/0e2dbea0-c0a9-413f-a57b-af279633c0df_3840w.jpg",
+    brandName = "Trendia",
+    backgroundImageUrl = heroBackground,
     navLinks = [
         { label: "Home", href: "#", isActive: true },
         { label: "Missions", href: "#" },
@@ -55,51 +57,39 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
     primaryButtonHref = "#",
     secondaryButtonText = "Watch Launch",
     secondaryButtonHref = "#",
-    partnersTitle = "Partnering with leading space agencies worldwide",
-    partners = [
-        { logoUrl: "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/f7466370-2832-4fdd-84c2-0932bb0dd850_800w.png", href: "#" },
-        { logoUrl: "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/0a9a71ec-268b-4689-a510-56f57e9d4f13_1600w.png", href: "#" },
-        { logoUrl: "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/a9ed4369-748a-49f8-9995-55d6c876bbff_1600w.png", href: "#" },
-        { logoUrl: "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/0d8966a4-8525-4e11-9d5d-2d7390b2c798_1600w.png", href: "#" },
-        { logoUrl: "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/2ed33c8b-b8b2-4176-967f-3d785fed07d8_1600w.png", href: "#" }
-    ]
+    languageHref = "/en",
+    languageLabel = "English"
 }) => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const { theme, setTheme } = useTheme();
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => { setMounted(true); }, []);
+    const { resolvedTheme, setTheme } = useTheme();
 
     const cycleTheme = () => {
-        if (theme === 'light') setTheme('dark');
-        else if (theme === 'dark') setTheme('system');
-        else setTheme('light');
-    };
-
-    const ThemeIcon = () => {
-        if (!mounted) return <Monitor className="size-4 text-white/80" />;
-        if (theme === 'dark') return <Moon className="size-4 text-white/80" />;
-        if (theme === 'light') return <Sun className="size-4 text-white/80" />;
-        return <Monitor className="size-4 text-white/80" />;
+        setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
     };
 
     return (
         <section className="w-full isolate min-h-screen overflow-hidden relative">
-            <img
+            <Image
                 src={backgroundImageUrl}
                 alt=""
-                className="w-full h-full object-cover absolute top-0 right-0 bottom-0 left-0"
+                fill
+                priority
+                unoptimized
+                sizes="100vw"
+                className="z-0 object-cover"
             />
+            <OrbitingCirclesGlobe />
             <div className="pointer-events-none absolute inset-0 ring-1 ring-black/30" />
 
             <header className="z-10 xl:top-4 relative">
                 <div className="mx-6">
                     <div className="flex items-center justify-between pt-4">
-                        <a
-                            href="#"
-                            className="inline-flex items-center justify-center bg-center w-[100px] h-[40px] bg-cover rounded"
-                            style={{ backgroundImage: `url(${logoUrl})` }}
-                        />
+                            <Link
+                                href="/"
+                                aria-label={brandName}
+                                className="inline-flex h-[56px] w-[180px] items-center justify-center rounded bg-contain bg-center bg-no-repeat sm:h-[64px] sm:w-[210px]"
+                                style={{ backgroundImage: `url(${logoUrl})` }}
+                            />
 
                         <nav className="hidden md:flex items-center gap-2">
                             <div className="flex items-center gap-1 rounded-full bg-white/5 px-1 py-1 ring-1 ring-white/10 backdrop-blur">
@@ -130,13 +120,16 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
                                 className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10 backdrop-blur hover:bg-white/10 transition-colors"
                                 aria-label="Toggle theme"
                             >
-                                <ThemeIcon />
+                                {resolvedTheme === 'dark' ? <Moon className="size-4 text-white/80" /> : <Sun className="size-4 text-white/80" />}
                             </button>
-                            {/* Google Translate */}
-                            <div
-                                id="google_translate_element"
-                                className="[&_.goog-te-gadget]:!font-sans [&_.goog-te-gadget-simple]:!border-white/10 [&_.goog-te-gadget-simple]:!bg-white/5 [&_.goog-te-gadget-simple]:!rounded-full [&_.goog-te-gadget-simple]:!py-1 [&_.goog-te-gadget-simple]:!px-3 [&_.goog-te-gadget-simple]:!text-sm [&_.goog-te-gadget-simple]:!backdrop-blur [&_.goog-te-menu-value_span]:!text-white/80"
-                            />
+                            <a
+                                href={languageHref}
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10 backdrop-blur transition-colors hover:bg-white/10"
+                                aria-label={languageLabel}
+                                title={languageLabel}
+                            >
+                                <Globe className="size-4 text-white/80" />
+                            </a>
                         </nav>
 
                         <button
@@ -155,6 +148,26 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
                 </div>
             </header>
 
+            {mobileMenuOpen && (
+                <div className="absolute inset-x-6 top-20 z-30 rounded-2xl bg-black/70 p-4 ring-1 ring-white/15 backdrop-blur-xl md:hidden">
+                    <nav className="flex flex-col gap-1">
+                        {navLinks.map((link) => (
+                            <a key={link.href} href={link.href} className="rounded-lg px-3 py-2 text-sm text-white/85 hover:bg-white/10">
+                                {link.label}
+                            </a>
+                        ))}
+                        <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-3">
+                            <a href={languageHref} className="inline-flex size-9 items-center justify-center rounded-full bg-white/10" aria-label={languageLabel}>
+                                <Globe className="size-4 text-white/80" />
+                            </a>
+                            <a href={ctaButtonHref} className="flex-1 rounded-full bg-white px-4 py-2 text-center text-sm font-medium text-neutral-900">
+                                {ctaButtonText}
+                            </a>
+                        </div>
+                    </nav>
+                </div>
+            )}
+
             <div className="z-10 relative">
                 <div className="sm:pt-28 md:pt-32 lg:pt-40 max-w-7xl mx-auto pt-28 px-6 pb-16">
                     <div className="mx-auto max-w-3xl text-center">
@@ -167,7 +180,7 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
                             </span>
                         </div>
 
-                        <h1 className="sm:text-5xl md:text-6xl lg:text-7xl leading-tight text-4xl text-white tracking-tight font-serif font-normal animate-fade-slide-in-2">
+                        <h1 className="sm:text-5xl md:text-6xl lg:text-7xl leading-tight text-4xl text-white tracking-tight font-sans font-semibold animate-fade-slide-in-2">
                             {title}
                             <br className="hidden sm:block" />
                             {titleLine2}
@@ -200,21 +213,6 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
                         </div>
                     </div>
 
-                    <div className="mx-auto mt-20 max-w-5xl">
-                        <p className="animate-fade-slide-in-1 text-sm text-white/70 text-center">
-                            {partnersTitle}
-                        </p>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 animate-fade-slide-in-2 text-white/70 mt-6 items-center justify-items-center gap-4">
-                            {partners.map((partner, index) => (
-                                <a
-                                    key={index}
-                                    href={partner.href}
-                                    className="inline-flex items-center justify-center bg-center w-[120px] h-[36px] bg-cover rounded-full opacity-80 hover:opacity-100 transition-opacity"
-                                    style={{ backgroundImage: `url(${partner.logoUrl})` }}
-                                />
-                            ))}
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
