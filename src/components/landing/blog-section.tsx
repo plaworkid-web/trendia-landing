@@ -64,8 +64,7 @@ export function BlogSection({ posts, locale }: { posts: BlogPost[]; locale: Loca
           <Link href={localizedPath(locale, "/blog")} className="text-sm font-medium text-primary hover:underline">
             {t.all}
           </Link>
-        </div>
-      </div>
+        </div>      </div>
     </section>
   );
 }
