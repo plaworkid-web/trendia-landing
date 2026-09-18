@@ -24,6 +24,18 @@ function formatNumber(num: number | null | undefined): string {
   return num.toString();
 }
 
+function creditsLabel(plan: AiPlan, isId: boolean): string {
+  if (plan.plan_type === "unlimited") {
+    return isId ? "Kredit tak terbatas" : "Unlimited credits";
+  }
+  const quota = plan.credit_quota ?? 0;
+  if (quota <= 0) {
+    return isId ? "Kuota sesuai permintaan" : "Custom quota";
+  }
+  const suffix = plan.duration_days === 30 ? (isId ? "/bulan" : "/month") : "";
+  return `${formatNumber(quota)} credits${suffix}`;
+}
+
 function formatPrice(plan: AiPlan): {
   price: string;
   original?: string;
@@ -239,11 +251,7 @@ export function AiPlanCards({ plans, locale = "id" }: AiPlansProps) {
 
                   {/* Credits & Rate info */}
                   <div className="space-y-1 text-xs text-muted-foreground">
-                    <div>
-                      {plan.credit_quota != null
-                        ? `${formatNumber(plan.credit_quota)} credits${plan.duration_days === 30 ? "/month" : ""}`
-                        : "Unlimited credits"}
-                    </div>
+                    <div>{creditsLabel(plan, isId)}</div>
                     <div>{plan.rate_limit_rpm} requests/min</div>
                   </div>
 

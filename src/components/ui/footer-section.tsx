@@ -4,8 +4,14 @@ import type { ComponentProps, ReactNode } from 'react';
 import Image from 'next/image';
 import { motion, useReducedMotion } from 'motion/react';
 import { Briefcase, Camera, MessageCircle, Play } from 'lucide-react';
-import { localizedPath, portalUrl, type Locale } from '@/lib/site';
-import type { AppSettings } from '@/types/landing';
+import {
+	footerItems,
+	localizedPath,
+	portalUrl,
+	type Locale,
+	type ResolvedNavItem,
+} from '@/lib/site';
+import type { AppSettings, CompanyProfile, MenuItem } from '@/types/landing';
 
 interface FooterLink {
 	title: string;
@@ -18,49 +24,126 @@ interface FooterSection {
 	links: FooterLink[];
 }
 
-function getFooterLinks(locale: Locale): FooterSection[] {
- const isId = locale === 'id';
- return [
-	{
-		label: isId ? 'Produk' : 'Product',
-		links: [
-			{ title: 'VPS', href: localizedPath(locale, '/vps') },
-			{ title: isId ? 'Model AI' : 'AI Models', href: localizedPath(locale, '/models') },
-			{ title: isId ? 'Harga' : 'Pricing', href: localizedPath(locale, '/pricing') },
-			{ title: isId ? 'Dokumentasi' : 'Docs', href: localizedPath(locale, '/docs') },
-		],
-	},
-	{
-		label: isId ? 'Akun' : 'Account',
-		links: [
-			{ title: isId ? 'Daftar' : 'Register', href: `${portalUrl}/register` },
-			{ title: isId ? 'Masuk' : 'Sign in', href: `${portalUrl}/login` },
-			{ title: 'Dashboard', href: `${portalUrl}/dashboard` },
-		],
-	},
-	{
-		label: isId ? 'Panduan' : 'Guides',
-		links: [
-			{ title: 'OpenAI SDK', href: `${localizedPath(locale, '/docs')}#openai-sdk` },
-			{ title: 'Chat Completions', href: `${localizedPath(locale, '/docs')}#chat` },
-			{ title: 'VPS Quickstart', href: `${localizedPath(locale, '/docs')}#vps` },
-		],
-	},
-	{
-		label: isId ? 'Sosial' : 'Social',
-		links: [
-			{ title: 'Facebook', href: '#', icon: MessageCircle },
-			{ title: 'Instagram', href: '#', icon: Camera },
-			{ title: 'Youtube', href: '#', icon: Play },
-			{ title: 'LinkedIn', href: '#', icon: Briefcase },
-		],
-	},
- ];
+const SOCIAL_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+	facebook: MessageCircle,
+	instagram: Camera,
+	youtube: Play,
+	youtubecom: Play,
+	linkedin: Briefcase,
+};
+
+function socialIcon(platform: string) {
+	const key = platform.toLowerCase().replace(/[^a-z]/g, '');
+	return SOCIAL_ICONS[key];
 }
 
-export function Footer({ locale = 'id', appSettings }: { locale?: Locale; appSettings?: AppSettings | null }) {
-	const footerLinks = getFooterLinks(locale);
+function getDefaultSections(locale: Locale): FooterSection[] {
+	const isId = locale === 'id';
+	return [
+		{
+			label: isId ? 'Produk' : 'Product',
+			links: [
+				{ title: 'VPS', href: localizedPath(locale, '/vps') },
+				{ title: isId ? 'Model AI' : 'AI Models', href: localizedPath(locale, '/models') },
+				{ title: isId ? 'Harga' : 'Pricing', href: localizedPath(locale, '/pricing') },
+				{ title: isId ? 'Dokumentasi' : 'Docs', href: localizedPath(locale, '/docs') },
+			],
+		},
+		{
+			label: isId ? 'Akun' : 'Account',
+			links: [
+				{ title: isId ? 'Daftar' : 'Register', href: `${portalUrl}/register` },
+				{ title: isId ? 'Masuk' : 'Sign in', href: `${portalUrl}/login` },
+				{ title: 'Dashboard', href: `${portalUrl}/dashboard` },
+			],
+		},
+		{
+			label: isId ? 'Panduan' : 'Guides',
+			links: [
+				{ title: 'OpenAI SDK', href: `${localizedPath(locale, '/docs')}#openai-sdk` },
+				{ title: 'Chat Completions', href: `${localizedPath(locale, '/docs')}#chat` },
+				{ title: 'VPS Quickstart', href: `${localizedPath(locale, '/docs')}#vps` },
+			],
+		},
+	];
+}
+
+function buildSections(
+	menuItems: MenuItem[],
+	locale: Locale,
+	company: CompanyProfile | null | undefined,
+	isId: boolean,
+): FooterSection[] {
+	const managed = footerItems(menuItems, locale);
+	const sections: FooterSection[] = [];
+
+	if (managed.length > 0) {
+		sections.push({
+			label: isId ? 'Tautan' : 'Links',
+			links: flattenMenu(managed),
+		});
+		sections.push({
+			label: isId ? 'Akun' : 'Account',
+			links: [
+				{ title: isId ? 'Daftar' : 'Register', href: `${portalUrl}/register` },
+				{ title: isId ? 'Masuk' : 'Sign in', href: `${portalUrl}/login` },
+				{ title: 'Dashboard', href: `${portalUrl}/dashboard` },
+			],
+		});
+	} else {
+		sections.push(...getDefaultSections(locale));
+	}
+
+	const contactLinks: FooterLink[] = [];
+	for (const phone of company?.phones ?? []) {
+		contactLinks.push({ title: phone.number, href: `tel:${phone.number.replace(/\s/g, '')}` });
+	}
+	for (const email of company?.emails ?? []) {
+		contactLinks.push({ title: email.email, href: `mailto:${email.email}` });
+	}
+	if (contactLinks.length > 0) {
+		sections.push({ label: isId ? 'Kontak' : 'Contact', links: contactLinks });
+	}
+
+	const socialLinks: FooterLink[] = (company?.socials ?? []).map((social) => ({
+		title: social.label || social.platform,
+		href: social.url,
+		icon: socialIcon(social.platform),
+	}));
+	if (socialLinks.length > 0) {
+		sections.push({ label: isId ? 'Sosial' : 'Social', links: socialLinks });
+	}
+
+	return sections;
+}
+
+function flattenMenu(items: ResolvedNavItem[]): FooterLink[] {
+	const links: FooterLink[] = [];
+	const walk = (nodes: ResolvedNavItem[]) => {
+		for (const node of nodes) {
+			links.push({ title: node.label, href: node.href });
+			if (node.children.length) walk(node.children);
+		}
+	};
+	walk(items);
+	return links;
+}
+
+export function Footer({
+	locale = 'id',
+	appSettings,
+	menuItems = [],
+	company,
+}: {
+	locale?: Locale;
+	appSettings?: AppSettings | null;
+	menuItems?: MenuItem[];
+	company?: CompanyProfile | null;
+}) {
+	const isId = locale === 'id';
+	const footerLinks = buildSections(menuItems, locale, company, isId);
 	const brandName = appSettings?.app_name || 'Trendia';
+	const tagline = company?.tagline;
 	return (
 		<footer className="md:rounded-t-6xl relative w-full max-w-6xl mx-auto flex flex-col items-center justify-center rounded-t-4xl border-t bg-[radial-gradient(35%_128px_at_50%_0%,theme(backgroundColor.white/8%),transparent)] px-6 py-12 lg:py-16">
 			<div className="bg-foreground/20 absolute top-0 right-1/2 left-1/2 h-px w-1/3 -translate-x-1/2 -translate-y-1/2 rounded-full blur" />
@@ -78,6 +161,9 @@ export function Footer({ locale = 'id', appSettings }: { locale?: Locale; appSet
 							<span className="text-2xl font-bold tracking-tight">{brandName}</span>
 						)}
 					</a>
+					{tagline && (
+						<p className="text-muted-foreground max-w-xs text-sm">{tagline}</p>
+					)}
 					<p className="text-muted-foreground mt-8 text-sm md:mt-0">
 						© {new Date().getFullYear()} {brandName}. All rights reserved.
 					</p>
@@ -90,9 +176,11 @@ export function Footer({ locale = 'id', appSettings }: { locale?: Locale; appSet
 								<h3 className="text-xs">{section.label}</h3>
 								<ul className="text-muted-foreground mt-4 space-y-2 text-sm">
 									{section.links.map((link) => (
-										<li key={link.title}>
+										<li key={`${link.title}-${link.href}`}>
 											<a
 												href={link.href}
+												target={link.href.startsWith('http') ? '_blank' : undefined}
+												rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
 												className="hover:text-foreground inline-flex items-center transition-all duration-300"
 											>
 												{link.icon && <link.icon className="me-1 size-4" />}

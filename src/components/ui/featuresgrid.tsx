@@ -1,5 +1,6 @@
 import { Database, Network, ShieldCheck, Terminal } from "lucide-react";
 import type { Locale } from "@/lib/site";
+import { aiApiBaseUrl } from "@/lib/site";
 
 const cardClass =
   "group flex min-h-[320px] flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-[#050505] transition-colors hover:border-white/[0.15]";
@@ -130,7 +131,7 @@ export function Component({ locale = "id" }: { locale?: Locale }) {
                     POST
                   </div>
                   <div className="min-w-0 flex-1 break-all rounded border border-white/[0.08] bg-black px-3 py-2 font-mono text-xs text-neutral-500">
-                    api.trendia.id/v1/chat/completions
+                    {aiApiBaseUrl.replace(/^https?:\/\//, "")}/chat/completions
                   </div>
                 </div>
                 <div className="pl-[60px]">

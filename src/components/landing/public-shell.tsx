@@ -13,7 +13,12 @@ export async function PublicShell({ locale, children }: { locale: Locale; childr
       <LocaleDocument locale={locale} />
       <Navbar locale={locale} appSettings={settings} menuItems={landing?.menu_items ?? []} />
       <main className="page-ambient min-h-[70vh] flex-1">{children}</main>
-      <Footer locale={locale} appSettings={settings} />
+      <Footer
+        locale={locale}
+        appSettings={settings}
+        menuItems={landing?.menu_items ?? []}
+        company={landing?.company ?? null}
+      />
     </>
   );
 }

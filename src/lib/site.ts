@@ -1,5 +1,9 @@
 export type Locale = "id" | "en";
 
+export const siteUrl = (
+  process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+).replace(/\/$/, "");
+
 export const portalUrl = (
   process.env.NEXT_PUBLIC_PORTAL_URL || "http://localhost:3000"
 ).replace(/\/$/, "");
@@ -18,6 +22,73 @@ export function localizedPath(locale: Locale, path = "") {
 
 export function otherLocalePath(locale: Locale, path = "") {
   return localizedPath(locale === "id" ? "en" : "id", path);
+}
+
+export interface ResolvedNavItem {
+  id: string;
+  label: string;
+  href: string;
+  external: boolean;
+  openInNewTab: boolean;
+  children: ResolvedNavItem[];
+}
+
+interface RawMenuItem {
+  id: string;
+  title: string;
+  menu_type: "external" | "internal" | "static";
+  url: string | null;
+  route_path: string | null;
+  parent_id: string | null;
+  show_in_navbar: boolean;
+  show_in_footer: boolean;
+  open_in_new_tab: boolean;
+}
+
+function menuHref(item: RawMenuItem, locale: Locale): string {
+  if (item.menu_type === "external" && item.url) return item.url;
+  if (item.menu_type === "internal" && item.route_path) {
+    return localizedPath(locale, item.route_path);
+  }
+  return item.url ?? localizedPath(locale);
+}
+
+function buildMenuTree(
+  items: RawMenuItem[],
+  locale: Locale,
+  where: "show_in_navbar" | "show_in_footer",
+): ResolvedNavItem[] {
+  const filtered = items.filter(
+    (item) => item[where] && item.title.trim().length > 0 && (item.url || item.route_path),
+  );
+  const byParent = new Map<string | null, RawMenuItem[]>();
+  for (const item of filtered) {
+    const key = item.parent_id && filtered.some((p) => p.id === item.parent_id)
+      ? item.parent_id
+      : null;
+    const list = byParent.get(key) ?? [];
+    list.push(item);
+    byParent.set(key, list);
+  }
+
+  const toNode = (item: RawMenuItem): ResolvedNavItem => ({
+    id: item.id,
+    label: item.title,
+    href: menuHref(item, locale),
+    external: item.menu_type === "external",
+    openInNewTab: item.open_in_new_tab,
+    children: (byParent.get(item.id) ?? []).map(toNode),
+  });
+
+  return (byParent.get(null) ?? []).map(toNode);
+}
+
+export function navbarItems(items: RawMenuItem[], locale: Locale): ResolvedNavItem[] {
+  return buildMenuTree(items, locale, "show_in_navbar");
+}
+
+export function footerItems(items: RawMenuItem[], locale: Locale): ResolvedNavItem[] {
+  return buildMenuTree(items, locale, "show_in_footer");
 }
 
 export const copy = {
@@ -61,6 +132,36 @@ export const copy = {
       title: "Mulai membangun dalam beberapa menit.",
       description: "Panduan AI API yang sesuai endpoint Trendia serta alur awal penggunaan VPS.",
     },
+    partners: { title: "Didukung teknologi terpercaya" },
+    faq: {
+      eyebrow: "FAQ",
+      title: "Pertanyaan yang sering diajukan",
+      description: "Jawaban singkat tentang VPS, AI API, dan cara memulai.",
+    },
+    blog: {
+      eyebrow: "Blog",
+      title: "Wawasan terbaru",
+      description: "Panduan, pengumuman produk, dan praktik terbaik dari tim kami.",
+      readMore: "Baca selengkapnya",
+      all: "Lihat semua artikel",
+    },
+    changelog: {
+      eyebrow: "Changelog",
+      title: "Apa yang baru",
+      description: "Pembaruan produk dan perbaikan terbaru.",
+    },
+    testimonials: {
+      tag: "Testimoni",
+      title: "Dipercaya Developer & Tim",
+      primary: "Mulai sekarang",
+      secondary: "Lihat Harga",
+    },
+    contact: {
+      title: "Hubungi kami",
+      phones: "Telepon",
+      emails: "Email",
+      socials: "Sosial",
+    },
     common: { loading: "Memuat...", copy: "Salin", copied: "Tersalin", getStarted: "Mulai sekarang" },
   },
   en: {
@@ -102,6 +203,36 @@ export const copy = {
       eyebrow: "Documentation",
       title: "Start building in minutes.",
       description: "AI API guidance matching Trendia's live endpoints plus a practical VPS getting-started flow.",
+    },
+    partners: { title: "Powered by trusted technology" },
+    faq: {
+      eyebrow: "FAQ",
+      title: "Frequently asked questions",
+      description: "Quick answers about VPS, AI API, and how to get started.",
+    },
+    blog: {
+      eyebrow: "Blog",
+      title: "Latest insights",
+      description: "Guides, product announcements, and best practices from our team.",
+      readMore: "Read more",
+      all: "View all articles",
+    },
+    changelog: {
+      eyebrow: "Changelog",
+      title: "What's new",
+      description: "Latest product updates and improvements.",
+    },
+    testimonials: {
+      tag: "Testimonials",
+      title: "Trusted by Developers & Teams",
+      primary: "Get started",
+      secondary: "View Pricing",
+    },
+    contact: {
+      title: "Contact us",
+      phones: "Phone",
+      emails: "Email",
+      socials: "Social",
     },
     common: { loading: "Loading...", copy: "Copy", copied: "Copied", getStarted: "Get started" },
   },

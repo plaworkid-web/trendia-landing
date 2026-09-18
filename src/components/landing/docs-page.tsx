@@ -3,11 +3,14 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CodeBlock } from "@/components/landing/code-block";
 import { PublicShell } from "@/components/landing/public-shell";
+import { fetchAppSettings } from "@/lib/api";
 import { aiApiBaseUrl, copy, portalUrl, type Locale } from "@/lib/site";
 
 export async function DocsPage({ locale }: { locale: Locale }) {
   const t = copy[locale].docs;
   const isId = locale === "id";
+  const settings = await fetchAppSettings();
+  const brand = settings?.app_name ?? "Trendia";
   const curl = `curl ${aiApiBaseUrl}/chat/completions \\
   -X POST \\
   -H "Content-Type: application/json" \\
@@ -66,7 +69,7 @@ response = client.chat.completions.create(
               <Card id="quickstart" className="scroll-mt-24 glass-card">
                 <CardHeader><CardTitle className="flex items-center gap-2"><Terminal className="size-5 text-primary" />{isId ? "Mulai cepat AI API" : "AI API quickstart"}</CardTitle></CardHeader>
                 <CardContent className="space-y-5">
-                  <p className="text-muted-foreground">{isId ? "Buat akun, aktifkan paket AI, lalu generate key dari dashboard. Ganti base URL OpenAI SDK Anda ke endpoint Trendia." : "Create an account, activate an AI plan, then generate a key from the dashboard. Point your OpenAI SDK base URL at Trendia."}</p>
+                  <p className="text-muted-foreground">{isId ? `Buat akun, aktifkan paket AI, lalu generate key dari dashboard. Ganti base URL OpenAI SDK Anda ke endpoint ${brand}.` : `Create an account, activate an AI plan, then generate a key from the dashboard. Point your OpenAI SDK base URL at ${brand}.`}</p>
                   <div className="rounded-lg border bg-muted/40 px-4 py-3 font-mono text-sm">{aiApiBaseUrl}</div>
                   <CodeBlock label="curl" code={curl} />
                 </CardContent>
@@ -109,7 +112,7 @@ response = client.chat.completions.create(
                 <CardHeader><CardTitle className="flex items-center gap-2"><Server className="size-5 text-primary" />VPS Quickstart</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                   {(isId ? ["Pilih spesifikasi VPS lalu hubungi sales untuk konfirmasi workload dan region.", "Setelah provisioning selesai, simpan IP dan kredensial yang dikirim melalui kanal resmi.", "Hubungkan via SSH, ganti kredensial awal, aktifkan firewall, dan pasang update keamanan.", "Atur backup serta monitoring sesuai kebutuhan workload produksi."] : ["Choose VPS specifications, then contact sales to confirm workload and region.", "After provisioning, store the IP and credentials delivered through the official channel.", "Connect over SSH, rotate initial credentials, enable a firewall, and install security updates.", "Configure backups and monitoring for production workloads."]).map((step, index) => <div key={step} className="flex gap-3"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-500" /><div><p className="text-sm font-medium">{index + 1}</p><p className="text-sm text-muted-foreground">{step}</p></div></div>)}
-                  <a href={`${portalUrl}/register`} className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/80">{isId ? "Buat akun Trendia" : "Create a Trendia account"}</a>
+                  <a href={`${portalUrl}/register`} className="inline-flex rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/80">{isId ? `Buat akun ${brand}` : `Create a ${brand} account`}</a>
                 </CardContent>
               </Card>
             </div>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { fetchAppSettings } from "@/lib/api";
+import { fetchAppSettings, fetchAppearance } from "@/lib/api";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,11 +33,12 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const appearance = await fetchAppearance();
   return (
     <html
       lang="id"
@@ -45,7 +46,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider appearance={appearance}>{children}</ThemeProvider>
       </body>
     </html>
   );

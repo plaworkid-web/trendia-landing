@@ -1,4 +1,4 @@
-import type { LandingData, AiPlan, AiModel, AppSettings, AppearanceSettings } from "@/types/landing";
+import type { LandingData, AiPlan, AiModel, VpsPlan, AppSettings, AppearanceSettings } from "@/types/landing";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
@@ -35,6 +35,11 @@ export async function fetchAiPlans(): Promise<AiPlan[]> {
 
 export async function fetchAiModels(): Promise<AiModel[] | null> {
   return fetchApi<AiModel[]>("/public/ai-models");
+}
+
+export async function fetchVpsPlans(): Promise<VpsPlan[]> {
+  const data = await fetchApi<VpsPlan[]>("/public/vps-plans");
+  return data ?? [];
 }
 
 export async function fetchAppSettings(): Promise<AppSettings | null> {

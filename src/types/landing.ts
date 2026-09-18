@@ -159,6 +159,41 @@ export interface AiModel {
   prices: AiModelPrice[];
 }
 
+export type VpsPlanType = "general" | "compute" | "memory" | "gpu";
+
+export interface VpsPlanPrice {
+  id?: string;
+  currency_code: "IDR" | "USD" | string;
+  billing_period: "monthly" | "yearly" | string;
+  price: number;
+  original_price: number | null;
+  setup_fee: number;
+}
+
+export interface VpsPlan {
+  id: string;
+  name: string;
+  slug: string;
+  plan_type: VpsPlanType | string;
+  description: string | null;
+  description_en: string | null;
+  vcpu: number;
+  ram_gb: number;
+  storage_gb: number;
+  storage_type: string;
+  bandwidth_tb: number;
+  network_gbps: number;
+  region: string;
+  os_options: string[] | null;
+  features: string[] | null;
+  badge: string | null;
+  cta_label: string | null;
+  cta_url: string | null;
+  is_featured: boolean;
+  sort_order: number;
+  prices: VpsPlanPrice[];
+}
+
 export interface AppSettings {
   app_name: string;
   app_description: string | null;
@@ -176,7 +211,7 @@ export interface AppearanceSettings {
   default_mode: "dark" | "light" | "system";
   glassmorphism_enabled: boolean;
   background_mode: "gradient" | "flat";
-  colors: Record<string, unknown> | null;
+  colors: Record<string, string> | null;
 }
 
 export interface LandingData {

@@ -5,16 +5,17 @@ import { BrainCircuit, Server } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VpsPlanCards } from "@/components/landing/vps-plans";
 import { AiPlanCards } from "@/components/landing/ai-plans";
-import type { AiPlan } from "@/types/landing";
+import type { AiPlan, VpsPlan } from "@/types/landing";
 import { copy, type Locale } from "@/lib/site";
 
 interface PricingSectionProps {
   aiPlans: AiPlan[];
+  vpsPlans: VpsPlan[];
   locale: Locale;
   asPage?: boolean;
 }
 
-export function PricingSection({ aiPlans, locale, asPage = false }: PricingSectionProps) {
+export function PricingSection({ aiPlans, vpsPlans, locale, asPage = false }: PricingSectionProps) {
   const [activeTab, setActiveTab] = useState<"vps" | "ai">("vps");
   const t = copy[locale].pricing;
 
@@ -87,7 +88,7 @@ export function PricingSection({ aiPlans, locale, asPage = false }: PricingSecti
         </div>
 
         <div className="mt-12">
-          {activeTab === "vps" ? <VpsPlanCards locale={locale} /> : <AiPlanCards plans={aiPlans} locale={locale} />}
+          {activeTab === "vps" ? <VpsPlanCards plans={vpsPlans} locale={locale} /> : <AiPlanCards plans={aiPlans} locale={locale} />}
         </div>
       </div>
     </section>

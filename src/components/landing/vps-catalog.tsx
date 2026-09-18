@@ -7,10 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { contactUrl, type Locale } from "@/lib/site";
-import { dummyVpsPlans, type VpsPlanType } from "@/lib/dummy-vps-plans";
-
-const USD_TO_IDR = 16_500;
+import { portalUrl, type Locale } from "@/lib/site";
+import type { VpsPlan, VpsPlanType } from "@/types/landing";
 
 const typeLabels: Record<VpsPlanType, { id: string; en: string }> = {
   general: { id: "General Purpose", en: "General Purpose" },
@@ -19,28 +17,51 @@ const typeLabels: Record<VpsPlanType, { id: string; en: string }> = {
   gpu: { id: "GPU", en: "GPU" },
 };
 
+function priceFor(plan: VpsPlan, currency: "IDR" | "USD"): { amount: number; original: number | null } | null {
+  const target = plan.prices.find((p) => p.currency_code === currency)
+    ?? plan.prices.find((p) => p.billing_period === "monthly")
+    ?? plan.prices[0];
+  if (!target) return null;
+  return { amount: target.price, original: target.original_price };
+}
+
 function formatPrice(amount: number, currency: "IDR" | "USD") {
   return new Intl.NumberFormat(currency === "IDR" ? "id-ID" : "en-US", {
     style: "currency",
     currency,
     maximumFractionDigits: currency === "IDR" ? 0 : 2,
-  }).format(currency === "IDR" ? amount : amount / USD_TO_IDR);
+  }).format(amount);
 }
 
-export function VpsCatalog({ locale }: { locale: Locale }) {
+function hasCurrency(plan: VpsPlan, currency: "IDR" | "USD") {
+  return plan.prices.some((p) => p.currency_code === currency);
+}
+
+export function VpsCatalog({ plans, locale }: { plans: VpsPlan[]; locale: Locale }) {
   const isId = locale === "id";
   const [query, setQuery] = useState("");
-  const [type, setType] = useState<"all" | VpsPlanType>("all");
+  const [type, setType] = useState<"all" | string>("all");
   const [currency, setCurrency] = useState<"IDR" | "USD">("IDR");
+
+  const availableTypes = useMemo(() => {
+    const set = new Set(plans.map((plan) => plan.plan_type));
+    return (Object.keys(typeLabels) as VpsPlanType[]).filter((key) => set.has(key));
+  }, [plans]);
+
+  const activeCurrency = useMemo<"IDR" | "USD">(
+    () => (plans.some((plan) => hasCurrency(plan, currency)) ? currency : "IDR"),
+    [plans, currency],
+  );
 
   const filteredPlans = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    return dummyVpsPlans.filter((plan) => {
-      const matchesType = type === "all" || plan.type === type;
-      const searchable = `${plan.name} ${typeLabels[plan.type][locale]} ${plan.region} ${plan.vcpu} vCPU ${plan.ramGb} GB`;
+    return plans.filter((plan) => {
+      const matchesType = type === "all" || plan.plan_type === type;
+      const typeLabel = typeLabels[plan.plan_type as VpsPlanType]?.[locale] ?? plan.plan_type;
+      const searchable = `${plan.name} ${typeLabel} ${plan.region} ${plan.vcpu} vCPU ${plan.ram_gb} GB`;
       return matchesType && (!needle || searchable.toLowerCase().includes(needle));
     });
-  }, [locale, query, type]);
+  }, [locale, plans, query, type]);
 
   return (
     <section className="section-shell">
@@ -59,13 +80,13 @@ export function VpsCatalog({ locale }: { locale: Locale }) {
             <span className="sr-only">{isId ? "Cari paket VPS" : "Search VPS plans"}</span>
             <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={isId ? "Cari paket, region, atau spesifikasi..." : "Search plans, regions, or specifications..."} className="h-10 w-full rounded-lg border bg-background pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-ring" />
           </label>
-          <select value={type} onChange={(event) => setType(event.target.value as "all" | VpsPlanType)} className="h-10 rounded-lg border bg-background px-3 text-sm" aria-label={isId ? "Filter tipe VPS" : "Filter VPS type"}>
+          <select value={type} onChange={(event) => setType(event.target.value)} className="h-10 rounded-lg border bg-background px-3 text-sm" aria-label={isId ? "Filter tipe VPS" : "Filter VPS type"}>
             <option value="all">{isId ? "Semua tipe" : "All types"}</option>
-            {(Object.keys(typeLabels) as VpsPlanType[]).map((item) => <option key={item} value={item}>{typeLabels[item][locale]}</option>)}
+            {availableTypes.map((item) => <option key={item} value={item}>{typeLabels[item][locale]}</option>)}
           </select>
           <div className="flex rounded-lg border bg-background p-1">
             {(["IDR", "USD"] as const).map((item) => (
-              <button key={item} type="button" onClick={() => setCurrency(item)} className={`rounded-md px-3 py-1.5 text-xs font-semibold ${currency === item ? "bg-foreground text-background" : "text-muted-foreground"}`}>{item}</button>
+              <button key={item} type="button" onClick={() => setCurrency(item)} className={`rounded-md px-3 py-1.5 text-xs font-semibold ${activeCurrency === item ? "bg-foreground text-background" : "text-muted-foreground"}`}>{item}</button>
             ))}
           </div>
         </div>
@@ -79,46 +100,66 @@ export function VpsCatalog({ locale }: { locale: Locale }) {
           <Card className="mt-8"><CardContent className="py-12 text-center text-muted-foreground">{isId ? "Tidak ada paket yang sesuai dengan pencarian." : "No plans match your search."}</CardContent></Card>
         ) : (
           <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {filteredPlans.map((plan) => (
-              <Card key={plan.id} className={cn("glass-card relative", plan.featured && "ring-1 ring-primary/60")}>
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3">
-                      <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><Server className="size-5" /></span>
-                      <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{typeLabels[plan.type][locale]}</p>
-                        <CardTitle className="mt-1 text-lg">{plan.name}</CardTitle>
+            {filteredPlans.map((plan) => {
+              const price = priceFor(plan, activeCurrency);
+              const typeLabel = typeLabels[plan.plan_type as VpsPlanType]?.[locale] ?? plan.plan_type;
+              const description = isId
+                ? plan.description ?? plan.description_en ?? ""
+                : plan.description_en ?? plan.description ?? "";
+              const os = plan.os_options ?? [];
+              const ctaHref = plan.cta_url || `${portalUrl}/dashboard/vps?plan=${encodeURIComponent(plan.slug)}`;
+              return (
+                <Card key={plan.id} className={cn("glass-card relative", plan.is_featured && "ring-1 ring-primary/60")}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-3">
+                        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><Server className="size-5" /></span>
+                        <div>
+                          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{typeLabel}</p>
+                          <CardTitle className="mt-1 text-lg">{plan.name}</CardTitle>
+                        </div>
                       </div>
+                      {(plan.badge || plan.is_featured) && <Badge>{plan.badge || (isId ? "Populer" : "Popular")}</Badge>}
                     </div>
-                    {plan.featured && <Badge>{isId ? "Populer" : "Popular"}</Badge>}
-                  </div>
-                  <p className="mt-3 min-h-10 text-sm text-muted-foreground">{plan.description[locale]}</p>
-                </CardHeader>
-                <CardContent className="flex flex-1 flex-col">
-                  <div className="mb-5 flex items-end gap-1 border-b pb-5">
-                    <span className="text-3xl font-bold tracking-tight">{formatPrice(plan.monthlyIdr, currency)}</span>
-                    <span className="pb-1 text-xs text-muted-foreground">/{isId ? "bulan" : "month"}</span>
-                  </div>
+                    {description && <p className="mt-3 min-h-10 text-sm text-muted-foreground">{description}</p>}
+                  </CardHeader>
+                  <CardContent className="flex flex-1 flex-col">
+                    <div className="mb-5 flex items-end gap-1 border-b pb-5">
+                      {price ? (
+                        <>
+                          <span className="text-3xl font-bold tracking-tight">{formatPrice(price.amount, activeCurrency)}</span>
+                          <span className="pb-1 text-xs text-muted-foreground">/{isId ? "bulan" : "month"}</span>
+                          {price.original != null && price.original > price.amount && (
+                            <span className="pb-1 text-xs text-muted-foreground line-through">{formatPrice(price.original, activeCurrency)}</span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-2xl font-bold tracking-tight">{plan.cta_label || (isId ? "Hubungi Sales" : "Contact Sales")}</span>
+                      )}
+                    </div>
 
-                  <div className="grid grid-cols-2 gap-2.5 text-sm">
-                    <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-2.5"><Cpu className="size-4 text-primary" /><span><strong>{plan.vcpu}</strong> vCPU</span></div>
-                    <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-2.5"><MemoryStick className="size-4 text-primary" /><span><strong>{plan.ramGb} GB</strong> RAM</span></div>
-                    <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-2.5"><HardDrive className="size-4 text-primary" /><span><strong>{plan.storageGb} GB</strong> NVMe</span></div>
-                    <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-2.5"><Gauge className="size-4 text-primary" /><span><strong>{plan.bandwidthTb} TB</strong> traffic</span></div>
-                  </div>
+                    <div className="grid grid-cols-2 gap-2.5 text-sm">
+                      <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-2.5"><Cpu className="size-4 text-primary" /><span><strong>{plan.vcpu}</strong> vCPU</span></div>
+                      <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-2.5"><MemoryStick className="size-4 text-primary" /><span><strong>{plan.ram_gb} GB</strong> RAM</span></div>
+                      <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-2.5"><HardDrive className="size-4 text-primary" /><span><strong>{plan.storage_gb} GB</strong> {plan.storage_type}</span></div>
+                      <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-2.5"><Gauge className="size-4 text-primary" /><span><strong>{plan.bandwidth_tb} TB</strong> traffic</span></div>
+                    </div>
 
-                  <div className="mt-4 space-y-2 border-t pt-4 text-sm text-muted-foreground">
-                    <p className="flex items-center gap-2"><MapPin className="size-4" />{plan.region}</p>
-                    <p className="flex items-center gap-2"><Database className="size-4" />{plan.networkGbps} Gbps network</p>
-                    <p className="flex items-start gap-2"><Check className="mt-0.5 size-4 text-emerald-500" /><span>{plan.os.join(", ")}</span></p>
-                  </div>
+                    <div className="mt-4 space-y-2 border-t pt-4 text-sm text-muted-foreground">
+                      <p className="flex items-center gap-2"><MapPin className="size-4" />{plan.region}</p>
+                      <p className="flex items-center gap-2"><Database className="size-4" />{plan.network_gbps} Gbps network</p>
+                      {os.length > 0 && (
+                        <p className="flex items-start gap-2"><Check className="mt-0.5 size-4 text-emerald-500" /><span>{os.join(", ")}</span></p>
+                      )}
+                    </div>
 
-                  <Link href={contactUrl} className={cn(buttonVariants({ variant: plan.featured ? "default" : "outline", size: "lg" }), "mt-5 w-full")}>
-                    {isId ? "Pilih paket" : "Choose plan"}<ArrowRight className="size-4" />
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
+                    <Link href={ctaHref} className={cn(buttonVariants({ variant: plan.is_featured ? "default" : "outline", size: "lg" }), "mt-5 w-full")}>
+                      {plan.cta_label || (isId ? "Pilih paket" : "Choose plan")}<ArrowRight className="size-4" />
+                    </Link>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
       </div>

@@ -14,7 +14,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import type { MenuItem, AppSettings } from "@/types/landing";
-import { copy, localizedPath, portalUrl, type Locale } from "@/lib/site";
+import { copy, localizedPath, navbarItems, portalUrl, type Locale, type ResolvedNavItem } from "@/lib/site";
 
 interface NavbarProps {
   menuItems: MenuItem[];
@@ -22,7 +22,9 @@ interface NavbarProps {
   locale?: Locale;
 }
 
-export function Navbar({ appSettings, locale = "id" }: NavbarProps) {
+const DEFAULT_PATHS = ["", "/vps", "/models", "/pricing", "/docs"] as const;
+
+export function Navbar({ menuItems, appSettings, locale = "id" }: NavbarProps) {
   const { resolvedTheme, setTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
@@ -39,13 +41,19 @@ export function Navbar({ appSettings, locale = "id" }: NavbarProps) {
   const languageHref = locale === "id"
     ? `/en${routePath === "/" ? "" : routePath}`
     : routePath;
-  const navItems = [
-    { label: t.home, href: localizedPath(locale) },
-    { label: t.vps, href: localizedPath(locale, "/vps") },
-    { label: t.models, href: localizedPath(locale, "/models") },
-    { label: t.pricing, href: localizedPath(locale, "/pricing") },
-    { label: t.docs, href: localizedPath(locale, "/docs") },
-  ];
+
+  const defaultLabels = [t.home, t.vps, t.models, t.pricing, t.docs];
+  const managed = navbarItems(menuItems, locale);
+  const navItems: ResolvedNavItem[] = managed.length
+    ? managed
+    : DEFAULT_PATHS.map((path, index) => ({
+        id: path || "home",
+        label: defaultLabels[index],
+        href: localizedPath(locale, path),
+        external: false,
+        openInNewTab: false,
+        children: [],
+      }));
 
   const cycleTheme = () => {
     setTheme(resolvedTheme === "dark" ? "light" : "dark");
@@ -91,8 +99,10 @@ export function Navbar({ appSettings, locale = "id" }: NavbarProps) {
         <nav className="hidden items-center gap-1 md:flex">
           {navItems.map((item) => (
             <Link
-              key={item.href}
+              key={item.id}
               href={item.href}
+              target={item.openInNewTab ? "_blank" : undefined}
+              rel={item.openInNewTab ? "noopener noreferrer" : undefined}
               className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               {item.label}
@@ -143,8 +153,10 @@ export function Navbar({ appSettings, locale = "id" }: NavbarProps) {
               <nav className="mt-6 flex flex-col gap-1">
                 {navItems.map((item) => (
                   <Link
-                    key={item.href}
+                    key={item.id}
                     href={item.href}
+                    target={item.openInNewTab ? "_blank" : undefined}
+                    rel={item.openInNewTab ? "noopener noreferrer" : undefined}
                     className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                   >
                     {item.label}
