@@ -215,6 +215,9 @@ export interface AppSettings {
   logo_light_url: string | null;
   meta_description: string | null;
   meta_keywords: string | null;
+  // Operator-editable footer text. NULL means the built-in default; the tokens
+  // {year} and {app_name} are substituted at render.
+  copyright_text?: string | null;
   maintenance_mode: boolean;
 }
 

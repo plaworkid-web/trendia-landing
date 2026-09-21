@@ -164,8 +164,14 @@ export function Footer({
 					{tagline && (
 						<p className="text-muted-foreground max-w-xs text-sm">{tagline}</p>
 					)}
+					{/* Operator-editable text from Settings → General. NULL keeps the built-in
+					    default; {year} and {app_name} are substituted here so one string can
+					    carry the year without being rewritten every January. */}
 					<p className="text-muted-foreground mt-8 text-sm md:mt-0">
-						© {new Date().getFullYear()} {brandName}. All rights reserved.
+						{(appSettings?.copyright_text?.trim() ||
+							'© {year} {app_name}. All rights reserved.')
+							.replace(/\{year\}/g, String(new Date().getFullYear()))
+							.replace(/\{app_name\}/g, brandName)}
 					</p>
 				</AnimatedContainer>
 

@@ -130,7 +130,7 @@ export const copy = {
     docs: {
       eyebrow: "Dokumentasi",
       title: "Mulai membangun dalam beberapa menit.",
-      description: "Panduan AI API yang sesuai endpoint Trendia serta alur awal penggunaan VPS.",
+      description: "Panduan AI API yang sesuai endpoint {brand} serta alur awal penggunaan VPS.",
     },
     partners: { title: "Didukung teknologi terpercaya" },
     faq: {
@@ -202,7 +202,7 @@ export const copy = {
     docs: {
       eyebrow: "Documentation",
       title: "Start building in minutes.",
-      description: "AI API guidance matching Trendia's live endpoints plus a practical VPS getting-started flow.",
+      description: "AI API guidance matching {brand}'s live endpoints plus a practical VPS getting-started flow.",
     },
     partners: { title: "Powered by trusted technology" },
     faq: {

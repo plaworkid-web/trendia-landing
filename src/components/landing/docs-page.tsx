@@ -55,7 +55,11 @@ response = client.chat.completions.create(
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-sm font-semibold uppercase tracking-wider text-primary">{t.eyebrow}</p>
             <h1 className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">{t.title}</h1>
-            <p className="mt-4 text-lg text-muted-foreground">{t.description}</p>
+            {/* The copy carries a {brand} token so it follows Settings → General
+                instead of naming a brand that may have been renamed. */}
+            <p className="mt-4 text-lg text-muted-foreground">
+              {t.description.replace(/\{brand\}/g, brand)}
+            </p>
           </div>
 
           <div className="mt-12 grid gap-8 lg:grid-cols-[220px_minmax(0,1fr)]">
