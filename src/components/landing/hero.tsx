@@ -1,10 +1,43 @@
 import ResponsiveHeroBanner from "@/components/ui/responsive-hero-banner";
-import { copy, localizedPath, otherLocalePath, portalUrl, type Locale } from "@/lib/site";
-import type { AppSettings } from "@/types/landing";
+import {
+  copy,
+  localizedPath,
+  navbarItems,
+  otherLocalePath,
+  portalUrl,
+  type Locale,
+  type ResolvedNavItem,
+} from "@/lib/site";
+import type { AppSettings, MenuItem } from "@/types/landing";
 
-export function Hero({ locale, appSettings }: { locale: Locale; appSettings: AppSettings | null }) {
+/** Fallback only: used when the CMS has no navbar menu configured at all. */
+const DEFAULT_PATHS = ["", "/vps", "/models", "/pricing", "/docs"] as const;
+
+export function Hero({
+  locale,
+  appSettings,
+  menuItems = [],
+}: {
+  locale: Locale;
+  appSettings: AppSettings | null;
+  menuItems?: MenuItem[];
+}) {
   const t = copy[locale];
   const brandName = appSettings?.app_name || "Trendia";
+
+  // The homepage used to hardcode its navigation, so editing the menus in the CMS
+  // changed every inner page and left the homepage untouched. It now renders the
+  // same managed list `Navbar` does, keeping one source of truth for the landing
+  // site's navigation.
+  const managed: ResolvedNavItem[] = navbarItems(menuItems, locale);
+  const defaultLabels = [t.nav.home, t.nav.vps, t.nav.models, t.nav.pricing, t.nav.docs];
+  const navLinks = managed.length
+    ? managed.map((item) => ({ label: item.label, href: item.href }))
+    : DEFAULT_PATHS.map((path, index) => ({
+        label: defaultLabels[index],
+        href: localizedPath(locale, path),
+      }));
+
   return (
     <ResponsiveHeroBanner
       logoUrl={appSettings?.logo_dark_url || appSettings?.logo_light_url || undefined}
@@ -22,13 +55,7 @@ export function Hero({ locale, appSettings }: { locale: Locale; appSettings: App
       ctaButtonHref={`${portalUrl}/register`}
       languageHref={otherLocalePath(locale)}
       languageLabel={locale === "id" ? "Switch to English" : "Ganti ke Bahasa Indonesia"}
-      navLinks={[
-        { label: t.nav.home, href: localizedPath(locale) },
-        { label: t.nav.vps, href: localizedPath(locale, "/vps") },
-        { label: t.nav.models, href: localizedPath(locale, "/models") },
-        { label: t.nav.pricing, href: localizedPath(locale, "/pricing") },
-        { label: t.nav.docs, href: localizedPath(locale, "/docs") },
-      ]}
+      navLinks={navLinks}
     />
   );
 }

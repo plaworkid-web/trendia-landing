@@ -26,7 +26,11 @@ export async function HomePage({ locale }: { locale: Locale }) {
     <>
       <LocaleDocument locale={locale} />
       <main className="flex-1">
-        <Hero locale={locale} appSettings={appSettings} />
+        <Hero
+          locale={locale}
+          appSettings={appSettings}
+          menuItems={landingData?.menu_items ?? []}
+        />
         <Component locale={locale} />
         <IntegrationsSection locale={locale} models={aiModels ?? []} />
         <PricingSection aiPlans={aiPlans} vpsPlans={vpsPlans} locale={locale} />

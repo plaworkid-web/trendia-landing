@@ -94,14 +94,14 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
                         <nav className="hidden md:flex items-center gap-2">
                             <div className="flex items-center gap-1 rounded-full bg-white/5 px-1 py-1 ring-1 ring-white/10 backdrop-blur">
                                 {navLinks.map((link, index) => (
-                                    <a
-                                        key={index}
+                                    <Link
+                                        key={`${link.href}-${index}`}
                                         href={link.href}
                                         className={`px-3 py-2 text-sm font-medium hover:text-white font-sans transition-colors ${link.isActive ? 'text-white/90' : 'text-white/80'
                                             }`}
                                     >
                                         {link.label}
-                                    </a>
+                                    </Link>
                                 ))}
                                 <a
                                     href={ctaButtonHref}
@@ -151,10 +151,14 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
             {mobileMenuOpen && (
                 <div className="absolute inset-x-6 top-20 z-30 rounded-2xl bg-black/70 p-4 ring-1 ring-white/15 backdrop-blur-xl md:hidden">
                     <nav className="flex flex-col gap-1">
-                        {navLinks.map((link) => (
-                            <a key={link.href} href={link.href} className="rounded-lg px-3 py-2 text-sm text-white/85 hover:bg-white/10">
+                        {navLinks.map((link, index) => (
+                            <Link
+                                key={`${link.href}-${index}`}
+                                href={link.href}
+                                className="rounded-lg px-3 py-2 text-sm text-white/85 hover:bg-white/10"
+                            >
                                 {link.label}
-                            </a>
+                            </Link>
                         ))}
                         <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-3">
                             <a href={languageHref} className="inline-flex size-9 items-center justify-center rounded-full bg-white/10" aria-label={languageLabel}>
