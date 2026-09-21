@@ -28,6 +28,17 @@ function creditsLabel(plan: AiPlan, isId: boolean): string {
   if (plan.plan_type === "unlimited") {
     return isId ? "Kredit tak terbatas" : "Unlimited credits";
   }
+  // Pay-as-you-go has no monthly allowance: the customer tops up and the credits
+  // stay until spent, so quoting a "/month" quota would misdescribe it.
+  if (plan.plan_type === "pay_as_you_go") {
+    const start = plan.credit_quota ?? 0;
+    if (start > 0) {
+      return isId
+        ? `${formatNumber(start)} kredit awal · top-up kapan saja`
+        : `${formatNumber(start)} starting credits · top up any time`;
+    }
+    return isId ? "Top-up kapan saja" : "Top up any time";
+  }
   const quota = plan.credit_quota ?? 0;
   if (quota <= 0) {
     return isId ? "Kuota sesuai permintaan" : "Custom quota";
@@ -36,7 +47,7 @@ function creditsLabel(plan: AiPlan, isId: boolean): string {
   return `${formatNumber(quota)} credits${suffix}`;
 }
 
-function formatPrice(plan: AiPlan): {
+function formatPrice(plan: AiPlan, isId: boolean): {
   price: string;
   original?: string;
   period: string;
@@ -50,6 +61,12 @@ function formatPrice(plan: AiPlan): {
   if (!target) return { price: plan.is_trial ? "Free" : "Custom", period: "" };
   if (target.price === 0 && plan.is_trial)
     return { price: "Free", period: "" };
+
+  // Pay-as-you-go is not bought up front: the customer tops up later, so the
+  // monthly figure would read as "Rp 0 /0d". Say what it actually costs.
+  if (plan.plan_type === "pay_as_you_go") {
+    return { price: isId ? "Gratis" : "Free", period: "" };
+  }
 
   const money = (amount: number) =>
     new Intl.NumberFormat(target.currency_code === "IDR" ? "id-ID" : "en-US", {
@@ -112,7 +129,7 @@ export function AiPlanCards({ plans, locale = "id" }: AiPlansProps) {
       )}
     >
           {plans.map((plan, idx) => {
-            const { price, original, period, discountLabel } = formatPrice(plan);
+            const { price, original, period, discountLabel } = formatPrice(plan, isId);
             // Locale-specific copy. `description` is Indonesian and
             // `description_en` English (the split `vps_plans` uses); falling
             // back to the other keeps a card readable when one is missing.
