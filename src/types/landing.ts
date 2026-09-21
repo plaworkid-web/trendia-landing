@@ -153,8 +153,8 @@ export interface AiModel {
   model_id: string;
   display_name: string;
   description: string | null;
-  provider_name: string;
-  provider_slug: string;
+  provider_name: string | null;
+  provider_slug: string | null;
   provider_logo_url: string | null;
   category: string;
   context_window: number | null;

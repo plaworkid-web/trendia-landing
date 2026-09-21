@@ -21,12 +21,18 @@ export function ModelCatalog({ models, locale, unavailable = false }: { models: 
   const [provider, setProvider] = useState("all");
   const [currency, setCurrency] = useState<"IDR" | "USD">("IDR");
   const [copied, setCopied] = useState<string | null>(null);
-  const providers = useMemo(() => [...new Set(models.map((model) => model.provider_name))].sort(), [models]);
+  // Only named providers get a filter entry. With an unnamed upstream the API
+  // returns null, and `new Set` would otherwise contribute a blank option that
+  // filters to nothing.
+  const providers = useMemo(
+    () => [...new Set(models.map((model) => model.provider_name).filter(Boolean) as string[])].sort(),
+    [models],
+  );
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return models.filter((model) => {
       const matchesProvider = provider === "all" || model.provider_name === provider;
-      const matchesQuery = !needle || `${model.display_name} ${model.model_id} ${model.provider_name}`.toLowerCase().includes(needle);
+      const matchesQuery = !needle || `${model.display_name} ${model.model_id} ${model.provider_name ?? ""}`.toLowerCase().includes(needle);
       return matchesProvider && matchesQuery;
     });
   }, [models, provider, query]);

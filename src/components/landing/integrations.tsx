@@ -44,6 +44,10 @@ export function IntegrationsSection({ locale, models = [] }: { locale: Locale; m
   const providers = React.useMemo(() => {
     const map = new Map<string, { name: string; slug: string; logo: string | null }>();
     for (const model of models) {
+      // Skip unnamed upstreams. Their slug is null, and grouping by it would
+      // collapse every provider into one anonymous entry — the section falls
+      // back to the public brand list below instead.
+      if (!model.provider_slug || !model.provider_name) continue;
       if (!map.has(model.provider_slug)) {
         map.set(model.provider_slug, {
           name: model.provider_name,
