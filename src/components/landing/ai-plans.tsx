@@ -113,6 +113,15 @@ export function AiPlanCards({ plans, locale = "id" }: AiPlansProps) {
     >
           {plans.map((plan, idx) => {
             const { price, original, period, discountLabel } = formatPrice(plan);
+            // Locale-specific copy. `description` is Indonesian and
+            // `description_en` English (the split `vps_plans` uses); falling
+            // back to the other keeps a card readable when one is missing.
+            const description = isId
+              ? plan.description ?? plan.description_en ?? ""
+              : plan.description_en ?? plan.description ?? "";
+            const featureList = isId
+              ? plan.features ?? plan.features_en ?? []
+              : plan.features_en ?? plan.features ?? [];
             const badgeText = plan.is_featured
               ? isId ? "Rekomendasi" : "Recommended"
               : plan.is_trial
@@ -143,16 +152,17 @@ export function AiPlanCards({ plans, locale = "id" }: AiPlansProps) {
                       <PricingCard.Badge>{badgeText}</PricingCard.Badge>
                     )}
                   </PricingCard.Plan>
-                  <PricingCard.Price>
-                    {/* text-4xl fits a 4-column grid; five columns are narrower,
-                        so the size steps down to keep "Rp 5.000.000" on one
-                        line instead of clipping at the card edge. */}
-                    <PricingCard.MainPrice className="text-2xl sm:text-3xl lg:text-4xl">
+                  <PricingCard.Price className="flex-wrap">
+                    {/* The price and the period share a line that can run out of
+                        room in a five-column grid, which clipped the last digit
+                        of "Rp 1.500.000". Letting the row wrap keeps the figure
+                        whole, and the size steps down at narrow widths. */}
+                    <PricingCard.MainPrice className="text-2xl sm:text-3xl lg:text-[26px] xl:text-3xl whitespace-nowrap">
                       {price}
                     </PricingCard.MainPrice>
-                    <PricingCard.Period>{period}</PricingCard.Period>
+                    <PricingCard.Period className="whitespace-nowrap">{period}</PricingCard.Period>
                     {original && (
-                      <PricingCard.OriginalPrice className="ml-auto">
+                      <PricingCard.OriginalPrice className="ml-auto whitespace-nowrap">
                         {original}
                       </PricingCard.OriginalPrice>
                     )}
@@ -169,7 +179,20 @@ export function AiPlanCards({ plans, locale = "id" }: AiPlansProps) {
                   {/* Credits & Rate info */}
                   <div className="space-y-1 text-xs text-muted-foreground">
                     <div>{creditsLabel(plan, isId)}</div>
-                    <div>{plan.rate_limit_rpm} requests/min</div>
+                    {/* TPM and concurrency matter more than RPM to a technical
+                        buyer, and both were already in the payload but unshown. */}
+                    <div>
+                      {plan.rate_limit_rpm} req/min ·{" "}
+                      {plan.rate_limit_tpm >= 1_000_000
+                        ? `${(plan.rate_limit_tpm / 1_000_000).toFixed(1)}M`
+                        : `${Math.round(plan.rate_limit_tpm / 1000)}K`}{" "}
+                      token/min
+                    </div>
+                    <div>
+                      {isId
+                        ? `${plan.max_concurrent_requests} permintaan bersamaan`
+                        : `${plan.max_concurrent_requests} concurrent requests`}
+                    </div>
                     {/* How many models the plan unlocks — the main difference
                         between tiers, previously not shown at all. */}
                     {plan.allowed_models_count != null ? (
@@ -210,17 +233,17 @@ export function AiPlanCards({ plans, locale = "id" }: AiPlansProps) {
                 </PricingCard.Header>
 
                 <PricingCard.Body>
-                  <PricingCard.Description>
-                    {plan.description}
-                  </PricingCard.Description>
+                  <PricingCard.Description>{description}</PricingCard.Description>
                   {/* The separator only makes sense with a list under it;
                       rendering it unconditionally left every card ending in a
                       bare "Plan features" heading. */}
-                  {plan.features && plan.features.length > 0 && (
+                  {featureList.length > 0 && (
                     <>
-                      <PricingCard.Separator>Plan features</PricingCard.Separator>
+                      <PricingCard.Separator>
+                        {isId ? "Fitur paket" : "Plan features"}
+                      </PricingCard.Separator>
                       <PricingCard.List>
-                        {plan.features.map((feature, fidx) => (
+                        {featureList.map((feature, fidx) => (
                           <PricingCard.ListItem key={fidx}>
                             <CheckCircle2
                               className="mt-0.5 h-4 w-4 shrink-0 text-foreground"

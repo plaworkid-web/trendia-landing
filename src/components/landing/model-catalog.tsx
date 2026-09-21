@@ -99,6 +99,16 @@ export function ModelCatalog({ models, locale, unavailable = false }: { models: 
                       <div><p className="text-muted-foreground">{t.input}</p><p className="mt-1 font-semibold">{price ? formatPrice(price.input_price_per_1m, currency) : "-"}</p></div>
                       <div><p className="text-muted-foreground">{t.output}</p><p className="mt-1 font-semibold">{price ? formatPrice(price.output_price_per_1m, currency) : "-"}</p></div>
                     </div>
+                    {/* Say so when the figure is a conversion, not a stored price:
+                        a USD number derived from IDR moves with the exchange rate
+                        and should not read as a fixed list price. */}
+                    {price?.converted && (
+                      <p className="text-[11px] text-muted-foreground">
+                        {locale === "id"
+                          ? "Perkiraan, dikonversi dari harga IDR"
+                          : "Approximate, converted from the IDR price"}
+                      </p>
+                    )}
                     {model.status === "deprecated" && <p className="text-xs text-amber-600">{model.deprecation_notice || "Deprecated"}</p>}
                   </CardContent>
                 </Card>

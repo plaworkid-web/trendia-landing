@@ -114,6 +114,7 @@ export interface AiPlan {
   name: string;
   slug: string;
   description: string | null;
+  description_en: string | null;
   plan_type: string;
   token_quota: number | null;
   credit_quota: number | null;
@@ -128,6 +129,7 @@ export interface AiPlan {
   trial_duration_days: number | null;
   sort_order: number;
   features: string[] | null;
+  features_en: string[] | null;
   prices: AiPlanPrice[];
   /** Price after an active automatic discount; null when there is none. */
   effective_price: number | null;
@@ -142,6 +144,8 @@ export interface AiModelPrice {
   currency_code: "IDR" | "USD";
   input_price_per_1m: number;
   output_price_per_1m: number;
+  /** True when derived from IDR at the active rate, not a stored price. */
+  converted?: boolean;
 }
 
 export interface AiModel {
