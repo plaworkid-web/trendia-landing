@@ -40,6 +40,7 @@ function formatPrice(plan: AiPlan): {
   price: string;
   original?: string;
   period: string;
+  discountLabel?: string;
 } {
   const idrPrice = plan.prices.find((p) => p.currency_code === "IDR");
   const usdPrice = plan.prices.find((p) => p.currency_code === "USD");
@@ -50,20 +51,31 @@ function formatPrice(plan: AiPlan): {
   if (target.price === 0 && plan.is_trial)
     return { price: "Free", period: "" };
 
-  const formatted = new Intl.NumberFormat(
-    target.currency_code === "IDR" ? "id-ID" : "en-US",
-    {
+  const money = (amount: number) =>
+    new Intl.NumberFormat(target.currency_code === "IDR" ? "id-ID" : "en-US", {
       style: "currency",
       currency: target.currency_code,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }
-  ).format(target.price);
+    }).format(amount);
 
-  return {
-    price: formatted,
-    period: plan.duration_days === 30 ? "/month" : `/${plan.duration_days}d`,
-  };
+  // A plan with an active automatic discount is charged less than the list
+  // price. Showing only the list price hid the promotion — and showing only the
+  // discounted price would hide the saving — so both are returned.
+  const period = plan.duration_days === 30 ? "/month" : `/${plan.duration_days}d`;
+
+  if (plan.effective_price != null && plan.effective_price < target.price) {
+    return {
+      price: money(plan.effective_price),
+      original: money(target.price),
+      period,
+      discountLabel: plan.discount_label
+        ? `${plan.discount_label} −${plan.discount_percent ?? 0}%`
+        : `−${plan.discount_percent ?? 0}%`,
+    };
+  }
+
+  return { price: money(target.price), period };
 }
 
 const planIcons: Record<number, React.ReactNode> = {
@@ -73,142 +85,34 @@ const planIcons: Record<number, React.ReactNode> = {
   3: <Building />,
 };
 
-const fallbackPlans: AiPlan[] = [
-  {
-    id: "1",
-    name: "Free Trial",
-    slug: "free-trial",
-    description: "Try our AI API with free credits. No credit card required.",
-    plan_type: "trial",
-    token_quota: null,
-    credit_quota: 100,
-    trial_credits: 100,
-    duration_days: 30,
-    rate_limit_rpm: 10,
-    rate_limit_tpm: 10000,
-    max_concurrent_requests: 2,
-    overage_policy: "block",
-    is_featured: false,
-    is_trial: true,
-    trial_duration_days: 14,
-    sort_order: 0,
-    features: [
-      "100 free credits",
-      "Access to all models",
-      "10 requests/min",
-      "Community support",
-    ],
-    prices: [],
-  },
-  {
-    id: "2",
-    name: "Developer",
-    slug: "developer",
-    description: "For individual developers and small projects.",
-    plan_type: "subscription",
-    token_quota: null,
-    credit_quota: 5000,
-    trial_credits: null,
-    duration_days: 30,
-    rate_limit_rpm: 60,
-    rate_limit_tpm: 100000,
-    max_concurrent_requests: 5,
-    overage_policy: "block",
-    is_featured: false,
-    is_trial: false,
-    trial_duration_days: null,
-    sort_order: 1,
-    features: [
-      "5,000 credits/month",
-      "All AI models",
-      "60 requests/min",
-      "Email support",
-      "Usage analytics",
-    ],
-    prices: [
-      {
-        id: "p1",
-        currency_code: "IDR",
-        price: 99000,
-        setup_fee: 0,
-        overage_price_per_1m: null,
-      },
-    ],
-  },
-  {
-    id: "3",
-    name: "Business",
-    slug: "business",
-    description: "For teams and growing businesses.",
-    plan_type: "subscription",
-    token_quota: null,
-    credit_quota: 50000,
-    trial_credits: null,
-    duration_days: 30,
-    rate_limit_rpm: 300,
-    rate_limit_tpm: 1000000,
-    max_concurrent_requests: 20,
-    overage_policy: "charge",
-    is_featured: true,
-    is_trial: false,
-    trial_duration_days: null,
-    sort_order: 2,
-    features: [
-      "50,000 credits/month",
-      "All AI models",
-      "300 requests/min",
-      "Priority support",
-      "Advanced analytics",
-      "Overage billing",
-    ],
-    prices: [
-      {
-        id: "p2",
-        currency_code: "IDR",
-        price: 499000,
-        setup_fee: 0,
-        overage_price_per_1m: null,
-      },
-    ],
-  },
-  {
-    id: "4",
-    name: "Enterprise",
-    slug: "enterprise",
-    description: "Custom solutions for large-scale operations.",
-    plan_type: "enterprise",
-    token_quota: null,
-    credit_quota: null,
-    trial_credits: null,
-    duration_days: 30,
-    rate_limit_rpm: 1000,
-    rate_limit_tpm: 10000000,
-    max_concurrent_requests: 100,
-    overage_policy: "charge",
-    is_featured: false,
-    is_trial: false,
-    trial_duration_days: null,
-    sort_order: 3,
-    features: [
-      "Unlimited credits",
-      "All AI models",
-      "Custom rate limits",
-      "Dedicated support",
-      "SLA guarantee",
-      "Custom integrations",
-    ],
-    prices: [],
-  },
-];
-
 export function AiPlanCards({ plans, locale = "id" }: AiPlansProps) {
-  const items = plans.length > 0 ? plans : fallbackPlans;
   const isId = locale === "id";
 
+  // No hardcoded fallback. This component used to fall back to an invented
+  // catalogue ("Developer" at Rp 99,000, "Business" at Rp 499,000) when the API
+  // failed, so a blip showed plans that cannot be bought at prices three times
+  // below the real ones. Better to say the prices are unavailable.
+  if (plans.length === 0) {
+    return (
+      <div className="rounded-xl border bg-background/70 p-12 text-center text-muted-foreground">
+        {isId
+          ? "Harga paket sedang tidak dapat dimuat. Silakan muat ulang halaman."
+          : "Plan pricing is temporarily unavailable. Please reload the page."}
+      </div>
+    );
+  }
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {items.map((plan, idx) => {
-            const { price, original, period } = formatPrice(plan);
+    // Five plans in a four-column grid left the last one stranded on its own
+    // row; the column count follows the number of plans so the row stays full.
+    <div
+      className={cn(
+        "grid gap-4 sm:grid-cols-2",
+        plans.length >= 5 ? "lg:grid-cols-5" : "lg:grid-cols-4"
+      )}
+    >
+          {plans.map((plan, idx) => {
+            const { price, original, period, discountLabel } = formatPrice(plan);
             const badgeText = plan.is_featured
               ? isId ? "Rekomendasi" : "Recommended"
               : plan.is_trial
@@ -240,7 +144,12 @@ export function AiPlanCards({ plans, locale = "id" }: AiPlansProps) {
                     )}
                   </PricingCard.Plan>
                   <PricingCard.Price>
-                    <PricingCard.MainPrice>{price}</PricingCard.MainPrice>
+                    {/* text-4xl fits a 4-column grid; five columns are narrower,
+                        so the size steps down to keep "Rp 5.000.000" on one
+                        line instead of clipping at the card edge. */}
+                    <PricingCard.MainPrice className="text-2xl sm:text-3xl lg:text-4xl">
+                      {price}
+                    </PricingCard.MainPrice>
                     <PricingCard.Period>{period}</PricingCard.Period>
                     {original && (
                       <PricingCard.OriginalPrice className="ml-auto">
@@ -249,10 +158,44 @@ export function AiPlanCards({ plans, locale = "id" }: AiPlansProps) {
                     )}
                   </PricingCard.Price>
 
+                  {/* Active promotion, so the saving is visible rather than
+                      discovered at checkout. */}
+                  {discountLabel && (
+                    <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      {discountLabel}
+                    </p>
+                  )}
+
                   {/* Credits & Rate info */}
                   <div className="space-y-1 text-xs text-muted-foreground">
                     <div>{creditsLabel(plan, isId)}</div>
                     <div>{plan.rate_limit_rpm} requests/min</div>
+                    {/* How many models the plan unlocks — the main difference
+                        between tiers, previously not shown at all. */}
+                    {plan.allowed_models_count != null ? (
+                      <div>
+                        {isId
+                          ? `${plan.allowed_models_count} model tersedia`
+                          : `${plan.allowed_models_count} models included`}
+                      </div>
+                    ) : (
+                      <div>{isId ? "Semua model" : "All models"}</div>
+                    )}
+                    {/* What happens when the quota runs out: a hard stop or a
+                        further charge. Shown because the two are very
+                        different for the customer. */}
+                    {plan.overage_policy === "block" ? (
+                      <div>{isId ? "Berhenti saat kuota habis" : "Stops at quota"}</div>
+                    ) : (
+                      <div>{isId ? "Lanjut, kelebihan ditagih" : "Continues, overage billed"}</div>
+                    )}
+                    {plan.is_trial && plan.trial_duration_days ? (
+                      <div>
+                        {isId
+                          ? `Berlaku ${plan.trial_duration_days} hari`
+                          : `Valid ${plan.trial_duration_days} days`}
+                      </div>
+                    ) : null}
                   </div>
 
                   <Link
@@ -270,23 +213,28 @@ export function AiPlanCards({ plans, locale = "id" }: AiPlansProps) {
                   <PricingCard.Description>
                     {plan.description}
                   </PricingCard.Description>
-                  <PricingCard.Separator>Plan features</PricingCard.Separator>
+                  {/* The separator only makes sense with a list under it;
+                      rendering it unconditionally left every card ending in a
+                      bare "Plan features" heading. */}
                   {plan.features && plan.features.length > 0 && (
-                    <PricingCard.List>
-                      {plan.features.map((feature, fidx) => (
-                        <PricingCard.ListItem key={fidx}>
-                          <CheckCircle2
-                            className="mt-0.5 h-4 w-4 shrink-0 text-foreground"
-                            aria-hidden="true"
-                          />
-                          <span>
-                            {typeof feature === "string"
-                              ? feature
-                              : String(feature)}
-                          </span>
-                        </PricingCard.ListItem>
-                      ))}
-                    </PricingCard.List>
+                    <>
+                      <PricingCard.Separator>Plan features</PricingCard.Separator>
+                      <PricingCard.List>
+                        {plan.features.map((feature, fidx) => (
+                          <PricingCard.ListItem key={fidx}>
+                            <CheckCircle2
+                              className="mt-0.5 h-4 w-4 shrink-0 text-foreground"
+                              aria-hidden="true"
+                            />
+                            <span>
+                              {typeof feature === "string"
+                                ? feature
+                                : String(feature)}
+                            </span>
+                          </PricingCard.ListItem>
+                        ))}
+                      </PricingCard.List>
+                    </>
                   )}
                 </PricingCard.Body>
               </PricingCard.Card>

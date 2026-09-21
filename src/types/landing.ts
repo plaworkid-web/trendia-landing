@@ -129,6 +129,13 @@ export interface AiPlan {
   sort_order: number;
   features: string[] | null;
   prices: AiPlanPrice[];
+  /** Price after an active automatic discount; null when there is none. */
+  effective_price: number | null;
+  discount_percent: number | null;
+  discount_label: string | null;
+  /** Model ids the plan includes; null means unrestricted (Enterprise). */
+  allowed_models: string[] | null;
+  allowed_models_count: number | null;
 }
 
 export interface AiModelPrice {
