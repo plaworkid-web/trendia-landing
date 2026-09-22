@@ -185,12 +185,12 @@ export function VpsCatalog({ plans, locale }: { plans: VpsPlan[]; locale: Locale
                       <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-2.5"><Cpu className="size-4 text-primary" /><span><strong>{plan.vcpu}</strong> vCPU</span></div>
                       <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-2.5"><MemoryStick className="size-4 text-primary" /><span><strong>{plan.ram_gb} GB</strong> RAM</span></div>
                       <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-2.5"><HardDrive className="size-4 text-primary" /><span><strong>{plan.storage_gb} GB</strong> {plan.storage_type}</span></div>
-                      <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-2.5"><Gauge className="size-4 text-primary" /><span><strong>{plan.bandwidth_tb} TB</strong> traffic</span></div>
+                      <div className="flex items-center gap-2 rounded-lg bg-muted/40 p-2.5"><Gauge className="size-4 text-primary" /><span><strong>{plan.bandwidth_tb === null ? (isId ? "Tanpa batas" : "Unmetered") : `${plan.bandwidth_tb} TB`}</strong> traffic</span></div>
                     </div>
 
                     <div className="mt-4 space-y-2 border-t pt-4 text-sm text-muted-foreground">
                       <p className="flex items-center gap-2"><MapPin className="size-4" />{plan.region}</p>
-                      <p className="flex items-center gap-2"><Database className="size-4" />{plan.network_gbps} Gbps network</p>
+                      <p className="flex items-center gap-2"><Database className="size-4" />{plan.network_mbps} Mbps network</p>
                       {os.length > 0 && (
                         <p className="flex items-start gap-2"><Check className="mt-0.5 size-4 text-emerald-500" /><span>{os.join(", ")}</span></p>
                       )}

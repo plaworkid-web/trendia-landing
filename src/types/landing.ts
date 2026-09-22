@@ -197,8 +197,9 @@ export interface VpsPlan {
   ram_gb: number;
   storage_gb: number;
   storage_type: string;
-  bandwidth_tb: number;
-  network_gbps: number;
+  /** Traffic quota in TB; null means unmetered. */
+  bandwidth_tb: number | null;
+  network_mbps: number;
   region: string;
   os_options: string[] | null;
   features: string[] | null;

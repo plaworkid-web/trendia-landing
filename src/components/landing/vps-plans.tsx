@@ -88,7 +88,7 @@ export function VpsPlanCards({ plans = [], locale = "id" }: { plans?: VpsPlan[];
                   {plan.vcpu} vCPU · {plan.ram_gb} GB RAM · {plan.storage_gb} GB {plan.storage_type}
                 </div>
                 <div>
-                  {plan.bandwidth_tb} TB traffic · {plan.region}
+                  {plan.bandwidth_tb === null ? (isId ? "Tanpa batas" : "Unmetered") : `${plan.bandwidth_tb} TB`} traffic · {plan.region}
                 </div>
               </div>
               <Link
