@@ -168,6 +168,11 @@ export interface AiModel {
   is_featured: boolean;
   sort_order: number;
   prices: AiModelPrice[];
+  /** Brand family for grouping (Claude, DeepSeek, GPT, ...). Never the supplier. */
+  family_slug?: string;
+  family_label?: string;
+  /** Effective discount percent on this model, when a promotion applies. */
+  discount_percent?: number;
 }
 
 export type VpsPlanType = "general" | "compute" | "memory" | "gpu";

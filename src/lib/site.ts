@@ -126,6 +126,9 @@ export const copy = {
       output: "Output / 1M",
       context: "Context",
       copy: "Salin ID model",
+      model: "Model",
+      off: "diskon",
+      priceNote: "Harga dalam rupiah per 1 juta token, sudah termasuk margin layanan.",
     },
     docs: {
       eyebrow: "Dokumentasi",
@@ -198,6 +201,9 @@ export const copy = {
       output: "Output / 1M",
       context: "Context",
       copy: "Copy model ID",
+      model: "Model",
+      off: "off",
+      priceNote: "Prices in rupiah per 1M tokens, service margin included.",
     },
     docs: {
       eyebrow: "Documentation",
