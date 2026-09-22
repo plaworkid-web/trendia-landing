@@ -33,13 +33,14 @@ export interface OrbitTestimonial {
 
 /** Vertical distance between neighbouring cards, in pixels. */
 const STEP = 252;
-/** How many positions away a card is still rendered (2 above, 2 below). */
-const VISIBLE = 2;
 /** Height of the window the wheel turns in. The cards above and below are partly in
  * view on purpose: a column that shows only the active card is a slideshow, not a ring. */
 const WINDOW_H = 520;
 /** Milliseconds between automatic advances. */
 const AUTO_MS = 5200;
+/** How long a card takes to travel one position. Long and eased, so the column drifts
+ * rather than snaps: at 700ms the move reads as a step, at 1100ms as a turn. */
+const SLIDE_MS = 1100;
 
 /** Signed distance from `active`, wrapped to the shortest way around the ring. */
 function signedOffset(index: number, active: number, total: number): number {
@@ -112,20 +113,36 @@ export function TestimonialOrbit({
   const total = testimonials.length;
   const [active, setActive] = React.useState(0);
   const [paused, setPaused] = React.useState(false);
+  /** Bumped on every manual move, to restart the auto-advance countdown. */
+  const [restartKey, setRestartKey] = React.useState(0);
 
   const go = React.useCallback(
-    (delta: number) => setActive((current) => (current + delta + total) % total),
+    (delta: number) => {
+      setActive((current) => (current + delta + total) % total);
+      // Without this the interval keeps its original schedule, so a reader who clicks
+      // "next" can be moved again a moment later by the pending tick - two slides in
+      // quick succession, the second one arriving before the first has settled.
+      setRestartKey((k) => k + 1);
+    },
     [total],
   );
 
-  // Auto-advance. Skipped entirely when the reader asked for reduced motion: a column
-  // that reorders itself on a timer is exactly the kind of movement that setting is for.
+  const jumpTo = React.useCallback((index: number) => {
+    setActive(index);
+    setRestartKey((k) => k + 1);
+  }, []);
+
+  // Auto-advance on a timeout rather than an interval, keyed to `restartKey`: every
+  // manual move clears the pending tick and starts a fresh full delay.
+  //
+  // Skipped entirely when the reader asked for reduced motion: a column that reorders
+  // itself on a timer is exactly the kind of movement that setting is for.
   React.useEffect(() => {
     if (total < 2 || paused) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const id = window.setInterval(() => setActive((c) => (c + 1) % total), AUTO_MS);
-    return () => window.clearInterval(id);
-  }, [total, paused]);
+    const id = window.setTimeout(() => setActive((c) => (c + 1) % total), AUTO_MS);
+    return () => window.clearTimeout(id);
+  }, [total, paused, restartKey, active]);
 
   if (total === 0) return null;
 
@@ -147,16 +164,33 @@ export function TestimonialOrbit({
       >
         {testimonials.map((item, index) => {
           const d = signedOffset(index, active, total);
-          if (Math.abs(d) > VISIBLE) return null;
 
           const isActive = d === 0;
           const distance = Math.abs(d);
 
+          // Every card stays mounted, including the ones far out of view.
+          //
+          // Skipping the out-of-view cards (`if (distance > VISIBLE) return null`) is
+          // the obvious optimisation and it is wrong: a card that unmounts and later
+          // remounts on the far side of the ring appears at its new position instantly,
+          // because a CSS transition does not run on an element that was just inserted.
+          // The result is a card that jumps into place instead of travelling there.
+          // Their opacity is already 0 out there, so the extra nodes cost nothing to
+          // paint, and a testimonial list is small.
           return (
             <div
               key={`${item.name}-${index}`}
-              className="absolute inset-x-0 top-1/2 transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
+              className="absolute inset-x-0 top-1/2 motion-reduce:transition-none"
               style={{
+                // Only `transform` and `opacity` are transitioned. `transition-all` also
+                // catches `z-index`, which is not smoothly interpolable: the browser
+                // repaints the whole stack on every frame of the move and the motion
+                // stutters. z-index still changes, it just snaps instead of easing.
+                transitionProperty: "transform, opacity",
+                transitionDuration: `${SLIDE_MS}ms`,
+                // Eased at both ends rather than `ease-out`: the wheel should gather pace
+                // and settle, not lurch away and coast.
+                transitionTimingFunction: "cubic-bezier(0.45, 0.05, 0.25, 1)",
                 // `-50%` centres the card on the row; the rest walks it along the wheel.
                 //
                 // The offset is negated so the ring turns top-to-bottom: advancing brings
@@ -166,6 +200,10 @@ export function TestimonialOrbit({
                 opacity: Math.max(0, 1 - distance * 0.55),
                 zIndex: 20 - distance,
                 pointerEvents: isActive ? "auto" : "none",
+                // Promote to its own layer so the move is a composite, not a repaint of
+                // the column on every frame. Only five cards are mounted, so the memory
+                // cost is negligible.
+                willChange: "transform, opacity",
               }}
               aria-hidden={!isActive}
             >
@@ -191,7 +229,7 @@ export function TestimonialOrbit({
             <button
               key={`${item.name}-dot-${index}`}
               type="button"
-              onClick={() => setActive(index)}
+              onClick={() => jumpTo(index)}
               aria-label={`Testimoni ${index + 1}`}
               aria-current={index === active}
               className={cn(
