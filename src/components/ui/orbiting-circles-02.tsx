@@ -15,6 +15,16 @@ import { INNER_LOGOS, OUTER_LOGOS, orbitLogoUrl, type OrbitLogo } from "@/lib/or
  *    with the orbit, which reads as a broken image rather than a turning logo. The
  *    counter-rotation uses the same duration, so the net rotation is zero.
  */
+/**
+ * Badge diameter and the mark inside it. The pair to change to resize the orbit.
+ *
+ * The ratio matters as much as the size: a mark that fills only ~40% of its badge looks
+ * lost in the circle however large the badge gets. 38/72 keeps the mark comfortably
+ * inside the ring while reading as the subject rather than a speck.
+ */
+const BADGE_SIZE = 72;
+const LOGO_SIZE = 38;
+
 function OrbitIcon({
   logo,
   angleDeg,
@@ -32,8 +42,10 @@ function OrbitIcon({
 
   return (
     <span
-      className="absolute flex size-[52.5px] items-center justify-center rounded-full border border-white/20 bg-black/45 shadow-[0_0_24px_rgba(71,8,217,0.55)] backdrop-blur-md"
+      className="absolute flex items-center justify-center rounded-full border border-white/20 bg-black/45 shadow-[0_0_32px_rgba(71,8,217,0.55)] backdrop-blur-md"
       style={{
+        width: BADGE_SIZE,
+        height: BADGE_SIZE,
         left: `${x}%`,
         top: `${y}%`,
         // Centre on the point, then undo the ring's rotation.
@@ -43,11 +55,12 @@ function OrbitIcon({
       <img
         src={orbitLogoUrl(logo.slug)}
         alt={logo.label}
-        width={21}
-        height={21}
+        width={LOGO_SIZE}
+        height={LOGO_SIZE}
         loading="lazy"
         decoding="async"
-        className="size-[21px] opacity-90 [filter:brightness(0)_invert(1)]"
+        className="opacity-90 [filter:brightness(0)_invert(1)]"
+        style={{ width: LOGO_SIZE, height: LOGO_SIZE }}
       />
     </span>
   );
