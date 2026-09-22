@@ -47,7 +47,12 @@ interface RawMenuItem {
 
 function menuHref(item: RawMenuItem, locale: Locale): string {
   if (item.menu_type === "external" && item.url) return item.url;
-  if (item.menu_type === "internal" && item.route_path) {
+  // `static` used to fall through to the home page. The landing site has no renderer
+  // for CMS-stored page content, so a static menu with a route_path silently linked
+  // to "/" — measured on the footer's Privacy and Terms entries, which pointed at the
+  // home page while the pages themselves existed at /privacy and /terms. If a route is
+  // set, honour it whatever the type: a route is a route.
+  if (item.route_path && (item.menu_type === "internal" || item.menu_type === "static")) {
     return localizedPath(locale, item.route_path);
   }
   return item.url ?? localizedPath(locale);
@@ -130,6 +135,14 @@ export const copy = {
       off: "diskon",
       priceNote: "Harga dalam rupiah per 1 juta token, sudah termasuk margin layanan.",
     },
+    legal: {
+      updated: "Terakhir diperbarui",
+      draftNotice:
+        "Draf ini belum ditinjau ahli hukum. Bagian bertanda [ISI: ...] perlu Anda lengkapi sebelum dipublikasikan.",
+      contactPlaceholder: "[ISI: alamat email resmi Anda]",
+      addressPlaceholder: "[ISI: alamat terdaftar perusahaan]",
+      jurisdictionPlaceholder: "[ISI: kota/negara hukum yang berlaku]",
+    },
     docs: {
       eyebrow: "Dokumentasi",
       title: "Mulai membangun dalam beberapa menit.",
@@ -204,6 +217,14 @@ export const copy = {
       model: "Model",
       off: "off",
       priceNote: "Prices in rupiah per 1M tokens, service margin included.",
+    },
+    legal: {
+      updated: "Last updated",
+      draftNotice:
+        "This draft has not been reviewed by a lawyer. Sections marked [FILL IN: ...] must be completed before publication.",
+      contactPlaceholder: "[FILL IN: your official contact email]",
+      addressPlaceholder: "[FILL IN: your registered company address]",
+      jurisdictionPlaceholder: "[FILL IN: governing city/country]",
     },
     docs: {
       eyebrow: "Documentation",
