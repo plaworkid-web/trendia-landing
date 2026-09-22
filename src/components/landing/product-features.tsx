@@ -1,9 +1,9 @@
 import type { LucideIcon } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { BentoGridShowcase } from "@/components/ui/bento-product-features";
+import { HomeStyleCard, type HomeStyleFeature } from "@/components/landing/home-style-card";
 import { cn } from "@/lib/utils";
 
-export interface ProductFeature {
+export interface ProductFeature extends HomeStyleFeature {
   Icon: LucideIcon;
   title: string;
   description: string;
@@ -16,11 +16,8 @@ export interface ProductFeature {
  * "Rp 165.000" means nothing until they know what is included. Both product pages
  * render this above their plans so the features are read before the price.
  *
- * The layout is a bento grid — one tall card, a 2x2 block, one wide card — rather than
- * a row of equal boxes. Six identical cards read as a list to skim; the asymmetry
- * gives the first and last feature more weight, which is where the strongest points
- * belong. With fewer than six features it falls back to an even grid, because the bento
- * shape needs six slots to make sense.
+ * Cards use the homepage's shape (visual area, hairline, text block with icon) so the
+ * whole site reads as one design rather than two.
  */
 export function ProductFeatures({
   label,
@@ -47,68 +44,25 @@ export function ProductFeatures({
     <div className={cn("mt-16", className)}>
       {heading}
 
-      {features.length < 6 ? (
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => (
-            <FeatureCard key={feature.title} feature={feature} />
-          ))}
-        </div>
-      ) : (
+      {/* Five features: tall on the left, 2x2 beside it. The wide bottom slot has no
+          sixth feature to hold, so the tall card's row-span covers the height instead
+          of a card that would have to repeat content to fill the space. */}
+      {features.length === 5 ? (
         <BentoGridShowcase
           className="mt-10"
-          tall={<FeatureCard feature={features[0]} featured />}
-          topLeft={<FeatureCard feature={features[1]} />}
-          topRight={<FeatureCard feature={features[2]} />}
-          bottomLeft={<FeatureCard feature={features[3]} />}
-          bottomRight={<FeatureCard feature={features[4]} />}
-          wide={<FeatureCard feature={features[5]} featured />}
+          tall={<HomeStyleCard feature={features[0]} className="h-full min-h-[420px]" />}
+          topLeft={<HomeStyleCard feature={features[1]} className="h-full" />}
+          topRight={<HomeStyleCard feature={features[2]} className="h-full" />}
+          bottomLeft={<HomeStyleCard feature={features[3]} className="h-full" />}
+          bottomRight={<HomeStyleCard feature={features[4]} className="h-full" />}
         />
+      ) : (
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {features.map((feature) => (
+            <HomeStyleCard key={feature.title} feature={feature} />
+          ))}
+        </div>
       )}
     </div>
-  );
-}
-
-/**
- * One feature card.
- *
- * `featured` marks the tall and wide slots: a larger icon and title, and a subtle
- * primary tint so the two emphasised cards read as a deliberate pair rather than as
- * cards that happen to be bigger.
- */
-function FeatureCard({
-  feature,
-  featured = false,
-}: {
-  feature: ProductFeature;
-  featured?: boolean;
-}) {
-  const { Icon, title, description } = feature;
-  return (
-    <Card
-      className={cn(
-        "glass-card h-full",
-        featured && "bg-primary/[0.04] ring-primary/20",
-      )}
-    >
-      <CardContent className="flex h-full flex-col p-5">
-        <span
-          className={cn(
-            "flex items-center justify-center rounded-lg bg-primary/10 text-primary",
-            featured ? "size-12" : "size-10",
-          )}
-        >
-          <Icon className={featured ? "size-6" : "size-5"} />
-        </span>
-        <h3
-          className={cn(
-            "mt-4 font-semibold tracking-tight",
-            featured && "text-lg",
-          )}
-        >
-          {title}
-        </h3>
-        <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>
-      </CardContent>
-    </Card>
   );
 }

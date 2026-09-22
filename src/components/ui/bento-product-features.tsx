@@ -7,10 +7,13 @@ import { cn } from "@/lib/utils";
 /**
  * Bento-style feature grid.
  *
- * Six content slots arranged asymmetrically: one tall card on the left, a two-by-two
- * block beside it, and a wide card across the bottom. The slots are props rather than
- * a data array because each card has its own internal layout — a stat, a checklist, a
- * diagram — which a generic `items[]` prop would flatten into identical boxes.
+ * The slots are props rather than a data array because each card has its own internal
+ * layout — a stat, a checklist, an illustration — which a generic `items[]` prop would
+ * flatten into identical boxes.
+ *
+ * `wide` is optional: five features fill the tall slot plus a 2x2 block, and there is
+ * nothing left for a bottom row. Requiring it forced a card to repeat content just to
+ * occupy the space.
  *
  * The animation is skipped entirely when the visitor asks for reduced motion: a grid
  * that fades in on scroll is decoration, and `useReducedMotion` is the difference
@@ -44,8 +47,8 @@ export interface BentoGridShowcaseProps {
   bottomLeft: React.ReactNode;
   /** Bottom-right of the 2x2 block. */
   bottomRight: React.ReactNode;
-  /** Wide card across the bottom, spanning two columns. */
-  wide: React.ReactNode;
+  /** Optional wide card across the bottom, spanning two columns. */
+  wide?: React.ReactNode;
   className?: string;
 }
 
@@ -62,21 +65,22 @@ export function BentoGridShowcase({
 
   // `lg:grid-cols-3` with explicit row spans gives the layout without absolute
   // positioning: the tall card occupies rows 1-2 of column 1, the four small cards
-  // fill columns 2-3 across those rows, and the wide card takes columns 1-2 of row 3.
-  const gridClass = cn(
-    "grid gap-4 sm:grid-cols-2 lg:grid-cols-3",
-    className,
-  );
+  // fill columns 2-3 across those rows, and an optional wide card takes columns 1-2
+  // of row 3. `items-stretch` keeps every card in a row the same height.
+  const gridClass = cn("grid items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3", className);
+
+  const slots = [topLeft, topRight, bottomLeft, bottomRight];
 
   if (reduceMotion) {
     return (
       <div className={gridClass}>
-        <div className="sm:row-span-2">{tall}</div>
-        {topLeft}
-        {topRight}
-        {bottomLeft}
-        {bottomRight}
-        <div className="sm:col-span-2">{wide}</div>
+        <div className="h-full sm:row-span-2">{tall}</div>
+        {slots.map((node, i) => (
+          <div key={i} className="h-full">
+            {node}
+          </div>
+        ))}
+        {wide && <div className="h-full sm:col-span-2">{wide}</div>}
       </div>
     );
   }
@@ -89,17 +93,19 @@ export function BentoGridShowcase({
       whileInView="visible"
       viewport={{ once: true, margin: "-80px" }}
     >
-      <motion.div variants={itemVariants} className="sm:row-span-2">
+      <motion.div variants={itemVariants} className="h-full sm:row-span-2">
         {tall}
       </motion.div>
-      {[topLeft, topRight, bottomLeft, bottomRight].map((node, i) => (
-        <motion.div key={i} variants={itemVariants}>
+      {slots.map((node, i) => (
+        <motion.div key={i} variants={itemVariants} className="h-full">
           {node}
         </motion.div>
       ))}
-      <motion.div variants={itemVariants} className="sm:col-span-2">
-        {wide}
-      </motion.div>
+      {wide && (
+        <motion.div variants={itemVariants} className="h-full sm:col-span-2">
+          {wide}
+        </motion.div>
+      )}
     </motion.div>
   );
 }

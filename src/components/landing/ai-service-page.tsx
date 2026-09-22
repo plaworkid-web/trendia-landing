@@ -1,19 +1,10 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  BookOpen,
-  BrainCircuit,
-  Coins,
-  Gauge,
-  Layers,
-  ShieldCheck,
-  Sparkles,
-  Wallet,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { AiPlanCards } from "@/components/landing/ai-plans";
 import { ModelCatalog } from "@/components/landing/model-catalog";
 import { ProductFeatures, type ProductFeature } from "@/components/landing/product-features";
+import { aiFeatureVisuals } from "@/components/landing/ai-feature-visuals";
 import { PublicShell } from "@/components/landing/public-shell";
 import { cn } from "@/lib/utils";
 import { localizedPath, type Locale } from "@/lib/site";
@@ -38,53 +29,7 @@ export function AiServicePage({
 }) {
   const isId = locale === "id";
 
-  // Each claim maps to something the page or the platform actually does: one
-  // endpoint, an OpenAI-compatible path, per-model pricing shown in the catalogue
-  // below, pay-as-you-go plans, and failover between upstream providers.
-  const features: ProductFeature[] = [
-    {
-      Icon: Layers,
-      title: isId ? "Satu endpoint, banyak model" : "One endpoint, many models",
-      description: isId
-        ? "Ganti model cukup dengan mengubah satu nama di kode Anda — tidak perlu integrasi baru per penyedia."
-        : "Switch models by changing one name in your code — no new integration per provider.",
-    },
-    {
-      Icon: Sparkles,
-      title: isId ? "Kompatibel dengan OpenAI" : "OpenAI-compatible",
-      description: isId
-        ? "Pakai SDK OpenAI yang sudah Anda gunakan. Cukup arahkan base URL ke endpoint kami."
-        : "Use the OpenAI SDK you already have. Point the base URL at our endpoint.",
-    },
-    {
-      Icon: Coins,
-      title: isId ? "Harga per model terlihat" : "Per-model pricing in the open",
-      description: isId
-        ? "Harga input dan output tiap model tercantum di katalog — termasuk perbedaan model murah dan mahal."
-        : "Every model's input and output price is listed — including how a cheap and an expensive model differ.",
-    },
-    {
-      Icon: Wallet,
-      title: isId ? "Paket bulanan atau sesuai pemakaian" : "Monthly plan or pay as you go",
-      description: isId
-        ? "Pilih jatah kredit bulanan, atau bayar hanya untuk yang Anda pakai tanpa biaya tetap."
-        : "Choose a monthly credit allowance, or pay only for what you use with no fixed fee.",
-    },
-    {
-      Icon: ShieldCheck,
-      title: isId ? "Failover antar penyedia" : "Failover between providers",
-      description: isId
-        ? "Jika satu penyedia model bermasalah, permintaan Anda otomatis dicoba ke penyedia cadangan."
-        : "If one model provider has trouble, your request is automatically retried elsewhere.",
-    },
-    {
-      Icon: BookOpen,
-      title: isId ? "Dokumentasi siap pakai" : "Ready documentation",
-      description: isId
-        ? "Contoh curl, Node.js, dan Python — serta daftar kode error, supaya integrasi tidak menebak."
-        : "curl, Node.js, and Python examples — plus the error codes, so integration is not guesswork.",
-    },
-  ];
+  const features: ProductFeature[] = aiFeatureVisuals(isId);
 
   return (
     <PublicShell locale={locale}>
