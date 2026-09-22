@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { ArrowRight, BrainCircuit, Check, Server } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PlanetCard } from "@/components/ui/planet-card";
 import { SectionHeader } from "@/components/landing/section-header";
+import { ServiceIllustration, type ServiceKind } from "@/components/landing/service-illustration";
 import { cn } from "@/lib/utils";
 import { localizedPath, type Locale } from "@/lib/site";
 
@@ -26,29 +27,29 @@ export function ProductShowcase({ locale }: { locale: Locale }) {
     {
       key: "vps",
       href: localizedPath(locale, "/vps"),
-      Icon: Server,
+      kind: "vps" as ServiceKind,
       eyebrow: isId ? "Infrastruktur" : "Infrastructure",
       title: isId ? "VPS Hosting" : "VPS Hosting",
       description: isId
-        ? "Server virtual dengan NVMe, proteksi anti-DDoS, dan pilihan lokasi. Dari paket kecil untuk pengembangan sampai GPU untuk komputasi berat."
-        : "Virtual servers with NVMe storage, DDoS protection, and multiple regions. From a small development box to a GPU for heavy compute.",
+        ? "Server virtual NVMe dengan proteksi anti-DDoS."
+        : "NVMe virtual servers with DDoS protection.",
       points: isId
-        ? ["NVMe storage di semua paket", "Proteksi anti-DDoS", "Pilihan tipe: umum, compute, memori, GPU", "Pilihan sistem operasi"]
-        : ["NVMe storage on every plan", "DDoS protection", "Types: general, compute, memory, GPU", "Choice of operating system"],
+        ? ["NVMe di semua paket", "Proteksi anti-DDoS", "Pilihan tipe & sistem operasi"]
+        : ["NVMe on every plan", "DDoS protection", "Choice of type and OS"],
       cta: isId ? "Lihat paket VPS" : "See VPS plans",
     },
     {
       key: "ai",
       href: localizedPath(locale, "/ai"),
-      Icon: BrainCircuit,
+      kind: "ai" as ServiceKind,
       eyebrow: isId ? "Kecerdasan Buatan" : "Artificial Intelligence",
       title: isId ? "AI API" : "AI API",
       description: isId
-        ? "Akses banyak model AI melalui satu endpoint yang kompatibel dengan OpenAI. Bayar sesuai pemakaian, atau pilih paket bulanan dengan jatah kredit."
-        : "Access many AI models through one OpenAI-compatible endpoint. Pay as you go, or choose a monthly plan with a credit allowance.",
+        ? "Semua model AI lewat satu endpoint kompatibel OpenAI."
+        : "Every AI model through one OpenAI-compatible endpoint.",
       points: isId
-        ? ["Satu endpoint untuk semua model", "Kompatibel dengan SDK OpenAI", "Bayar sesuai pemakaian atau paket bulanan", "Harga per model terlihat jelas"]
-        : ["One endpoint for every model", "Works with the OpenAI SDK", "Pay-as-you-go or monthly plans", "Per-model pricing in the open"],
+        ? ["Satu endpoint untuk semua model", "Kompatibel dengan SDK OpenAI", "Harga per model terlihat"]
+        : ["One endpoint for every model", "Works with the OpenAI SDK", "Per-model pricing in the open"],
       cta: isId ? "Lihat layanan AI" : "See AI service",
     },
   ];
@@ -67,13 +68,11 @@ export function ProductShowcase({ locale }: { locale: Locale }) {
         />
 
         <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2">
-          {products.map(({ key, href, Icon, eyebrow, title, description, points, cta }) => (
+          {products.map(({ key, href, kind, eyebrow, title, description, points, cta }) => (
             <PlanetCard key={key} className="h-full" shape="rounded-xl" surface="bg-background" radius={520}>
               <Card className="glass-card flex h-full flex-col">
                 <CardContent className="flex flex-1 flex-col p-6">
-                <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                  <Icon className="size-6" />
-                </span>
+                <ServiceIllustration kind={kind} />
                 <Badge variant="outline" className="mt-4 w-fit text-[10px] uppercase tracking-wider">
                   {eyebrow}
                 </Badge>

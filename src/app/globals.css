@@ -283,3 +283,121 @@ html[data-glass="off"] .glass-card {
   animation-delay: 0.7s;
   opacity: 0;
 }
+
+/* --- Isometric service illustrations -------------------------------------
+ * Strokes "draw" themselves in, then a few keep pulsing so the shape reads as
+ * live rather than as a finished drawing.
+ *
+ * `stroke-dasharray: 1` with `pathLength={1}` on the element makes the dash the
+ * whole path, so the offset animates 1 -> 0 as a draw. Without `pathLength` the
+ * dash would be 1 user unit and only a sliver would move.
+ */
+@keyframes iso-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes iso-flow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    /* One full dash cycle, so the loop has no visible seam. */
+    stroke-dashoffset: -18;
+  }
+}
+
+@keyframes iso-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes iso-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes iso-float {
+  0%,
+  100% {
+    transform: translateY(-1.5px);
+  }
+  50% {
+    transform: translateY(1.5px);
+  }
+}
+
+.iso-draw {
+  stroke-dasharray: 1;
+  animation: iso-draw 0.7s ease-out both;
+}
+
+.iso-flow {
+  animation: iso-flow 1.6s linear infinite;
+}
+
+.iso-pulse {
+  animation: iso-pulse 2.6s ease-in-out infinite;
+}
+
+.iso-fade {
+  animation: iso-fade 0.5s ease-out both;
+}
+
+.iso-float {
+  animation: iso-float 5s ease-in-out infinite;
+}
+
+/* Draw in, then pulse. Two animations in one declaration because a node needs
+ * both, and `animation` is a single property: two classes would mean whichever
+ * came later in this file silently won. */
+.iso-node {
+  stroke-dasharray: 1;
+  animation:
+    iso-draw 0.7s ease-out both,
+    iso-pulse 2.6s ease-in-out infinite;
+}
+
+/* Under reduced motion the shapes must still be SEEN, not merely stopped. Every
+ * animation here starts from an invisible state (dash offset 1, opacity 0), so
+ * `animation: none` alone would leave the illustration blank. The visible end
+ * state has to be stated explicitly. */
+@media (prefers-reduced-motion: reduce) {
+  .iso-draw,
+  .iso-node {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .iso-fade {
+    animation: none;
+    opacity: 1;
+  }
+
+  .iso-flow,
+  .iso-pulse,
+  .iso-float {
+    animation: none;
+  }
+
+  .iso-flow {
+    opacity: 0.5;
+  }
+
+  .iso-pulse {
+    opacity: 0.85;
+  }
+}
