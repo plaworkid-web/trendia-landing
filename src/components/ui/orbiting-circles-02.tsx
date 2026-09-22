@@ -19,11 +19,11 @@ import { INNER_LOGOS, OUTER_LOGOS, orbitLogoUrl, type OrbitLogo } from "@/lib/or
  * Badge diameter and the mark inside it. The pair to change to resize the orbit.
  *
  * The ratio matters as much as the size: a mark that fills only ~40% of its badge looks
- * lost in the circle however large the badge gets. 38/72 keeps the mark comfortably
+ * lost in the circle however large the badge gets. 34/64 keeps the mark comfortably
  * inside the ring while reading as the subject rather than a speck.
  */
-const BADGE_SIZE = 72;
-const LOGO_SIZE = 38;
+const BADGE_SIZE = 64;
+const LOGO_SIZE = 34;
 
 function OrbitIcon({
   logo,
