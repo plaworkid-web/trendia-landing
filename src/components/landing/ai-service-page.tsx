@@ -148,27 +148,14 @@ export function AiServicePage({
               <AiPlanCards plans={plans} locale={locale} />
             </div>
           </div>
-
-          <div className="mt-16">
-            <div className="mx-auto max-w-2xl text-center">
-              <p className="text-sm font-semibold uppercase tracking-wider text-primary">
-                {isId ? "Katalog Model" : "Model Catalog"}
-              </p>
-              <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
-                {isId ? "Model yang tersedia" : "Available models"}
-              </h2>
-              <p className="mt-4 text-muted-foreground">
-                {isId
-                  ? "Harga per 1 juta token untuk setiap model, dikelompokkan per keluarga model."
-                  : "Price per 1M tokens for each model, grouped by model family."}
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* The catalogue renders its own section shell, so it sits outside the wrapper
-          above rather than nested inside it. */}
+      {/* The catalogue renders its own heading and section shell ("Katalog AI /
+          Semua model, satu endpoint"), so a heading here duplicated it and left a
+          gap of empty space between the two — which read as a section that failed to
+          load. The wrapper above closes before this, so the catalogue's own heading is
+          the only one. */}
       <ModelCatalog locale={locale} models={models} unavailable={models.length === 0} />
     </PublicShell>
   );

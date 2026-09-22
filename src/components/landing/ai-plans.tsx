@@ -120,14 +120,11 @@ export function AiPlanCards({ plans, locale = "id" }: AiPlansProps) {
   }
 
   return (
-    // Five plans in a four-column grid left the last one stranded on its own
-    // row; the column count follows the number of plans so the row stays full.
-    <div
-      className={cn(
-        "grid gap-4 sm:grid-cols-2",
-        plans.length >= 5 ? "lg:grid-cols-5" : "lg:grid-cols-4"
-      )}
-    >
+    // Three per row, deliberately. The column count used to follow the number of
+    // plans (five across for six plans), which put five cards in one row and the
+    // sixth stranded alone below — and made each card too narrow to read its feature
+    // list. Three keeps the rows even at six and eight plans and gives each card room.
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {plans.map((plan, idx) => {
             const { price, original, period, discountLabel } = formatPrice(plan, isId);
             // Locale-specific copy. `description` is Indonesian and
