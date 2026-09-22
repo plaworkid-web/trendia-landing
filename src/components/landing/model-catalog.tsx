@@ -157,7 +157,11 @@ export function ModelCatalog({ models, locale, unavailable = false }: { models: 
                                 <div className="min-w-0">
                                   <div className="flex flex-wrap items-center gap-1.5">
                                     <span className="font-medium">{model.display_name}</span>
-                                    {off > 0 && (
+                                    {/* A discount badge needs a price to discount. The
+                                        API already omits it for an unpriced model;
+                                        this is the second line of defence so a badge
+                                        can never sit beside a dash. */}
+                                    {off > 0 && price && (
                                       <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">
                                         {Math.round(off)}% {t.off}
                                       </Badge>
