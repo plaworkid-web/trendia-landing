@@ -6,6 +6,15 @@ import type { Faq } from "@/types/landing";
 import { copy, type Locale } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
+/**
+ * Most questions the section will show.
+ *
+ * The list is curated in the CMS, and it had drifted to twelve rows - long enough that
+ * the section stopped being read. The cap keeps a future addition from silently undoing
+ * that; the CMS still lists every row, so an operator can see what is stored.
+ */
+const MAX_FAQS = 6;
+
 export function FaqSection({
   faqs,
   locale,
@@ -19,9 +28,12 @@ export function FaqSection({
   locale: Locale;
   embedded?: boolean;
 }) {
-  const [open, setOpen] = useState<string | null>(faqs[0]?.id ?? null);
+  // Sorted by the order the CMS assigns, then capped. `sort_order` is already applied by
+  // the API; sorting again here keeps the component correct if it is handed raw rows.
+  const shown = [...faqs].sort((a, b) => a.sort_order - b.sort_order).slice(0, MAX_FAQS);
+  const [open, setOpen] = useState<string | null>(shown[0]?.id ?? null);
   const t = copy[locale].faq;
-  if (faqs.length === 0) return null;
+  if (shown.length === 0) return null;
 
   const body = (
     <>
@@ -32,7 +44,7 @@ export function FaqSection({
       </div>
 
         <div className="mx-auto mt-10 max-w-3xl divide-y divide-border rounded-2xl border bg-background/60 backdrop-blur">
-          {faqs.map((faq) => {
+          {shown.map((faq) => {
             const isOpen = open === faq.id;
             return (
               <div key={faq.id}>
