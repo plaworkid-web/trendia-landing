@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { PlanetCard } from "@/components/ui/planet-card";
 
 /* ─── Card ──────────────────────────────────────────────── */
 
@@ -9,16 +10,18 @@ function Card({
   ...props
 }: React.ComponentProps<"div">) {
   return (
-    <div
-      data-slot="pricing-card"
-      className={cn(
-        "relative min-w-0 max-w-full overflow-hidden flex flex-col rounded-2xl border border-border bg-card p-0 text-card-foreground shadow-sm transition-shadow hover:shadow-md",
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </div>
+    <PlanetCard shape="rounded-2xl" surface="bg-background" className="h-full">
+      <div
+        data-slot="pricing-card"
+        className={cn(
+          "relative h-full min-w-0 max-w-full overflow-hidden flex flex-col rounded-2xl border border-border bg-card p-0 text-card-foreground shadow-sm transition-shadow hover:shadow-md",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </div>
+    </PlanetCard>
   );
 }
 

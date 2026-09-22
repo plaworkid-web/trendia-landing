@@ -3,6 +3,7 @@ import { ArrowRight, BrainCircuit, Check, Server } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { PlanetCard } from "@/components/ui/planet-card";
 import { SectionHeader } from "@/components/landing/section-header";
 import { cn } from "@/lib/utils";
 import { localizedPath, type Locale } from "@/lib/site";
@@ -67,8 +68,9 @@ export function ProductShowcase({ locale }: { locale: Locale }) {
 
         <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2">
           {products.map(({ key, href, Icon, eyebrow, title, description, points, cta }) => (
-            <Card key={key} className="glass-card flex flex-col">
-              <CardContent className="flex flex-1 flex-col p-6">
+            <PlanetCard key={key} className="h-full" shape="rounded-xl" surface="bg-background" radius={520}>
+              <Card className="glass-card flex h-full flex-col">
+                <CardContent className="flex flex-1 flex-col p-6">
                 <span className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <Icon className="size-6" />
                 </span>
@@ -94,8 +96,9 @@ export function ProductShowcase({ locale }: { locale: Locale }) {
                   {cta}
                   <ArrowRight className="size-4" />
                 </Link>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </PlanetCard>
           ))}
         </div>
       </div>

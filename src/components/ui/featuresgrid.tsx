@@ -1,7 +1,16 @@
 import { Database, Network, ShieldCheck, Terminal } from "lucide-react";
+import { PlanetCard } from "@/components/ui/planet-card";
 import type { Locale } from "@/lib/site";
 import { aiApiBaseUrl } from "@/lib/site";
 
+/**
+ * Homepage capability cards, lit like the rest of the site.
+ *
+ * This section is always black — `bg-black` regardless of theme — and the cards are
+ * hardcoded `bg-[#050505]` to match. That is deliberate here and differs from the
+ * product pages: they follow the light/dark theme and need theme tokens, this one does
+ * not. Because the card is already opaque, `PlanetCard` needs no `surface`.
+ */
 const cardClass =
   "group flex min-h-[320px] flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-[#050505] transition-colors hover:border-white/[0.15]";
 
@@ -45,7 +54,8 @@ export function Component({ locale = "id" }: { locale?: Locale }) {
         </div>
 
         <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-3 md:grid-rows-2">
-          <div className={`${cardClass} md:col-span-2`}>
+          <PlanetCard className="h-full md:col-span-2" shape="rounded-xl">
+            <div className={`${cardClass} h-full`}>
             <div className="relative flex flex-1 items-center justify-center p-8">
               <div className="w-full max-w-md overflow-hidden rounded-lg border border-white/[0.08] bg-black font-mono text-[11px] leading-relaxed text-neutral-500 sm:text-xs">
                 <div className="flex border-b border-white/[0.08] px-4 py-2">
@@ -84,9 +94,11 @@ export function Component({ locale = "id" }: { locale?: Locale }) {
               title={isId ? "Eksekusi Responsif" : "Responsive Execution"}
               description={isId ? "Jalankan aplikasi pada infrastruktur cepat agar tetap responsif bagi pengguna Anda." : "Run applications on fast infrastructure so they stay responsive for your users."}
             />
-          </div>
+            </div>
+          </PlanetCard>
 
-          <div className={cardClass}>
+          <PlanetCard className="h-full" shape="rounded-xl">
+            <div className={`${cardClass} h-full`}>
             <div className="flex flex-1 items-center justify-center p-8">
               <div className="flex w-full flex-col gap-2">
                 {[0, 1, 2].map((row) => (
@@ -105,9 +117,11 @@ export function Component({ locale = "id" }: { locale?: Locale }) {
               title={isId ? "Penyimpanan NVMe" : "NVMe Storage"}
               description={isId ? "Storage cepat untuk aplikasi, database, dan workload produksi." : "Fast storage for applications, databases, and production workloads."}
             />
-          </div>
+            </div>
+          </PlanetCard>
 
-          <div className={cardClass}>
+          <PlanetCard className="h-full" shape="rounded-xl">
+            <div className={`${cardClass} h-full`}>
             <div className="flex flex-1 items-center justify-center p-8">
               <div className="w-full max-w-[200px] break-all font-mono text-[10px] leading-tight text-neutral-600">
                 <span className="text-white">tr_live_</span>
@@ -121,9 +135,11 @@ export function Component({ locale = "id" }: { locale?: Locale }) {
               title={isId ? "Keamanan Berlapis" : "Layered Security"}
               description={isId ? "Secret terenkripsi, isolasi workload, dan proteksi jaringan untuk setiap layanan." : "Encrypted secrets, workload isolation, and network protection for every service."}
             />
-          </div>
+            </div>
+          </PlanetCard>
 
-          <div className={`${cardClass} md:col-span-2`}>
+          <PlanetCard className="h-full md:col-span-2" shape="rounded-xl">
+            <div className={`${cardClass} h-full`}>
             <div className="relative flex flex-1 items-center justify-center p-8">
               <div className="flex w-full max-w-sm flex-col gap-4">
                 <div className="flex items-center gap-4">
@@ -148,7 +164,8 @@ export function Component({ locale = "id" }: { locale?: Locale }) {
               title={isId ? "API Kompatibel OpenAI" : "OpenAI-Compatible API"}
               description={isId ? "Hubungkan aplikasi ke berbagai model AI dengan mengganti satu base URL." : "Connect applications to multiple AI models by changing one base URL."}
             />
-          </div>
+            </div>
+          </PlanetCard>
         </div>
       </div>
     </section>

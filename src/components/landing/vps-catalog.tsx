@@ -23,6 +23,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProductFeatures, type ProductFeature } from "@/components/landing/product-features";
 import { vpsFeatureVisuals } from "@/components/landing/vps-feature-visuals";
+import { PlanetCard } from "@/components/ui/planet-card";
 import { cn } from "@/lib/utils";
 import { portalUrl, type Locale } from "@/lib/site";
 import type { VpsPlan, VpsPlanType } from "@/types/landing";
@@ -150,7 +151,8 @@ export function VpsCatalog({ plans, locale }: { plans: VpsPlan[]; locale: Locale
               const os = plan.os_options ?? [];
               const ctaHref = plan.cta_url || `${portalUrl}/dashboard/vps?plan=${encodeURIComponent(plan.slug)}`;
               return (
-                <Card key={plan.id} className={cn("glass-card relative", plan.is_featured && "ring-1 ring-primary/60")}>
+                <PlanetCard key={plan.id} className="h-full" shape="rounded-xl" surface="bg-background" radius={480}>
+                <Card className={cn("glass-card relative h-full", plan.is_featured && "ring-1 ring-primary/60")}>
                   <CardHeader>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3">
@@ -199,6 +201,7 @@ export function VpsCatalog({ plans, locale }: { plans: VpsPlan[]; locale: Locale
                     </Link>
                   </CardContent>
                 </Card>
+                </PlanetCard>
               );
             })}
           </div>

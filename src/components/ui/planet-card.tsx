@@ -44,11 +44,28 @@ export function PlanetCard({
   radius = 420,
   /** Adds a slight lift on hover. Off for cards inside a fixed-height bento slot. */
   lift = true,
+  /**
+   * Class for an opaque layer behind the card's content, e.g. `bg-background`.
+   *
+   * Needed whenever the card itself is translucent. The pricing and service cards are
+   * glass (`--glass-bg` is 40% opaque) and `--card` is 45%, so without this the halo
+   * shines through the middle of the card and washes out the text instead of staying
+   * around the edges where it belongs. Cards that are already opaque can omit it.
+   */
+  surface,
+  /**
+   * Corner radius shared by the surface and the rim light, so both trace the card's
+   * actual outline. A rim on a `rounded-xl` box inside a `rounded-2xl` card leaves the
+   * corners unlit.
+   */
+  shape = "rounded-xl",
 }: {
   children: React.ReactNode;
   className?: string;
   radius?: number;
   lift?: boolean;
+  surface?: string;
+  shape?: string;
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
   const [active, setActive] = React.useState(false);
@@ -100,7 +117,16 @@ export function PlanetCard({
         }}
       />
 
-      {/* The card itself. Opaque, so the halo stays outside it. */}
+      {/* Opaque layer for a translucent card, so the halo stays outside it. */}
+      {surface ? (
+        <span
+          aria-hidden
+          data-planet-surface=""
+          className={cn("pointer-events-none absolute inset-0", shape, surface)}
+        />
+      ) : null}
+
+      {/* The card itself. */}
       <div className="relative z-10 h-full">{children}</div>
 
       {/* Rim light: the card's own edge catching the sun. Masked to a 1px ring so only
@@ -108,7 +134,8 @@ export function PlanetCard({
       <span
         aria-hidden
         className={cn(
-          "pointer-events-none absolute inset-0 z-20 rounded-xl transition-opacity duration-500",
+          "pointer-events-none absolute inset-0 z-20 transition-opacity duration-500",
+          shape,
           active ? "opacity-100" : "opacity-0",
         )}
         style={{
