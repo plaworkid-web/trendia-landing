@@ -38,8 +38,8 @@ export function FaqSection({
   const body = (
     <>
       <div className={cn("text-center", !embedded && "mx-auto max-w-2xl")}>
-        <p className="text-sm font-semibold uppercase tracking-wider text-primary">{t.eyebrow}</p>
-        <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{t.title}</h2>
+        <p className="type-eyebrow">{t.eyebrow}</p>
+        <h2 className="type-h2 mt-2">{t.title}</h2>
         <p className="mt-4 text-lg text-muted-foreground">{t.description}</p>
       </div>
 
@@ -60,7 +60,7 @@ export function FaqSection({
                   />
                 </button>
                 {isOpen && (
-                  <div className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">
+                  <div className="px-5 pb-5 type-body-sm">
                     {faq.answer}
                   </div>
                 )}

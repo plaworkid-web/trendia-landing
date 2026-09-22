@@ -37,8 +37,8 @@ export function LegalPage({
       <section className="section-shell">
         <div className="section-container">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-wider text-primary">{eyebrow}</p>
-            <h1 className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">{title}</h1>
+            <p className="type-eyebrow">{eyebrow}</p>
+            <h1 className="type-display mt-2">{title}</h1>
             <p className="mt-4 text-sm text-muted-foreground">
               {t.updated}: {updated}
             </p>
@@ -55,7 +55,7 @@ export function LegalPage({
 
             {sections.map((section) => (
               <div key={section.heading} className="space-y-3">
-                <h2 className="text-lg font-semibold">{section.heading}</h2>
+                <h2 className="type-h3">{section.heading}</h2>
                 {section.body.map((paragraph) =>
                   paragraph.startsWith("- ") ? (
                     <p key={paragraph} className="flex gap-2 pl-1 text-sm text-muted-foreground">

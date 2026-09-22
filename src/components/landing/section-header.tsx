@@ -1,5 +1,12 @@
 import { cn } from "@/lib/utils";
 
+/**
+ * The shared section header. Every section on the landing renders through this, so
+ * its sizes ARE the h2 style — a component that overrides them is how the homepage
+ * ended up with five different h2 treatments.
+ *
+ * Sizes come from the `type-*` classes in globals.css, never from local literals.
+ */
 interface SectionHeaderProps {
   label?: string;
   title: string;
@@ -27,32 +34,11 @@ export function SectionHeader({
       )}
     >
       {label && (
-        <p
-          className={cn(
-            "text-xs font-semibold uppercase tracking-[0.2em]",
-            light ? "text-white/60" : "text-primary"
-          )}
-        >
-          {label}
-        </p>
+        <p className={cn("type-eyebrow", light && "text-white/60")}>{label}</p>
       )}
-      <h2
-        className={cn(
-          "font-heading text-3xl font-semibold tracking-tight sm:text-4xl",
-          light ? "text-white" : "text-foreground"
-        )}
-      >
-        {title}
-      </h2>
+      <h2 className={cn("type-h2", light && "text-white")}>{title}</h2>
       {description && (
-        <p
-          className={cn(
-            "text-base leading-relaxed sm:text-lg",
-            light ? "text-white/70" : "text-muted-foreground"
-          )}
-        >
-          {description}
-        </p>
+        <p className={cn("type-lead", light && "text-white/70")}>{description}</p>
       )}
     </div>
   );

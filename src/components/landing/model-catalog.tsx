@@ -102,8 +102,8 @@ export function ModelCatalog({ models, locale, unavailable = false }: { models: 
     <section className="section-shell">
       <div className="section-container">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary">{t.eyebrow}</p>
-          <h1 className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">{t.title}</h1>
+          <p className="type-eyebrow">{t.eyebrow}</p>
+          <h1 className="type-display mt-2">{t.title}</h1>
           <p className="mt-4 text-lg text-muted-foreground">{t.description}</p>
         </div>
 
@@ -133,7 +133,7 @@ export function ModelCatalog({ models, locale, unavailable = false }: { models: 
             {grouped.map((group) => (
               <div key={group.label} className="overflow-hidden rounded-xl border">
                 <div className="flex items-center justify-between gap-3 border-b bg-muted/40 px-4 py-2.5">
-                  <h2 className="text-sm font-semibold">{group.label}</h2>
+                  <p className="type-h4">{group.label}</p>
                   <span className="text-xs text-muted-foreground">{group.items.length}</span>
                 </div>
                 <div className="overflow-x-auto">

@@ -55,7 +55,7 @@ export function HomeStyleCard({
         <div className="relative border-t border-foreground/[0.06] bg-foreground/[0.01] p-6">
           <div className="mb-2 flex items-center gap-2">
             <Icon className="size-4 shrink-0 text-primary" />
-            <h3 className="text-sm font-medium">{title}</h3>
+            <h4 className="type-h4">{title}</h4>
           </div>
           <p className="text-sm text-muted-foreground">{description}</p>
         </div>

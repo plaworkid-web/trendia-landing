@@ -144,7 +144,7 @@ export function IntegrationsSection({
             </div>
           </div>
           <div className="bg-linear-to-t from-background relative z-20 mx-auto mt-12 max-w-lg space-y-6 from-55% text-center">
-            <h2 className="text-balance text-3xl font-semibold md:text-4xl">
+            <h2 className="type-h2">
               {t.title}
             </h2>
             <p className="text-muted-foreground">
@@ -181,5 +181,5 @@ function ProviderGlyph({ provider }: { provider: { name: string; logo: string | 
     .join("")
     .slice(0, 2)
     .toUpperCase();
-  return <span className="text-xs font-bold">{label}</span>;
+  return <span className="type-eyebrow">{label}</span>;
 }

@@ -45,13 +45,13 @@ export function PricingSection({ aiPlans, vpsPlans, locale, asPage = false }: Pr
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+          <p className="type-eyebrow">
             {t.eyebrow}
           </p>
           {asPage ? (
-            <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{t.title}</h1>
+            <h1 className="type-display mt-2">{t.title}</h1>
           ) : (
-            <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{t.title}</h2>
+            <h2 className="type-h2 mt-2">{t.title}</h2>
           )}
           <p className="mt-4 text-lg text-muted-foreground">
             {t.description}

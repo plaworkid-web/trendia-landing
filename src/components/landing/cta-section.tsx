@@ -32,7 +32,7 @@ function ProductPanel({
       <div className="overflow-hidden rounded-t-[2.5rem] bg-background/75 px-2 pt-2 shadow-2xl shadow-black/10 ring-1 ring-foreground/10">
         <div className="h-[360px] overflow-hidden rounded-t-[2rem] bg-foreground/[0.03] px-6 ring-1 ring-foreground/10 dark:bg-black">
           <div className="flex items-center justify-between py-3 text-xs">
-            <span className="font-semibold">{brandName} Cloud</span>
+            <span className="type-ui">{brandName} Cloud</span>
             <div className="flex items-end gap-1">
               <Signal className="size-4" />
               <Wifi className="size-[18px]" />
@@ -41,13 +41,13 @@ function ProductPanel({
           </div>
           <div className="mx-auto mt-2 h-1.5 w-10 rounded-full bg-foreground/15" />
           <div className="px-2 pt-10 text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-500">
+            <p className="type-eyebrow text-orange-500">
               {eyebrow}
             </p>
-            <p className="mt-3 text-2xl font-semibold tracking-tight text-foreground/85">
+            <p className="type-h3 mt-3">
               {title}
             </p>
-            <p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">
+            <p className="type-body-sm mx-auto mt-2 max-w-xs text-muted-foreground">
               {subtitle}
             </p>
           </div>
@@ -123,7 +123,7 @@ function getPanels(brandName: string) {
 }
 
 const logoClass =
-  "inline-flex items-center gap-1.5 text-base font-semibold tracking-tight text-muted-foreground";
+  "inline-flex items-center gap-1.5 type-ui text-muted-foreground";
 
 const logos = [
   { name: "Compute", Icon: Cpu },

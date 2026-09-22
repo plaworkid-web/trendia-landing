@@ -25,7 +25,7 @@ function FeatureContent({ icon: Icon, title, description }: FeatureContentProps)
     <div className="border-t border-white/[0.04] bg-white/[0.01] p-6">
       <div className="mb-2 flex items-center gap-2 text-white">
         <Icon className="size-4" />
-        <h3 className="text-sm font-medium">{title}</h3>
+        <h4 className="type-h4">{title}</h4>
       </div>
       <p className="text-sm text-neutral-400">{description}</p>
     </div>
@@ -41,14 +41,14 @@ export function Component({ locale = "id" }: { locale?: Locale }) {
     >
       <div className="mx-auto max-w-6xl px-6 md:px-8">
         <div className="mb-16 flex flex-col items-center text-center">
-          <div className="mb-6 inline-flex items-center rounded-full border border-white/[0.12] bg-white/[0.03] px-3 py-1 text-xs font-medium uppercase tracking-widest text-neutral-400">
+          <div className="type-eyebrow mb-6 inline-flex items-center rounded-full border border-white/[0.12] bg-white/[0.03] px-3 py-1 text-neutral-400">
             {isId ? "Kapabilitas Platform" : "Platform Capabilities"}
           </div>
-          <h2 className="mb-4 max-w-3xl text-balance text-4xl font-medium tracking-tighter text-white sm:text-5xl md:text-6xl">
+          <h2 className="type-display mb-4 max-w-3xl text-balance text-white">
             {isId ? "Semua yang Anda butuhkan." : "Everything you need."} <br className="hidden sm:block" />
             <span className="text-neutral-600">{isId ? "Tanpa kompleksitas berlebih." : "Nothing you don&apos;t."}</span>
           </h2>
-          <p className="max-w-2xl text-balance text-base text-neutral-400 sm:text-lg">
+          <p className="type-lead max-w-2xl text-balance text-neutral-400">
             {isId ? "Infrastruktur untuk deployment cepat, workload aman, dan kendali penuh tanpa kompleksitas yang tidak perlu." : "Purpose-built infrastructure for fast deployment, secure workloads, and complete control without unnecessary complexity."}
           </p>
         </div>

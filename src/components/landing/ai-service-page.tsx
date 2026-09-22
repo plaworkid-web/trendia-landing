@@ -36,10 +36,10 @@ export function AiServicePage({
       <section className="section-shell">
         <div className="section-container">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+            <p className="type-eyebrow">
               {isId ? "Layanan AI" : "AI Service"}
             </p>
-            <h1 className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">
+            <h1 className="type-display mt-2">
               {isId ? "Akses model AI lewat satu API." : "AI models through one API."}
             </h1>
             <p className="mt-4 text-lg text-muted-foreground">
@@ -77,10 +77,10 @@ export function AiServicePage({
 
           <div className="mt-16">
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+              <p className="type-eyebrow">
                 {isId ? "Daftar Harga" : "Pricing"}
               </p>
-              <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+              <h2 className="type-h2 mt-2">
                 {isId ? "Paket Layanan AI" : "AI service plans"}
               </h2>
               <p className="mt-4 text-muted-foreground">

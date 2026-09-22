@@ -72,7 +72,7 @@ function PlanName({
     <div
       data-slot="pricing-card-plan-name"
       className={cn(
-        "flex items-center gap-2 text-lg font-semibold [&_svg]:size-5 [&_svg]:text-muted-foreground",
+        "flex items-center gap-2 type-h3 [&_svg]:size-5 [&_svg]:text-muted-foreground",
         className
       )}
       {...props}
@@ -131,7 +131,7 @@ function MainPrice({
   return (
     <span
       data-slot="pricing-card-main-price"
-        className={cn("break-words text-4xl font-bold tracking-tight", className)}
+        className={cn("type-price break-words", className)}
       {...props}
     >
       {children}

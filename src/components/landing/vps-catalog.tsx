@@ -87,8 +87,8 @@ export function VpsCatalog({ plans, locale }: { plans: VpsPlan[]; locale: Locale
     <section className="section-shell">
       <div className="section-container">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary">{isId ? "Katalog VPS" : "VPS Catalog"}</p>
-          <h1 className="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">{isId ? "Server cepat untuk setiap workload." : "Fast servers for every workload."}</h1>
+          <p className="type-eyebrow">{isId ? "Katalog VPS" : "VPS Catalog"}</p>
+          <h1 className="type-display mt-2">{isId ? "Server cepat untuk setiap workload." : "Fast servers for every workload."}</h1>
           <p className="mt-4 text-lg text-muted-foreground">
             {isId ? "Pilih resource, lokasi, dan tipe server yang sesuai. Semua paket menggunakan NVMe dan dilindungi anti-DDoS." : "Choose the resources, location, and server type you need. Every plan includes NVMe storage and DDoS protection."}
           </p>
@@ -107,10 +107,10 @@ export function VpsCatalog({ plans, locale }: { plans: VpsPlan[]; locale: Locale
 
         <div className="mt-16">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+            <p className="type-eyebrow">
               {isId ? "Daftar Harga" : "Pricing"}
             </p>
-            <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+            <h2 className="type-h2 mt-2">
               {isId ? "Paket VPS" : "VPS plans"}
             </h2>
           </div>
@@ -170,14 +170,14 @@ export function VpsCatalog({ plans, locale }: { plans: VpsPlan[]; locale: Locale
                     <div className="mb-5 flex items-end gap-1 border-b pb-5">
                       {price ? (
                         <>
-                          <span className="text-3xl font-bold tracking-tight">{formatPrice(price.amount, activeCurrency)}</span>
+                          <span className="type-price">{formatPrice(price.amount, activeCurrency)}</span>
                           <span className="pb-1 text-xs text-muted-foreground">/{isId ? "bulan" : "month"}</span>
                           {price.original != null && price.original > price.amount && (
                             <span className="pb-1 text-xs text-muted-foreground line-through">{formatPrice(price.original, activeCurrency)}</span>
                           )}
                         </>
                       ) : (
-                        <span className="text-2xl font-bold tracking-tight">{plan.cta_label || (isId ? "Hubungi Sales" : "Contact Sales")}</span>
+                        <span className="type-h3">{plan.cta_label || (isId ? "Hubungi Sales" : "Contact Sales")}</span>
                       )}
                     </div>
 

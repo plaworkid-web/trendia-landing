@@ -30,8 +30,8 @@ export function BlogPage({ posts, locale }: { posts: BlogPost[]; locale: Locale 
         </Link>
 
         <div className="mx-auto mt-8 max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary">{t.eyebrow}</p>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{t.title}</h1>
+          <p className="type-eyebrow">{t.eyebrow}</p>
+          <h1 className="type-h2 mt-2">{t.title}</h1>
           <p className="mt-4 text-lg text-muted-foreground">{t.description}</p>
         </div>
 
@@ -63,7 +63,7 @@ export function BlogPage({ posts, locale }: { posts: BlogPost[]; locale: Locale 
                     )}
                     {post.published_at && <span>{formatDate(post.published_at, locale)}</span>}
                   </div>
-                  <h2 className="mt-2 text-lg font-semibold tracking-tight">{post.title}</h2>
+                  <h2 className="mt-2 type-h3">{post.title}</h2>
                   {post.excerpt && (
                     <p className="mt-2 line-clamp-3 flex-1 text-sm text-muted-foreground">
                       {post.excerpt}

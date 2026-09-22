@@ -60,11 +60,11 @@ export function ClientsSection({
                   {tagLabel}
                 </div>
               )}
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+              <h2 className="type-h2">
                 {title}
               </h2>
               {description && (
-                <p className="max-w-md text-base text-muted-foreground sm:text-lg">
+                <p className="type-lead max-w-md">
                   {description}
                 </p>
               )}
@@ -74,7 +74,7 @@ export function ClientsSection({
               <div className="grid grid-cols-3 gap-4 border-y border-border py-6">
                 {stats.map((stat) => (
                   <div key={stat.label} className="text-center sm:text-left">
-                    <div className="text-2xl font-bold tracking-tight sm:text-3xl">
+                    <div className="type-h3">
                       {stat.value}
                     </div>
                     <div className="mt-1 text-xs text-muted-foreground sm:text-sm">

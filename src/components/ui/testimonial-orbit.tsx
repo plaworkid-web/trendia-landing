@@ -96,7 +96,7 @@ function Card({ item, active }: { item: OrbitTestimonial; active: boolean }) {
         </div>
         <Rating value={item.rating} />
       </div>
-      <p className="line-clamp-6 text-sm leading-relaxed text-muted-foreground">
+      <p className="type-body-sm line-clamp-6">
         &ldquo;{item.quote}&rdquo;
       </p>
     </article>

@@ -72,10 +72,10 @@ export function PreviewSwitchHero({
             </div>
           )}
 
-          <h2 className="max-w-3xl text-balance text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
+          <h2 className="type-display max-w-3xl text-balance">
             {title}
           </h2>
-          <p className="mt-6 max-w-2xl text-balance text-lg leading-relaxed text-muted-foreground">
+          <p className="mt-6 max-w-2xl type-lead text-balance">
             {description}
           </p>
 
@@ -84,7 +84,7 @@ export function PreviewSwitchHero({
               href={primaryCta.href}
               className={cn(
                 buttonVariants({ size: "lg" }),
-                "h-11 bg-primary px-6 font-semibold text-primary-foreground shadow-[0_10px_25px_rgba(71,8,217,0.3)] hover:bg-primary/80"
+                "type-ui h-11 bg-primary px-6 text-primary-foreground shadow-[0_10px_25px_rgba(71,8,217,0.3)] hover:bg-primary/80"
               )}
             >
               {primaryCta.label}
@@ -95,7 +95,7 @@ export function PreviewSwitchHero({
                 href={secondaryCta.href}
                 className={cn(
                   buttonVariants({ size: "lg" }),
-                  "h-11 bg-primary px-6 font-semibold text-primary-foreground hover:bg-primary/80"
+                  "type-ui h-11 bg-primary px-6 text-primary-foreground hover:bg-primary/80"
                 )}
               >
                 {secondaryCta.label}

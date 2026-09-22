@@ -158,7 +158,7 @@ export function Footer({
 							<Image src={appSettings.logo_light_url} alt={brandName} width={210} height={56} style={{ width: 'auto' }} className="block h-14 w-auto dark:hidden" />
 						)}
 						{!appSettings?.logo_light_url && !appSettings?.logo_dark_url && (
-							<span className="text-2xl font-bold tracking-tight">{brandName}</span>
+							<span className="type-h3">{brandName}</span>
 						)}
 					</a>
 					{tagline && (
@@ -179,7 +179,7 @@ export function Footer({
 					{footerLinks.map((section, index) => (
 						<AnimatedContainer key={section.label} delay={0.1 + index * 0.1}>
 							<div className="mb-10 md:mb-0">
-								<h3 className="text-xs">{section.label}</h3>
+								<p className="type-caption font-medium">{section.label}</p>
 								<ul className="text-muted-foreground mt-4 space-y-2 text-sm">
 									{section.links.map((link) => (
 										<li key={`${link.title}-${link.href}`}>

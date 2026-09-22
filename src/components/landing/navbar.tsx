@@ -91,7 +91,7 @@ export function Navbar({ menuItems, appSettings, locale = "id" }: NavbarProps) {
             />
           )}
           {!appSettings?.logo_light_url && !appSettings?.logo_dark_url && (
-            <span className="text-xl font-bold tracking-tight">{brandName}</span>
+            <span className="type-h3">{brandName}</span>
           )}
         </Link>
 
@@ -149,7 +149,7 @@ export function Navbar({ menuItems, appSettings, locale = "id" }: NavbarProps) {
               }
             />
             <SheetContent side="right" className="w-72">
-              <SheetTitle className="text-lg font-bold">{brandName}</SheetTitle>
+              <SheetTitle className="type-h3">{brandName}</SheetTitle>
               <nav className="mt-6 flex flex-col gap-1">
                 {navItems.map((item) => (
                   <Link

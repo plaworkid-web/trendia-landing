@@ -23,8 +23,8 @@ export function BlogSection({ posts, locale }: { posts: BlogPost[]; locale: Loca
     <section id="blog" className="section-shell">
       <div className="section-container">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary">{t.eyebrow}</p>
-          <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{t.title}</h2>
+          <p className="type-eyebrow">{t.eyebrow}</p>
+          <h2 className="type-h2 mt-2">{t.title}</h2>
           <p className="mt-4 text-lg text-muted-foreground">{t.description}</p>
         </div>
 
@@ -47,7 +47,7 @@ export function BlogSection({ posts, locale }: { posts: BlogPost[]; locale: Loca
                   {post.category && <span className="font-medium text-primary">{post.category.name}</span>}
                   {post.published_at && <span>{formatDate(post.published_at, locale)}</span>}
                 </div>
-                <h3 className="mt-2 text-lg font-semibold tracking-tight">{post.title}</h3>
+                <h3 className="mt-2 type-h3">{post.title}</h3>
                 {post.excerpt && (
                   <p className="mt-2 line-clamp-2 flex-1 text-sm text-muted-foreground">{post.excerpt}</p>
                 )}

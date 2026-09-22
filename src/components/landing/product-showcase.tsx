@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Check } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ArrowRight } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PlanetCard } from "@/components/ui/planet-card";
@@ -19,6 +18,11 @@ import { localizedPath, type Locale } from "@/lib/site";
  *
  * No prices here on purpose — a homepage price invites a comparison the visitor
  * cannot finish without leaving the page.
+ *
+ * The card is a figure, not a feature list: an illustration, a label, a title and
+ * one sentence. The bullets were removed because each card sits next to the page it
+ * links to, which lists the same features in full — so the card was previewing a
+ * preview. The reference is Linear's homepage figure cards ("FIG 0.1" … "FIG 0.3").
  */
 export function ProductShowcase({ locale }: { locale: Locale }) {
   const isId = locale === "id";
@@ -28,28 +32,22 @@ export function ProductShowcase({ locale }: { locale: Locale }) {
       key: "vps",
       href: localizedPath(locale, "/vps"),
       kind: "vps" as ServiceKind,
-      eyebrow: isId ? "Infrastruktur" : "Infrastructure",
+      figure: "FIG 0.1",
       title: isId ? "VPS Hosting" : "VPS Hosting",
       description: isId
-        ? "Server virtual NVMe dengan proteksi anti-DDoS."
-        : "NVMe virtual servers with DDoS protection.",
-      points: isId
-        ? ["NVMe di semua paket", "Proteksi anti-DDoS", "Pilihan tipe & sistem operasi"]
-        : ["NVMe on every plan", "DDoS protection", "Choice of type and OS"],
+        ? "Server NVMe dengan proteksi anti-DDoS, siap pakai dalam hitungan menit."
+        : "NVMe servers with DDoS protection, ready in minutes.",
       cta: isId ? "Lihat paket VPS" : "See VPS plans",
     },
     {
       key: "ai",
       href: localizedPath(locale, "/ai"),
       kind: "ai" as ServiceKind,
-      eyebrow: isId ? "Kecerdasan Buatan" : "Artificial Intelligence",
+      figure: "FIG 0.2",
       title: isId ? "AI API" : "AI API",
       description: isId
-        ? "Semua model AI lewat satu endpoint kompatibel OpenAI."
-        : "Every AI model through one OpenAI-compatible endpoint.",
-      points: isId
-        ? ["Satu endpoint untuk semua model", "Kompatibel dengan SDK OpenAI", "Harga per model terlihat"]
-        : ["One endpoint for every model", "Works with the OpenAI SDK", "Per-model pricing in the open"],
+        ? "Semua model AI lewat satu endpoint, dengan harga per model yang terbuka."
+        : "Every AI model through one endpoint, with per-model pricing in the open.",
       cta: isId ? "Lihat layanan AI" : "See AI service",
     },
   ];
@@ -68,33 +66,34 @@ export function ProductShowcase({ locale }: { locale: Locale }) {
         />
 
         <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2">
-          {products.map(({ key, href, kind, eyebrow, title, description, points, cta }) => (
+          {products.map(({ key, href, kind, figure, title, description, cta }) => (
             <PlanetCard key={key} className="h-full" shape="rounded-xl" surface="bg-background" radius={520}>
               <Card className="glass-card flex h-full flex-col">
                 <CardContent className="flex flex-1 flex-col p-6">
-                <ServiceIllustration kind={kind} />
-                <Badge variant="outline" className="mt-4 w-fit text-[10px] uppercase tracking-wider">
-                  {eyebrow}
-                </Badge>
-                <h3 className="mt-2 text-xl font-semibold tracking-tight">{title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+                  {/* Figure number, the way the reference labels its diagrams. It
+                      says these two cards are a pair, and it is the only place the
+                      numbering appears. */}
+                  <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                    {figure}
+                  </span>
 
-                <ul className="mt-5 space-y-2 text-sm">
-                  {points.map((point) => (
-                    <li key={point} className="flex items-start gap-2">
-                      <Check className="mt-0.5 size-4 shrink-0 text-emerald-500" />
-                      <span className="text-muted-foreground">{point}</span>
-                    </li>
-                  ))}
-                </ul>
+                  <ServiceIllustration kind={kind} className="my-4" />
 
-                <Link
-                  href={href}
-                  className={cn(buttonVariants({ variant: "outline", size: "lg" }), "mt-6 w-full")}
-                >
-                  {cta}
-                  <ArrowRight className="size-4" />
-                </Link>
+                  <h3 className="type-h3">{title}</h3>
+                  {/* The gap lives on the paragraph, not the button. `mt-auto` on the
+                      button is what aligns the two cards' buttons, but it resolves to
+                      0 whenever the content already fills the card — which is exactly
+                      when the button ends up flush against the text. A margin here
+                      survives in that case. */}
+                  <p className="mt-2 mb-8 text-sm text-muted-foreground">{description}</p>
+
+                  <Link
+                    href={href}
+                    className={cn(buttonVariants({ variant: "outline", size: "lg" }), "mt-auto w-full")}
+                  >
+                    {cta}
+                    <ArrowRight className="size-4" />
+                  </Link>
                 </CardContent>
               </Card>
             </PlanetCard>

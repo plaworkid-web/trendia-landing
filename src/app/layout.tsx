@@ -1,12 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Inter, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { fetchAppSettings, fetchAppearance } from "@/lib/api";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+/**
+ * Inter, matching the reference this landing is styled after.
+ *
+ * Loaded as a VARIABLE font (no `weight` array) because the scale uses fractional
+ * weights — 510 for headings, 590 for emphasis. Those are only available from a
+ * variable axis (`wght` 100–900); a static instance would snap them to 500/600 and
+ * the headings would look heavier than intended.
+ *
+ * `opsz` is a real axis on Inter (14–32) and is left to the browser, which picks a
+ * value from the rendered size — that is what makes 64px headings look tighter than
+ * 15px body text at the same tracking.
+ */
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -42,7 +55,7 @@ export default async function RootLayout({
   return (
     <html
       lang="id"
-      className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
+      className={`${inter.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans">
