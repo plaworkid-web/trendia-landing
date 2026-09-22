@@ -50,11 +50,11 @@ export function ProductFeatures({
       {features.length === 5 ? (
         <BentoGridShowcase
           className="mt-10"
-          tall={<HomeStyleCard feature={features[0]} className="h-full min-h-[420px]" />}
-          topLeft={<HomeStyleCard feature={features[1]} className="h-full" />}
-          topRight={<HomeStyleCard feature={features[2]} className="h-full" />}
-          bottomLeft={<HomeStyleCard feature={features[3]} className="h-full" />}
-          bottomRight={<HomeStyleCard feature={features[4]} className="h-full" />}
+          tall={<HomeStyleCard feature={features[0]} className="h-full min-h-[420px]" radius={520} />}
+          topLeft={<HomeStyleCard feature={features[1]} className="h-full" radius={360} />}
+          topRight={<HomeStyleCard feature={features[2]} className="h-full" radius={360} />}
+          bottomLeft={<HomeStyleCard feature={features[3]} className="h-full" radius={360} />}
+          bottomRight={<HomeStyleCard feature={features[4]} className="h-full" radius={360} />}
         />
       ) : (
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
