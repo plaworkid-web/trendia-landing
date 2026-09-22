@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Brand marks for the hero orbit.
+ * Brand marks for the hero orbit and the homepage technology wall.
  *
  * The files live in object storage (`landing/orbit/<slug>.svg`), not in the bundle:
  * a logo set is content an operator will want to change without a redeploy, and the
@@ -46,6 +46,53 @@ export const INNER_LOGOS: OrbitLogo[] = [
   { slug: "cloudflare", label: "Cloudflare" },
   { slug: "kubernetes", label: "Kubernetes" },
   { slug: "digitalocean", label: "DigitalOcean" },
+];
+
+/**
+ * Every mark we host, for the homepage technology wall.
+ *
+ * Ordered so the models a customer calls come first: the wall drifts past the reader and
+ * the opening marks set what the section is about. This list is meant to cover the whole
+ * bucket — a slug with no file renders as an empty badge, which looks like a missing
+ * image rather than a missing entry.
+ */
+export const TECH_LOGOS: OrbitLogo[] = [
+  // Models a customer calls.
+  { slug: "openai", label: "OpenAI" },
+  { slug: "anthropic", label: "Anthropic" },
+  { slug: "claude", label: "Claude" },
+  { slug: "deepseek", label: "DeepSeek" },
+  { slug: "googlegemini", label: "Google Gemini" },
+  { slug: "meta", label: "Meta" },
+  { slug: "mistralai", label: "Mistral AI" },
+  { slug: "qwen", label: "Qwen" },
+  { slug: "huggingface", label: "Hugging Face" },
+  { slug: "ollama", label: "Ollama" },
+  // Where the workload runs.
+  { slug: "amazonwebservices", label: "Amazon Web Services" },
+  { slug: "microsoftazure", label: "Microsoft Azure" },
+  { slug: "googlecloud", label: "Google Cloud" },
+  { slug: "tencentqq", label: "Tencent Cloud" },
+  { slug: "alibabacloud", label: "Alibaba Cloud" },
+  { slug: "cloudflare", label: "Cloudflare" },
+  { slug: "digitalocean", label: "DigitalOcean" },
+  { slug: "vercel", label: "Vercel" },
+  { slug: "nvidia", label: "NVIDIA" },
+  // What a server actually serves.
+  { slug: "docker", label: "Docker" },
+  { slug: "kubernetes", label: "Kubernetes" },
+  { slug: "linux", label: "Linux" },
+  { slug: "ubuntu", label: "Ubuntu" },
+  { slug: "nginx", label: "NGINX" },
+  { slug: "postgresql", label: "PostgreSQL" },
+  { slug: "redis", label: "Redis" },
+  { slug: "mongodb", label: "MongoDB" },
+  // Tooling around it.
+  { slug: "python", label: "Python" },
+  { slug: "nodedotjs", label: "Node.js" },
+  { slug: "github", label: "GitHub" },
+  { slug: "grafana", label: "Grafana" },
+  { slug: "terraform", label: "Terraform" },
 ];
 
 export function orbitLogoUrl(slug: string): string {

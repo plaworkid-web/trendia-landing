@@ -217,6 +217,26 @@ html[data-glass="off"] .glass-card {
   overflow: hidden;
 }
 
+/* Right-to-left drift for the technology lanes.
+ *
+ * The strip renders its list several times over, and the shift is exactly one copy, so
+ * the next copy lands where the previous one began: the loop has no seam and no gap.
+ * The distance comes from `--marquee-shift`, set by the component from the copy count —
+ * a hardcoded -50% only works for two copies and left a gap once the lane grew wider
+ * than a single copy.
+ *
+ * `translate3d` rather than `translateX` so the browser keeps the strip on its own
+ * compositor layer; at four lanes animating at once that is the difference between a
+ * smooth drift and a repaint of the section every frame. */
+@keyframes marquee-rtl {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(var(--marquee-shift, -50%), 0, 0);
+  }
+}
+
 @keyframes fadeSlideIn {
   from {
     opacity: 0;

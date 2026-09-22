@@ -7,7 +7,6 @@ import { Partners } from "@/components/landing/partners";
 import { Testimonials } from "@/components/landing/testimonials";
 import { FaqSection } from "@/components/landing/faq-section";
 import { BlogSection } from "@/components/landing/blog-section";
-import { ChangelogSection } from "@/components/landing/changelog-section";
 import { CtaSection } from "@/components/landing/cta-section";
 import { Footer } from "@/components/ui/footer-section";
 import { LocaleDocument } from "@/components/providers/locale-document";
@@ -33,13 +32,12 @@ export async function HomePage({ locale }: { locale: Locale }) {
           menuItems={landingData?.menu_items ?? []}
         />
         <Component locale={locale} />
-        <IntegrationsSection locale={locale} models={aiModels ?? []} />
         {/* Pricing moved off the homepage: each product has its own page now
             (/vps and /ai) that carries the feature list next to the price list, so a
             visitor compares one product at a time instead of skimming a tabbed table
             that showed neither in full. */}
         <ProductShowcase locale={locale} />
-        <Partners partners={landingData?.partners ?? []} locale={locale} />
+        <Partners locale={locale} />
         <Testimonials
           testimonials={landingData?.testimonials ?? []}
           locale={locale}
@@ -48,8 +46,15 @@ export async function HomePage({ locale }: { locale: Locale }) {
           plans={aiPlans}
         />
         <BlogSection posts={landingData?.blog_posts ?? []} locale={locale} />
-        <ChangelogSection changelogs={landingData?.changelogs ?? []} locale={locale} />
-        <FaqSection faqs={landingData?.faqs ?? []} locale={locale} />
+        {/* Integrations and FAQ sit side by side: the orbit explains what the API
+            reaches, and the questions answer what a visitor still hesitates over.
+            Stacked, each was a full-width band of mostly empty margin. */}
+        <section className="section-shell">
+          <div className="section-container grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
+            <IntegrationsSection locale={locale} models={aiModels ?? []} embedded />
+            <FaqSection faqs={landingData?.faqs ?? []} locale={locale} embedded />
+          </div>
+        </section>
         <CtaSection locale={locale} brandName={appSettings?.app_name} />
       </main>
       <Footer

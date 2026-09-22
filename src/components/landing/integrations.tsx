@@ -39,7 +39,19 @@ const IntegrationCard = ({
   );
 };
 
-export function IntegrationsSection({ locale, models = [] }: { locale: Locale; models?: AiModel[] }) {
+export function IntegrationsSection({
+  locale,
+  models = [],
+  /**
+   * Renders without the outer `<section>` and its vertical padding, for placing inside a
+   * grid beside another block. The caller owns the section and the spacing then.
+   */
+  embedded = false,
+}: {
+  locale: Locale;
+  models?: AiModel[];
+  embedded?: boolean;
+}) {
   const t = copy[locale].integrations;
   const providers = React.useMemo(() => {
     const map = new Map<string, { name: string; slug: string; logo: string | null }>();
@@ -71,8 +83,8 @@ export function IntegrationsSection({ locale, models = [] }: { locale: Locale; m
 
   return (
     <section id="integrations">
-      <div className="py-24 md:py-32">
-        <div className="mx-auto max-w-5xl px-6">
+      <div className={cn(embedded ? "" : "py-24 md:py-32")}>
+        <div className={cn("mx-auto", embedded ? "" : "max-w-5xl px-6")}>
           <div className="aspect-16/10 group relative mx-auto flex max-w-[22rem] items-center justify-between sm:max-w-sm">
             <div
               role="presentation"
