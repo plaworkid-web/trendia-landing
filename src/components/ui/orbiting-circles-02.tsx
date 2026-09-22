@@ -1,36 +1,87 @@
 "use client";
 
-import {
-  BrainCircuit,
-  Cloud,
-  Code2,
-  Cpu,
-  Database,
-  Globe2,
-  Network,
-  Sparkles,
-} from "lucide-react";
+import { INNER_LOGOS, OUTER_LOGOS, orbitLogoUrl, type OrbitLogo } from "@/lib/orbit-logos";
 
-const orbitIcons = [
-  { Icon: BrainCircuit, className: "-top-[26.25px] left-1/2 -translate-x-1/2" },
-  { Icon: Cloud, className: "-right-[26.25px] top-1/2 -translate-y-1/2" },
-  { Icon: Code2, className: "-bottom-[26.25px] left-1/2 -translate-x-1/2" },
-  { Icon: Database, className: "-left-[26.25px] top-1/2 -translate-y-1/2" },
-];
+/**
+ * Brand marks orbiting the hero.
+ *
+ * Two details the previous hardcoded version did not have to face:
+ *
+ * 1. Positions are computed from an angle. Four hand-written Tailwind offsets cannot
+ *    become eight without inventing offsets, so each badge is placed with
+ *    `left/top` percentages around the ring and centred with `translate(-50%, -50%)`.
+ * 2. Each badge counter-rotates against its ring. A ring turning 34s while its child
+ *    spins with it would leave every logo permanently tilted — the mark would rotate
+ *    with the orbit, which reads as a broken image rather than a turning logo. The
+ *    counter-rotation uses the same duration, so the net rotation is zero.
+ */
+function OrbitIcon({
+  logo,
+  angleDeg,
+  durationSeconds,
+  reverse,
+}: {
+  logo: OrbitLogo;
+  angleDeg: number;
+  durationSeconds: number;
+  reverse: boolean;
+}) {
+  const rad = (angleDeg * Math.PI) / 180;
+  const x = 50 + 50 * Math.cos(rad);
+  const y = 50 + 50 * Math.sin(rad);
 
-const innerIcons = [
-  { Icon: Cpu, className: "-top-[26.25px] left-1/2 -translate-x-1/2" },
-  { Icon: Network, className: "-bottom-[26.25px] left-1/2 -translate-x-1/2" },
-  { Icon: Sparkles, className: "-left-[26.25px] top-1/2 -translate-y-1/2" },
-];
-
-function OrbitIcon({ Icon, className }: { Icon: typeof Globe2; className: string }) {
   return (
     <span
-      className={`absolute flex size-[52.5px] items-center justify-center rounded-full border border-white/20 bg-black/45 text-white/80 shadow-[0_0_24px_rgba(71,8,217,0.55)] backdrop-blur-md ${className}`}
+      className="absolute flex size-[52.5px] items-center justify-center rounded-full border border-white/20 bg-black/45 shadow-[0_0_24px_rgba(71,8,217,0.55)] backdrop-blur-md"
+      style={{
+        left: `${x}%`,
+        top: `${y}%`,
+        // Centre on the point, then undo the ring's rotation.
+        animation: `orbit-counter ${durationSeconds}s linear infinite${reverse ? "" : " reverse"}`,
+      }}
     >
-      <Icon className="size-[21px]" strokeWidth={1.5} />
+      <img
+        src={orbitLogoUrl(logo.slug)}
+        alt={logo.label}
+        width={21}
+        height={21}
+        loading="lazy"
+        decoding="async"
+        className="size-[21px] opacity-90 [filter:brightness(0)_invert(1)]"
+      />
     </span>
+  );
+}
+
+function Ring({
+  logos,
+  durationSeconds,
+  reverse = false,
+  insetPercent,
+}: {
+  logos: OrbitLogo[];
+  durationSeconds: number;
+  reverse?: boolean;
+  insetPercent: number;
+}) {
+  return (
+    <div
+      className="absolute rounded-full border border-dashed border-violet-300/25"
+      style={{
+        inset: `${insetPercent}%`,
+        animation: `spin ${durationSeconds}s linear infinite${reverse ? " reverse" : ""}`,
+      }}
+    >
+      {logos.map((logo, index) => (
+        <OrbitIcon
+          key={logo.slug}
+          logo={logo}
+          angleDeg={(360 / logos.length) * index}
+          durationSeconds={durationSeconds}
+          reverse={reverse}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -43,17 +94,12 @@ export default function OrbitingCirclesGlobe() {
     >
       <div className="relative mt-20 aspect-square w-[min(182.02vw,1602px)] shrink-0 translate-y-[30%] opacity-80 sm:mt-12 sm:w-[min(152.9vw,1602px)]">
         <div className="absolute inset-[7%] rounded-full border border-white/10 [box-shadow:0_0_80px_rgba(71,8,217,0.28),inset_0_0_80px_rgba(71,8,217,0.18)]" />
-        <div className="absolute inset-[7%] animate-[spin_34s_linear_infinite] rounded-full border border-dashed border-violet-300/25">
-          {orbitIcons.map(({ Icon, className }) => (
-            <OrbitIcon key={className} Icon={Icon} className={className} />
-          ))}
-        </div>
 
-        <div className="absolute inset-[22%] animate-[spin_24s_linear_infinite_reverse] rounded-full border border-white/15">
-          {innerIcons.map(({ Icon, className }) => (
-            <OrbitIcon key={className} Icon={Icon} className={className} />
-          ))}
-        </div>
+        {/* Outer ring — model makers. */}
+        <Ring logos={OUTER_LOGOS} durationSeconds={34} insetPercent={7} />
+
+        {/* Inner ring — infrastructure, turning the other way. */}
+        <Ring logos={INNER_LOGOS} durationSeconds={24} reverse insetPercent={22} />
       </div>
     </div>
   );

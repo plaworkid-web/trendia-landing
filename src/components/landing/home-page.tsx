@@ -1,8 +1,8 @@
-import { fetchAiModels, fetchAiPlans, fetchAppSettings, fetchLandingData, fetchVpsPlans } from "@/lib/api";
+import { fetchAiModels, fetchAiPlans, fetchAppSettings, fetchLandingData } from "@/lib/api";
 import { Hero } from "@/components/landing/hero";
 import { Component } from "@/components/ui/featuresgrid";
 import { IntegrationsSection } from "@/components/landing/integrations";
-import { PricingSection } from "@/components/landing/pricing-section";
+import { ProductShowcase } from "@/components/landing/product-showcase";
 import { Partners } from "@/components/landing/partners";
 import { Testimonials } from "@/components/landing/testimonials";
 import { FaqSection } from "@/components/landing/faq-section";
@@ -14,12 +14,13 @@ import { LocaleDocument } from "@/components/providers/locale-document";
 import type { Locale } from "@/lib/site";
 
 export async function HomePage({ locale }: { locale: Locale }) {
-  const [landingData, aiPlans, appSettings, aiModels, vpsPlans] = await Promise.all([
+  // `fetchVpsPlans` is gone with the pricing table: the homepage no longer lists
+  // prices, so fetching the plans would be a request whose result nothing reads.
+  const [landingData, aiPlans, appSettings, aiModels] = await Promise.all([
     fetchLandingData(),
     fetchAiPlans(),
     fetchAppSettings(),
     fetchAiModels(),
-    fetchVpsPlans(),
   ]);
 
   return (
@@ -33,7 +34,11 @@ export async function HomePage({ locale }: { locale: Locale }) {
         />
         <Component locale={locale} />
         <IntegrationsSection locale={locale} models={aiModels ?? []} />
-        <PricingSection aiPlans={aiPlans} vpsPlans={vpsPlans} locale={locale} />
+        {/* Pricing moved off the homepage: each product has its own page now
+            (/vps and /ai) that carries the feature list next to the price list, so a
+            visitor compares one product at a time instead of skimming a tabbed table
+            that showed neither in full. */}
+        <ProductShowcase locale={locale} />
         <Partners partners={landingData?.partners ?? []} locale={locale} />
         <Testimonials
           testimonials={landingData?.testimonials ?? []}

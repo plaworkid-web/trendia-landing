@@ -2,10 +2,26 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Check, Cpu, Database, Gauge, HardDrive, MapPin, MemoryStick, Search, Server } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  Cpu,
+  Database,
+  Gauge,
+  HardDrive,
+  MapPin,
+  MemoryStick,
+  Network,
+  Search,
+  Server,
+  ShieldCheck,
+  Timer,
+  Zap,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ProductFeatures, type ProductFeature } from "@/components/landing/product-features";
 import { cn } from "@/lib/utils";
 import { portalUrl, type Locale } from "@/lib/site";
 import type { VpsPlan, VpsPlanType } from "@/types/landing";
@@ -43,6 +59,55 @@ export function VpsCatalog({ plans, locale }: { plans: VpsPlan[]; locale: Locale
   const [type, setType] = useState<"all" | string>("all");
   const [currency, setCurrency] = useState<"IDR" | "USD">("IDR");
 
+  // The advantages, stated before the prices. Every claim here is something the plan
+  // rows below actually carry (storage_type, bandwidth_tb, network_gbps,
+  // os_options) — an advantage the catalogue does not deliver would be a claim the
+  // visitor can disprove by scrolling.
+  const features: ProductFeature[] = [
+    {
+      Icon: Zap,
+      title: isId ? "NVMe SSD di semua paket" : "NVMe SSD on every plan",
+      description: isId
+        ? "Penyimpanan NVMe berkecepatan tinggi, bukan disk putar. Semua paket di bawah memakainya."
+        : "High-speed NVMe storage, not spinning disks. Every plan below uses it.",
+    },
+    {
+      Icon: ShieldCheck,
+      title: isId ? "Proteksi anti-DDoS" : "DDoS protection",
+      description: isId
+        ? "Traffic serangan disaring di jaringan sebelum mencapai server Anda."
+        : "Attack traffic is filtered at the network before it reaches your server.",
+    },
+    {
+      Icon: Network,
+      title: isId ? "Jaringan cepat" : "Fast network",
+      description: isId
+        ? "Bandwidth jaringan hingga 10 Gbps, dengan jatah traffic bulanan yang jelas per paket."
+        : "Network bandwidth up to 10 Gbps, with a clear monthly traffic allowance per plan.",
+    },
+    {
+      Icon: Server,
+      title: isId ? "Pilihan sistem operasi" : "Choice of operating system",
+      description: isId
+        ? "Ubuntu, Debian, AlmaLinux, Rocky Linux, dan lainnya — pilih saat pemesanan."
+        : "Ubuntu, Debian, AlmaLinux, Rocky Linux, and more — chosen at order time.",
+    },
+    {
+      Icon: Timer,
+      title: isId ? "Aktif dalam hitungan menit" : "Running in minutes",
+      description: isId
+        ? "Provisioning otomatis setelah pembayaran terverifikasi, tanpa menunggu konfirmasi manual."
+        : "Provisioned automatically once payment is verified, with no manual confirmation wait.",
+    },
+    {
+      Icon: Gauge,
+      title: isId ? "Pilihan tipe workload" : "Workload types",
+      description: isId
+        ? "Tipe umum, optimasi compute, optimasi memori, dan GPU — sesuai beban kerja Anda."
+        : "General, compute-optimised, memory-optimised, and GPU — matched to your workload.",
+    },
+  ];
+
   const availableTypes = useMemo(() => {
     const set = new Set(plans.map((plan) => plan.plan_type));
     return (Object.keys(typeLabels) as VpsPlanType[]).filter((key) => set.has(key));
@@ -74,7 +139,29 @@ export function VpsCatalog({ plans, locale }: { plans: VpsPlan[]; locale: Locale
           </p>
         </div>
 
-        <div className="mt-10 flex flex-col gap-3 rounded-xl border bg-background/70 p-3 backdrop-blur sm:flex-row">
+        <ProductFeatures
+          label={isId ? "Keunggulan" : "Advantages"}
+          title={isId ? "Kenapa memilih VPS kami." : "Why choose our VPS."}
+          description={
+            isId
+              ? "Hal-hal yang sama di setiap paket, sebelum Anda membandingkan harga."
+              : "What every plan includes, before you compare prices."
+          }
+          features={features}
+        />
+
+        <div className="mt-16">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-sm font-semibold uppercase tracking-wider text-primary">
+              {isId ? "Daftar Harga" : "Pricing"}
+            </p>
+            <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+              {isId ? "Paket VPS" : "VPS plans"}
+            </h2>
+          </div>
+        </div>
+
+        <div className="mt-8 flex flex-col gap-3 rounded-xl border bg-background/70 p-3 backdrop-blur sm:flex-row">
           <label className="relative flex-1">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <span className="sr-only">{isId ? "Cari paket VPS" : "Search VPS plans"}</span>
