@@ -131,7 +131,9 @@ export const copy = {
       copy: "Salin ID model",
       model: "Model",
       off: "diskon",
-      priceNote: "Harga dalam rupiah per 1 juta token, sudah termasuk margin layanan.",
+      multiplier: "pengali",
+      priceNote:
+        "Harga dalam rupiah per 1 juta token, sudah termasuk margin layanan. Model dengan pengali lebih besar menghabiskan token lebih cepat, dan harga di atas sudah termasuk pengali itu.",
     },
     legal: {
       updated: "Terakhir diperbarui",
@@ -208,7 +210,9 @@ export const copy = {
       copy: "Copy model ID",
       model: "Model",
       off: "off",
-      priceNote: "Prices in rupiah per 1M tokens, service margin included.",
+      multiplier: "multiplier",
+      priceNote:
+        "Prices in rupiah per 1M tokens, service margin included. A model with a larger multiplier drains tokens faster, and the price above already includes it.",
     },
     legal: {
       updated: "Last updated",

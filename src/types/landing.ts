@@ -173,6 +173,13 @@ export interface AiModel {
   family_label?: string;
   /** Effective discount percent on this model, when a promotion applies. */
   discount_percent?: number;
+  /**
+   * How much faster this model drains a token balance, when the platform prices by
+   * multiplier. 1 under the per-model scheme, where each model already has its own price.
+   * Published so a reader sees WHY a model costs more per token instead of an unexplained
+   * number.
+   */
+  token_multiplier?: number;
 }
 
 export type VpsPlanType = "general" | "compute" | "memory" | "gpu";

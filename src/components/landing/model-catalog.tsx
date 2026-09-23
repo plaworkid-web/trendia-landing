@@ -165,6 +165,13 @@ export function ModelCatalog({ models, locale, unavailable = false }: { models: 
                                         {Math.round(off)}% {t.off}
                                       </Badge>
                                     )}
+                                    {/* Only shown above 1: at x1 the badge would sit on
+                                        every row and say nothing. */}
+                                    {(model.token_multiplier ?? 1) > 1 && (
+                                      <Badge variant="outline">
+                                        {t.multiplier} x{Number(model.token_multiplier).toFixed(2).replace(/\.?0+$/, "")}
+                                      </Badge>
+                                    )}
                                     {model.is_featured && <Badge variant="secondary">{locale === "id" ? "Unggulan" : "Featured"}</Badge>}
                                     {model.status === "deprecated" && <Badge variant="outline">{locale === "id" ? "Usang" : "Deprecated"}</Badge>}
                                   </div>
