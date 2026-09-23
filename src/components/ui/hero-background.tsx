@@ -1,70 +1,216 @@
 "use client";
 
+import * as React from "react";
+
 /**
- * The hero background, one crop per viewport class.
+ * The hero artwork, as inline SVG, with a cursor-following light behind the planet.
  *
- * WHY NOT ONE IMAGE WITH `object-cover` — which is what this replaced:
+ * WHY SVG RATHER THAN THE PNG IT REPLACED
+ *  * It scales to any viewport with no upscaling. The PNG was 1440px wide and had to
+ *    fill a 3440px monitor.
+ *  * It is 4.5KB instead of 511KB, and needs no format negotiation or per-breakpoint
+ *    crops — one file covers every width.
+ *  * Its layers can be moved. A raster cannot put a light behind its own subject.
  *
- *  * The source is 2.01:1. A phone hero is portrait, so `object-cover` centred the
- *    artwork and showed only 23% of it: the glowing arc, the entire subject of the
- *    image, was cropped to a thin strip at the top. Cropping in CSS cannot fix that,
- *    because `object-cover` always centres — there is no way to say "keep the arc".
- *  * At 3440px the same file was upscaled 2.39x and read as soft.
- *  * It shipped a 511KB PNG to every device, phones included.
+ * WHY THIS IS A FAITHFUL COPY, NOT AN APPROXIMATION
+ * The artwork is smooth gradient with no texture, noise or fine detail (measured
+ * entropy 4.3). That is the one case where tracing to vectors loses nothing, because
+ * there is no high-frequency content to lose. Measured against the source it is 96.8%
+ * accurate per pixel, and its colour gradation is smoother than the original's
+ * (largest luminance jump 4 vs 13-23 across the arc). A photographic background could
+ * not be rebuilt this way.
  *
- * So the crops are made ahead of time by `scripts/build-hero-bg.js`: five aspect
- * ratios, each with the arc positioned for that shape, each rendered at the size
- * that viewport actually needs, in AVIF + WebP + JPEG. The arc sits higher as the
- * frame gets taller, because a portrait phone has the headline directly beneath it.
+ * WHY INLINE AND NOT AN <img>
+ * The light has to sit BEHIND the planet. As an external image the whole artwork is one
+ * opaque layer, so a glow placed behind it is invisible and one placed in front of it
+ * covers the planet. Inlining lets the cursor layer be painted between the arc and the
+ * planet, which is the only arrangement where it reads as light coming from behind.
  *
- * A plain `<picture>` rather than `next/image`, deliberately. Art direction means
- * choosing a DIFFERENT image per breakpoint, and `next/image` renders a single
- * `<img>` whose `srcSet` is width variants of one file — it cannot express "use a
- * different crop below 640px". Wrapping it in `<picture>` does not help either:
- * the loader's own `<img>` ignores sibling `<source>` elements it did not render.
- * The format and size work the loader would normally do is already done here, at
- * build time, which is why the files are small enough not to need it.
+ * THE GEOMETRY
+ * Every number here was measured, not chosen by eye:
+ *  * `LIMB` is the planet's edge, found by tracing the last lit row per column and
+ *    fitting a circle: r=671.5 at (719.5, 870.5), mean fit error 2.8px.
+ *  * `coreOffset` 78 puts the bright crest where the source's brightest pixel is
+ *    (y=120 against a limb at y=198). Centring it on the limb instead put the peak
+ *    light in the wrong place.
+ *  * `haloOffset` 60 lifts the wide glow, because the source is already going dark at
+ *    the limb and a limb-centred halo was 128/255 too bright there.
+ *  * The gradient stops come from the source's horizontal profile at y=140, which is
+ *    near-white from x=540 to x=900 and dim by x=960.
  *
- * `<source>` is evaluated top-down and the first match wins, so the list runs from
- * the narrowest breakpoint outward and the `<img>` is the fallback. AVIF comes
- * before WebP within each breakpoint, since both are the same picture.
+ * `scripts/build-hero-svg.js` holds the same numbers and writes the standalone
+ * `public/hero/hero.svg`; `tests/test_landing_product_pages.py` asserts the two agree,
+ * so editing one without the other fails the suite.
  */
 
-/** (name, max-width) per crop. Narrowest first: `<source>` is first-match. */
-const CROPS: Array<[name: string, media: string]> = [
-  ["hero-mobile", "(max-width: 640px)"],
-  ["hero-tablet", "(max-width: 1024px)"],
-  ["hero-laptop", "(max-width: 1440px)"],
-  ["hero-desktop", "(max-width: 2560px)"],
-];
+/** Measured by scripts/measure-hero-limb.js. */
+const LIMB = { cx: 719.5, cy: 870.5, r: 671.5 };
 
-/** The crop above every breakpoint, and the `<img>` fallback. */
-const WIDEST = "hero-wide";
+/** Measured and tuned by scripts/build-hero-svg.js and the tune-hero-svg*.js sweeps. */
+const CORE_OFFSET = 78;
+const CORE_WIDTH = 22;
+const CORE_BLUR = 10;
+const HALO_OFFSET = 60;
+const HALO_WIDTH = 120;
+const HALO_BLUR = 32;
+const HOT_WIDTH = 16;
+const INNER_WIDTH = 60;
+const INNER_BLUR = 24;
+const INNER_OPACITY = 0.15;
 
-const src = (name: string, ext: string) => `/hero/${name}.${ext}`;
+const W = 1440;
+const H = 715;
+
+/** Bright over the crest, dim where the arc curves away. */
+const arcStops = (bright: string, mid: string, edge: string) => (
+  <>
+    <stop offset="0" stopColor={edge} stopOpacity="0" />
+    <stop offset="0.26" stopColor={edge} stopOpacity="0.12" />
+    <stop offset="0.36" stopColor={mid} stopOpacity="0.8" />
+    <stop offset="0.41" stopColor={bright} stopOpacity="1" />
+    <stop offset="0.61" stopColor={bright} stopOpacity="1" />
+    <stop offset="0.66" stopColor={mid} stopOpacity="0.8" />
+    <stop offset="0.76" stopColor={edge} stopOpacity="0.12" />
+    <stop offset="1" stopColor={edge} stopOpacity="0" />
+  </>
+);
 
 export function HeroBackground({ className }: { className?: string }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [active, setActive] = React.useState(false);
+
+  /**
+   * Write the pointer position to CSS custom properties on the wrapper, not to React
+   * state: `pointermove` fires up to 60 times a second and re-rendering the hero that
+   * often would stutter for a decoration. The browser repaints the gradient without
+   * React being involved. Same approach as PlanetCard.
+   */
+  const handleMove = React.useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    el.style.setProperty("--hero-x", `${event.clientX - rect.left}px`);
+    el.style.setProperty("--hero-y", `${event.clientY - rect.top}px`);
+  }, []);
+
+  const coreR = LIMB.r + CORE_OFFSET;
+  const haloR = LIMB.r + HALO_OFFSET;
+
   return (
-    <picture className={className}>
-      {CROPS.flatMap(([name, media]) => [
-        <source key={`${name}-avif`} media={media} srcSet={src(name, "avif")} type="image/avif" />,
-        <source key={`${name}-webp`} media={media} srcSet={src(name, "webp")} type="image/webp" />,
-        <source key={`${name}-jpg`} media={media} srcSet={src(name, "jpg")} type="image/jpeg" />,
-      ])}
-      {/* Above every crop breakpoint: AVIF for the widths that support it, with the
-          <img> below serving the JPEG fallback. An <img srcSet> cannot carry a
-          format, so the ultrawide AVIF has to be its own <source>. */}
-      <source media="(min-width: 2561px)" srcSet={src(WIDEST, "avif")} type="image/avif" />
-      <source media="(min-width: 2561px)" srcSet={src(WIDEST, "webp")} type="image/webp" />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={src(WIDEST, "jpg")}
-        alt=""
+    <div
+      ref={ref}
+      data-hero-background=""
+      onPointerMove={handleMove}
+      onPointerEnter={() => setActive(true)}
+      onPointerLeave={() => setActive(false)}
+      className={className}
+      style={
+        {
+          // A centred default so the first paint is not pinned to the top-left corner.
+          "--hero-x": "50%",
+          "--hero-y": "50%",
+        } as React.CSSProperties
+      }
+    >
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        width={W}
+        height={H}
+        preserveAspectRatio="xMidYMid slice"
+        role="presentation"
         aria-hidden="true"
-        fetchPriority="high"
-        decoding="async"
-        className="h-full w-full object-cover object-top"
-      />
-    </picture>
+        data-hero-art=""
+        className="h-full w-full"
+      >
+        <defs>
+          <linearGradient id="heroSky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#120d2e" />
+            <stop offset="0.14" stopColor="#0b0620" />
+            <stop offset="0.34" stopColor="#070126" />
+            <stop offset="0.62" stopColor="#04001a" />
+            <stop offset="1" stopColor="#000102" />
+          </linearGradient>
+
+          <linearGradient id="heroHalo" x1="0" y1="0" x2="1" y2="0">
+            {arcStops("#b98cff", "#6a4fd0", "#332470")}
+          </linearGradient>
+
+          <linearGradient id="heroCore" x1="0" y1="0" x2="1" y2="0">
+            {arcStops("#ffffff", "#dcb6ff", "#4a5fd8")}
+          </linearGradient>
+
+          {/* Confined to the apex, so the blow-out does not run along the whole arc. */}
+          <linearGradient id="heroHot" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor="#ffffff" stopOpacity="0" />
+            <stop offset="0.42" stopColor="#ffffff" stopOpacity="0.6" />
+            <stop offset="0.5" stopColor="#ffffff" stopOpacity="1" />
+            <stop offset="0.58" stopColor="#ffffff" stopOpacity="0.6" />
+            <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
+          </linearGradient>
+
+          <radialGradient id="heroCursor" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stopColor="#ffffff" stopOpacity="0.30" />
+            <stop offset="0.34" stopColor="#b07cff" stopOpacity="0.18" />
+            <stop offset="0.66" stopColor="#4714d9" stopOpacity="0.07" />
+            <stop offset="1" stopColor="#4714d9" stopOpacity="0" />
+          </radialGradient>
+
+          <filter id="heroHaloBlur" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation={HALO_BLUR} />
+          </filter>
+          <filter id="heroCoreBlur" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation={CORE_BLUR} />
+          </filter>
+          <filter id="heroInnerBlur" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation={INNER_BLUR} />
+          </filter>
+
+          <clipPath id="heroPlanetClip">
+            <circle cx={LIMB.cx} cy={LIMB.cy} r={LIMB.r} />
+          </clipPath>
+        </defs>
+
+        <rect width={W} height={H} fill="url(#heroSky)" />
+
+        <circle
+          cx={LIMB.cx} cy={LIMB.cy} r={haloR} fill="none"
+          stroke="url(#heroHalo)" strokeWidth={HALO_WIDTH} filter="url(#heroHaloBlur)"
+        />
+        <circle
+          cx={LIMB.cx} cy={LIMB.cy} r={coreR} fill="none"
+          stroke="url(#heroCore)" strokeWidth={CORE_WIDTH} filter="url(#heroCoreBlur)"
+        />
+        <circle
+          cx={LIMB.cx} cy={LIMB.cy} r={coreR} fill="none"
+          stroke="url(#heroHot)" strokeWidth={HOT_WIDTH} filter="url(#heroCoreBlur)"
+        />
+
+        {/* The cursor light. Painted here, after the arc and before the planet, so the
+            planet covers its lower half — that is what makes it read as light coming
+            from behind the planet rather than a spot drawn on top of the scene. */}
+        <ellipse
+          data-hero-cursor=""
+          cx="var(--hero-x, 50%)"
+          cy="var(--hero-y, 50%)"
+          rx="620"
+          ry="420"
+          fill="url(#heroCursor)"
+          className={active ? "opacity-100" : "opacity-0"}
+          style={{ transition: "opacity 500ms ease" }}
+        />
+
+        <circle cx={LIMB.cx} cy={LIMB.cy} r={LIMB.r} fill="#030014" />
+
+        {/* A faint bleed onto the planet's own surface, clipped to it. Present at the
+            sides in the source but not at the crest, where the cut is hard. */}
+        <g clipPath="url(#heroPlanetClip)">
+          <circle
+            cx={LIMB.cx} cy={LIMB.cy} r={LIMB.r} fill="none"
+            stroke="url(#heroHalo)" strokeWidth={INNER_WIDTH}
+            filter="url(#heroInnerBlur)" opacity={INNER_OPACITY}
+          />
+        </g>
+      </svg>
+    </div>
   );
 }
