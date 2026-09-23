@@ -94,7 +94,6 @@ export default function Page() {
   return (
     <LegalPage
       locale="id"
-      eyebrow="Legal"
       title="Syarat & Ketentuan"
       updated="[ISI: tanggal berlaku]"
       intro="Ketentuan ini mengatur penggunaan layanan AI dan infrastruktur yang kami sediakan."

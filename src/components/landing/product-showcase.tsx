@@ -56,7 +56,6 @@ export function ProductShowcase({ locale }: { locale: Locale }) {
     <section className="section-shell">
       <div className="section-container">
         <SectionHeader
-          label={isId ? "Dua Layanan" : "Two Services"}
           title={isId ? "Pilih yang Anda butuhkan." : "Pick what you need."}
           description={
             isId

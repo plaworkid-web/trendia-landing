@@ -41,9 +41,6 @@ export function Component({ locale = "id" }: { locale?: Locale }) {
     >
       <div className="mx-auto max-w-6xl px-6 md:px-8">
         <div className="mb-16 flex flex-col items-center text-center">
-          <div className="type-eyebrow mb-6 inline-flex items-center rounded-full border border-white/[0.12] bg-white/[0.03] px-3 py-1 text-neutral-400">
-            {isId ? "Kapabilitas Platform" : "Platform Capabilities"}
-          </div>
           <h2 className="type-display mb-4 max-w-3xl text-balance text-white">
             {isId ? "Semua yang Anda butuhkan." : "Everything you need."} <br className="hidden sm:block" />
             <span className="text-neutral-600">{isId ? "Tanpa kompleksitas berlebih." : "Nothing you don&apos;t."}</span>

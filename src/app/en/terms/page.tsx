@@ -94,7 +94,6 @@ export default function Page() {
   return (
     <LegalPage
       locale="en"
-      eyebrow="Legal"
       title="Terms & Conditions"
       updated="[FILL IN: effective date]"
       intro="These terms govern your use of the AI and infrastructure services we provide."

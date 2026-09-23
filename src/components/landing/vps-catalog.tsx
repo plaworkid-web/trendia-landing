@@ -87,15 +87,13 @@ export function VpsCatalog({ plans, locale }: { plans: VpsPlan[]; locale: Locale
     <section className="section-shell">
       <div className="section-container">
         <div className="mx-auto max-w-3xl text-center">
-          <p className="type-eyebrow">{isId ? "Katalog VPS" : "VPS Catalog"}</p>
-          <h1 className="type-display mt-2">{isId ? "Server cepat untuk setiap workload." : "Fast servers for every workload."}</h1>
+          <h1 className="type-display">{isId ? "Server cepat untuk setiap workload." : "Fast servers for every workload."}</h1>
           <p className="mt-4 text-lg text-muted-foreground">
             {isId ? "Pilih resource, lokasi, dan tipe server yang sesuai. Semua paket menggunakan NVMe dan dilindungi anti-DDoS." : "Choose the resources, location, and server type you need. Every plan includes NVMe storage and DDoS protection."}
           </p>
         </div>
 
         <ProductFeatures
-          label={isId ? "Keunggulan" : "Advantages"}
           title={isId ? "Kenapa memilih VPS kami." : "Why choose our VPS."}
           description={
             isId
@@ -107,10 +105,7 @@ export function VpsCatalog({ plans, locale }: { plans: VpsPlan[]; locale: Locale
 
         <div className="mt-16">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="type-eyebrow">
-              {isId ? "Daftar Harga" : "Pricing"}
-            </p>
-            <h2 className="type-h2 mt-2">
+            <h2 className="type-h2">
               {isId ? "Paket VPS" : "VPS plans"}
             </h2>
           </div>

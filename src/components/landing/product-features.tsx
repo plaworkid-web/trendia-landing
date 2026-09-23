@@ -20,13 +20,11 @@ export interface ProductFeature extends HomeStyleFeature {
  * whole site reads as one design rather than two.
  */
 export function ProductFeatures({
-  label,
   title,
   description,
   features,
   className,
 }: {
-  label: string;
   title: string;
   description?: string;
   features: ProductFeature[];
@@ -34,8 +32,7 @@ export function ProductFeatures({
 }) {
   const heading = (
     <div className="mx-auto max-w-2xl text-center">
-      <p className="type-eyebrow">{label}</p>
-      <h2 className="type-h2 mt-2">{title}</h2>
+      <h2 className="type-h2">{title}</h2>
       {description && <p className="mt-4 text-muted-foreground">{description}</p>}
     </div>
   );

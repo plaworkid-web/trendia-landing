@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
  * Sizes come from the `type-*` classes in globals.css, never from local literals.
  */
 interface SectionHeaderProps {
-  label?: string;
   title: string;
   description?: string;
   align?: "center" | "left";
@@ -17,7 +16,6 @@ interface SectionHeaderProps {
 }
 
 export function SectionHeader({
-  label,
   title,
   description,
   align = "center",
@@ -33,9 +31,6 @@ export function SectionHeader({
         className
       )}
     >
-      {label && (
-        <p className={cn("type-eyebrow", light && "text-white/60")}>{label}</p>
-      )}
       <h2 className={cn("type-h2", light && "text-white")}>{title}</h2>
       {description && (
         <p className={cn("type-lead", light && "text-white/70")}>{description}</p>

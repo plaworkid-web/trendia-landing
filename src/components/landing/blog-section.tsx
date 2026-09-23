@@ -23,8 +23,7 @@ export function BlogSection({ posts, locale }: { posts: BlogPost[]; locale: Loca
     <section id="blog" className="section-shell">
       <div className="section-container">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="type-eyebrow">{t.eyebrow}</p>
-          <h2 className="type-h2 mt-2">{t.title}</h2>
+          <h2 className="type-h2">{t.title}</h2>
           <p className="mt-4 text-lg text-muted-foreground">{t.description}</p>
         </div>
 

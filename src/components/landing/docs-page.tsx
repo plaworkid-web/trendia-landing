@@ -53,8 +53,7 @@ response = client.chat.completions.create(
       <section className="section-shell">
         <div className="section-container">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="type-eyebrow">{t.eyebrow}</p>
-            <h1 className="type-display mt-2">{t.title}</h1>
+            <h1 className="type-display">{t.title}</h1>
             {/* The copy carries a {brand} token so it follows Settings → General
                 instead of naming a brand that may have been renamed. */}
             <p className="mt-4 text-lg text-muted-foreground">

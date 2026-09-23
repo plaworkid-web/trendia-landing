@@ -38,8 +38,7 @@ export function FaqSection({
   const body = (
     <>
       <div className={cn("text-center", !embedded && "mx-auto max-w-2xl")}>
-        <p className="type-eyebrow">{t.eyebrow}</p>
-        <h2 className="type-h2 mt-2">{t.title}</h2>
+        <h2 className="type-h2">{t.title}</h2>
         <p className="mt-4 text-lg text-muted-foreground">{t.description}</p>
       </div>
 

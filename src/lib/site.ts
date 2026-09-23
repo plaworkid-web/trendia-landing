@@ -113,14 +113,12 @@ export const copy = {
       action: "Lihat Katalog Model",
     },
     pricing: {
-      eyebrow: "Harga Transparan",
       title: "Pilih Infrastruktur yang Anda Butuhkan",
       description: "Paket VPS fleksibel dan akses AI berbasis kredit untuk setiap tahap pengembangan.",
       vps: "VPS Hosting",
       ai: "AI API",
     },
     models: {
-      eyebrow: "Katalog AI",
       title: "Semua model, satu endpoint.",
       description: "Bandingkan context window serta harga input dan output antar model — dikelompokkan per keluarga model.",
       search: "Cari model...",
@@ -144,25 +142,21 @@ export const copy = {
       jurisdictionPlaceholder: "[ISI: kota/negara hukum yang berlaku]",
     },
     docs: {
-      eyebrow: "Dokumentasi",
       title: "Mulai membangun dalam beberapa menit.",
       description: "Panduan AI API yang sesuai endpoint {brand} serta alur awal penggunaan VPS.",
     },
     partners: { title: "Didukung teknologi terpercaya" },
     faq: {
-      eyebrow: "FAQ",
       title: "Pertanyaan yang sering diajukan",
       description: "Jawaban singkat tentang VPS, AI API, dan cara memulai.",
     },
     blog: {
-      eyebrow: "Blog",
       title: "Wawasan terbaru",
       description: "Panduan, pengumuman produk, dan praktik terbaik dari tim kami.",
       readMore: "Baca selengkapnya",
       all: "Lihat semua artikel",
     },
     changelog: {
-      eyebrow: "Changelog",
       title: "Apa yang baru",
       description: "Pembaruan produk dan perbaikan terbaru.",
     },
@@ -196,14 +190,12 @@ export const copy = {
       action: "Browse Model Catalog",
     },
     pricing: {
-      eyebrow: "Transparent Pricing",
       title: "Choose the Infrastructure You Need",
       description: "Flexible VPS packages and credit-based AI access for every stage of development.",
       vps: "VPS Hosting",
       ai: "AI API",
     },
     models: {
-      eyebrow: "AI Catalog",
       title: "Every model, one endpoint.",
       description: "Compare context windows and input/output pricing across models, grouped by model family.",
       search: "Search models...",
@@ -227,25 +219,21 @@ export const copy = {
       jurisdictionPlaceholder: "[FILL IN: governing city/country]",
     },
     docs: {
-      eyebrow: "Documentation",
       title: "Start building in minutes.",
       description: "AI API guidance matching {brand}'s live endpoints plus a practical VPS getting-started flow.",
     },
     partners: { title: "Powered by trusted technology" },
     faq: {
-      eyebrow: "FAQ",
       title: "Frequently asked questions",
       description: "Quick answers about VPS, AI API, and how to get started.",
     },
     blog: {
-      eyebrow: "Blog",
       title: "Latest insights",
       description: "Guides, product announcements, and best practices from our team.",
       readMore: "Read more",
       all: "View all articles",
     },
     changelog: {
-      eyebrow: "Changelog",
       title: "What's new",
       description: "Latest product updates and improvements.",
     },

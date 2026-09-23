@@ -81,7 +81,6 @@ export default function Page() {
   return (
     <LegalPage
       locale="en"
-      eyebrow="Legal"
       title="Privacy Policy"
       updated="[FILL IN: effective date]"
       intro="This page explains what data we collect when you use this service, why we collect it, and what rights you have over it."

@@ -181,5 +181,5 @@ function ProviderGlyph({ provider }: { provider: { name: string; logo: string | 
     .join("")
     .slice(0, 2)
     .toUpperCase();
-  return <span className="type-eyebrow">{label}</span>;
+  return <span className="provider-glyph">{label}</span>;
 }

@@ -81,7 +81,6 @@ export default function Page() {
   return (
     <LegalPage
       locale="id"
-      eyebrow="Legal"
       title="Kebijakan Privasi"
       updated="[ISI: tanggal berlaku]"
       intro="Halaman ini menjelaskan data apa yang kami kumpulkan saat Anda memakai layanan ini, mengapa kami mengumpulkannya, dan apa hak Anda atas data tersebut."

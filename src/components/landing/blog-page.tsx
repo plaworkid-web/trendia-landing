@@ -30,8 +30,7 @@ export function BlogPage({ posts, locale }: { posts: BlogPost[]; locale: Locale 
         </Link>
 
         <div className="mx-auto mt-8 max-w-2xl text-center">
-          <p className="type-eyebrow">{t.eyebrow}</p>
-          <h1 className="type-h2 mt-2">{t.title}</h1>
+          <h1 className="type-h2">{t.title}</h1>
           <p className="mt-4 text-lg text-muted-foreground">{t.description}</p>
         </div>
 

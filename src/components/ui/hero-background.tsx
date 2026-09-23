@@ -299,7 +299,7 @@ export function HeroBackground({ className }: { className?: string }) {
       {/*
         The blend into the section below.
 
-        The next section ("Kapabilitas Platform") is pure `#000000`; the hero's own sky
+        The next section (the capabilities grid) is pure `#000000`; the hero's own sky
         fades to a near-black #010105, close but not identical, so a seam showed where
         they met.
 

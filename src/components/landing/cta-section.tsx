@@ -16,13 +16,11 @@ import { contactUrl, portalUrl, type Locale } from "@/lib/site";
 
 function ProductPanel({
   brandName,
-  eyebrow,
   title,
   subtitle,
   stats,
 }: {
   brandName: string;
-  eyebrow: string;
   title: string;
   subtitle: string;
   stats: [string, string][];
@@ -41,9 +39,6 @@ function ProductPanel({
           </div>
           <div className="mx-auto mt-2 h-1.5 w-10 rounded-full bg-foreground/15" />
           <div className="px-2 pt-10 text-center">
-            <p className="type-eyebrow text-orange-500">
-              {eyebrow}
-            </p>
             <p className="type-h3 mt-3">
               {title}
             </p>
@@ -73,7 +68,6 @@ function getPanels(brandName: string) {
     media: (
       <ProductPanel
         brandName={brandName}
-        eyebrow="Compute"
         title="Deploy in seconds"
         subtitle="NVMe-powered virtual servers ready for production workloads."
         stats={[["Uptime", "99.9%"], ["Deploy", "< 60 sec"], ["Storage", "NVMe SSD"], ["Network", "Global"]]}
@@ -86,7 +80,6 @@ function getPanels(brandName: string) {
     media: (
       <ProductPanel
         brandName={brandName}
-        eyebrow="Intelligence"
         title="One key, every model"
         subtitle="Connect to leading AI models through one compatible API."
         stats={[["Models", "Multi-model"], ["Response", "Streaming"], ["Billing", "Per usage"], ["API", "Unified"]]}
@@ -99,7 +92,6 @@ function getPanels(brandName: string) {
     media: (
       <ProductPanel
         brandName={brandName}
-        eyebrow="Visibility"
         title="Know every request"
         subtitle="Monitor usage, cost, latency, and infrastructure health live."
         stats={[["Metrics", "Real-time"], ["Logs", "Searchable"], ["Alerts", "Instant"], ["Export", "Available"]]}
@@ -112,7 +104,6 @@ function getPanels(brandName: string) {
     media: (
       <ProductPanel
         brandName={brandName}
-        eyebrow="Protection"
         title="Secure by default"
         subtitle="DDoS protection, encrypted secrets, and isolated workloads."
         stats={[["Encryption", "AES-256"], ["DDoS", "Active"], ["Isolation", "Dedicated"], ["Backups", "Automated"]]}

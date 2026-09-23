@@ -102,8 +102,7 @@ export function ModelCatalog({ models, locale, unavailable = false }: { models: 
     <section className="section-shell">
       <div className="section-container">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="type-eyebrow">{t.eyebrow}</p>
-          <h1 className="type-display mt-2">{t.title}</h1>
+          <h1 className="type-display">{t.title}</h1>
           <p className="mt-4 text-lg text-muted-foreground">{t.description}</p>
         </div>
 

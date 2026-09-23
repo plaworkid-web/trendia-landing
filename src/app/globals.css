@@ -241,9 +241,11 @@
     letter-spacing: -0.011em;
   }
 
-  /* The eyebrow above a section headline. Uppercase, so it needs POSITIVE
-     tracking: negative tracking on capitals makes them collide. */
-  .type-eyebrow {
+  /* The two-letter monogram shown when a provider has no logo. It looks like the
+     section eyebrow did (small, uppercase, wide tracking) but it is a GLYPH, not a
+     sub-title, so it keeps its own name — the eyebrow class was removed on request
+     and this must not be caught up in that. */
+  .provider-glyph {
     font-size: 0.75rem; /* 12px */
     line-height: 1.33;
     font-weight: 510;

@@ -19,14 +19,12 @@ export interface LegalSection {
 export function LegalPage({
   locale,
   title,
-  eyebrow,
   updated,
   intro,
   sections,
 }: {
   locale: Locale;
   title: string;
-  eyebrow: string;
   updated: string;
   intro: string;
   sections: LegalSection[];
@@ -37,8 +35,7 @@ export function LegalPage({
       <section className="section-shell">
         <div className="section-container">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="type-eyebrow">{eyebrow}</p>
-            <h1 className="type-display mt-2">{title}</h1>
+            <h1 className="type-display">{title}</h1>
             <p className="mt-4 text-sm text-muted-foreground">
               {t.updated}: {updated}
             </p>
