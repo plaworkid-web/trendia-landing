@@ -63,7 +63,7 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
     };
 
     return (
-        <section className="w-full isolate min-h-screen overflow-hidden relative">
+        <section className="w-full isolate min-h-screen overflow-hidden relative flex flex-col">
             <HeroBackground className="absolute inset-0 z-0" />
             <div className="pointer-events-none absolute inset-0 ring-1 ring-black/30" />
 
@@ -158,8 +158,8 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
                 </div>
             )}
 
-            <div className="z-10 relative">
-                <div className="sm:pt-28 md:pt-32 lg:pt-40 max-w-7xl mx-auto pt-28 px-6 pb-16">
+            <div className="z-10 relative flex flex-1 items-center">
+                <div className="max-w-7xl mx-auto px-6 pt-6 pb-12 sm:pt-16 sm:pb-16 lg:pt-28 lg:pb-14 w-full">
                     <div className="mx-auto max-w-3xl text-center">
                         <div className="mb-6 inline-flex items-center gap-3 rounded-full bg-white/10 px-2.5 py-2 ring-1 ring-white/15 backdrop-blur animate-fade-slide-in-1">
                             <span className="inline-flex items-center text-xs font-medium text-neutral-900 bg-white/90 rounded-full py-0.5 px-2 font-sans">
