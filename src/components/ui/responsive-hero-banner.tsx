@@ -1,12 +1,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import Image from 'next/image';
-import type { StaticImageData } from 'next/image';
 import Link from 'next/link';
 import { useTheme } from '@/components/providers/theme-provider';
 import { Globe, Moon, Sun } from 'lucide-react';
-import heroBackground from '../../../public/bg.png';
+import { HeroBackground } from '@/components/ui/hero-background';
 import OrbitingCirclesGlobe from '@/components/ui/orbiting-circles-02';
 
 interface NavLink {
@@ -18,7 +16,6 @@ interface NavLink {
 interface ResponsiveHeroBannerProps {
     logoUrl?: string;
     brandName?: string;
-    backgroundImageUrl?: string | StaticImageData;
     navLinks?: NavLink[];
     ctaButtonText?: string;
     ctaButtonHref?: string;
@@ -38,7 +35,6 @@ interface ResponsiveHeroBannerProps {
 const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
     logoUrl = "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/febf2421-4a9a-42d6-871d-ff4f9518021c_1600w.png",
     brandName = "Trendia",
-    backgroundImageUrl = heroBackground,
     navLinks = [
         { label: "Home", href: "#", isActive: true },
         { label: "Missions", href: "#" },
@@ -69,15 +65,7 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
 
     return (
         <section className="w-full isolate min-h-screen overflow-hidden relative">
-            <Image
-                src={backgroundImageUrl}
-                alt=""
-                fill
-                priority
-                unoptimized
-                sizes="100vw"
-                className="z-0 object-cover"
-            />
+            <HeroBackground className="absolute inset-0 z-0" />
             <OrbitingCirclesGlobe />
             <div className="pointer-events-none absolute inset-0 ring-1 ring-black/30" />
 
@@ -185,7 +173,11 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
                         </div>
 
                         <h1 className="type-display text-white animate-fade-slide-in-2">
-                            {title}
+                            {/* The space is explicit because the <br> is hidden below sm:
+                                with only the <br> separating the two lines, mobile rendered
+                                "PlatformUntuk" as one word. A trailing space before a line
+                                break collapses, so this is inert on desktop. */}
+                            {title}{" "}
                             <br className="hidden sm:block" />
                             {titleLine2}
                         </h1>
