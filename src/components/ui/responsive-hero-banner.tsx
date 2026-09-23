@@ -1,23 +1,16 @@
 "use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { useTheme } from '@/components/providers/theme-provider';
-import { Globe, Moon, Sun } from 'lucide-react';
+import React from 'react';
 import { HeroBackground } from '@/components/ui/hero-background';
-
-interface NavLink {
-    label: string;
-    href: string;
-    isActive?: boolean;
-}
+import { LandingHeader } from '@/components/landing/landing-header';
+import type { AppSettings, MenuItem } from '@/types/landing';
+import type { Locale } from '@/lib/site';
 
 interface ResponsiveHeroBannerProps {
-    logoUrl?: string;
-    brandName?: string;
-    navLinks?: NavLink[];
-    ctaButtonText?: string;
-    ctaButtonHref?: string;
+    /** Header data, passed straight through to the shared header. */
+    locale?: Locale;
+    appSettings?: AppSettings | null;
+    menuItems?: MenuItem[];
     badgeText?: string;
     badgeLabel?: string;
     title?: string;
@@ -27,22 +20,12 @@ interface ResponsiveHeroBannerProps {
     primaryButtonHref?: string;
     secondaryButtonText?: string;
     secondaryButtonHref?: string;
-    languageHref?: string;
-    languageLabel?: string;
 }
 
 const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
-    logoUrl = "https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/febf2421-4a9a-42d6-871d-ff4f9518021c_1600w.png",
-    brandName = "Trendia",
-    navLinks = [
-        { label: "Home", href: "#", isActive: true },
-        { label: "Missions", href: "#" },
-        { label: "Destinations", href: "#" },
-        { label: "Technology", href: "#" },
-        { label: "Book Flight", href: "#" }
-    ],
-    ctaButtonText = "Reserve Seat",
-    ctaButtonHref = "#",
+    locale = "id",
+    appSettings = null,
+    menuItems = [],
     badgeLabel = "New",
     badgeText = "First Commercial Flight to Mars 2026",
     title = "Journey Beyond Earth",
@@ -52,111 +35,21 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
     primaryButtonHref = "#",
     secondaryButtonText = "Watch Launch",
     secondaryButtonHref = "#",
-    languageHref = "/en",
-    languageLabel = "English"
 }) => {
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const { resolvedTheme, setTheme } = useTheme();
-
-    const cycleTheme = () => {
-        setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
-    };
-
     return (
         <section className="w-full isolate min-h-screen overflow-hidden relative flex flex-col">
             <HeroBackground className="absolute inset-0 z-0" />
             <div className="pointer-events-none absolute inset-0 ring-1 ring-black/30" />
 
-            <header className="z-10 xl:top-4 relative">
-                <div className="mx-6">
-                    <div className="flex items-center justify-between pt-4">
-                            <Link
-                                href="/"
-                                aria-label={brandName}
-                                className="inline-flex h-[56px] w-[180px] items-center justify-center rounded bg-contain bg-center bg-no-repeat sm:h-[64px] sm:w-[210px]"
-                                style={{ backgroundImage: `url(${logoUrl})` }}
-                            />
-
-                        <nav className="hidden md:flex items-center gap-2">
-                            <div className="flex items-center gap-1 rounded-full bg-white/5 px-1 py-1 ring-1 ring-white/10 backdrop-blur">
-                                {navLinks.map((link, index) => (
-                                    <Link
-                                        key={`${link.href}-${index}`}
-                                        href={link.href}
-                                        className={`px-3 py-2 text-sm font-medium hover:text-white font-sans transition-colors ${link.isActive ? 'text-white/90' : 'text-white/80'
-                                            }`}
-                                    >
-                                        {link.label}
-                                    </Link>
-                                ))}
-                                <a
-                                    href={ctaButtonHref}
-                                    className="ml-1 inline-flex items-center gap-2 rounded-full bg-white px-3.5 py-2 text-sm font-medium text-neutral-900 hover:bg-white/90 font-sans transition-colors"
-                                >
-                                    {ctaButtonText}
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
-                                        <path d="M7 7h10v10" />
-                                        <path d="M7 17 17 7" />
-                                    </svg>
-                                </a>
-                            </div>
-                            {/* Theme toggle */}
-                            <button
-                                onClick={cycleTheme}
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10 backdrop-blur hover:bg-white/10 transition-colors"
-                                aria-label="Toggle theme"
-                            >
-                                {resolvedTheme === 'dark' ? <Moon className="size-4 text-white/80" /> : <Sun className="size-4 text-white/80" />}
-                            </button>
-                            <a
-                                href={languageHref}
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10 backdrop-blur transition-colors hover:bg-white/10"
-                                aria-label={languageLabel}
-                                title={languageLabel}
-                            >
-                                <Globe className="size-4 text-white/80" />
-                            </a>
-                        </nav>
-
-                        <button
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 ring-1 ring-white/15 backdrop-blur"
-                            aria-expanded={mobileMenuOpen}
-                            aria-label="Toggle menu"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 text-white/90">
-                                <path d="M4 5h16" />
-                                <path d="M4 12h16" />
-                                <path d="M4 19h16" />
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            {mobileMenuOpen && (
-                <div className="absolute inset-x-6 top-20 z-30 rounded-2xl bg-black/70 p-4 ring-1 ring-white/15 backdrop-blur-xl md:hidden">
-                    <nav className="flex flex-col gap-1">
-                        {navLinks.map((link, index) => (
-                            <Link
-                                key={`${link.href}-${index}`}
-                                href={link.href}
-                                className="rounded-lg px-3 py-2 text-sm text-white/85 hover:bg-white/10"
-                            >
-                                {link.label}
-                            </Link>
-                        ))}
-                        <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-3">
-                            <a href={languageHref} className="inline-flex size-9 items-center justify-center rounded-full bg-white/10" aria-label={languageLabel}>
-                                <Globe className="size-4 text-white/80" />
-                            </a>
-                            <a href={ctaButtonHref} className="flex-1 rounded-full bg-white px-4 py-2 text-center text-sm font-medium text-neutral-900">
-                                {ctaButtonText}
-                            </a>
-                        </div>
-                    </nav>
-                </div>
-            )}
+            {/* The same header the inner pages use, in its `hero` variant: transparent
+                over the artwork, hardcoded white because this surface is always dark.
+                It was written inline here, which is how it drifted from `Navbar`. */}
+            <LandingHeader
+                variant="hero"
+                locale={locale}
+                appSettings={appSettings ?? null}
+                menuItems={menuItems}
+            />
 
             <div className="z-10 relative flex flex-1 items-center">
                 <div className="max-w-7xl mx-auto px-6 pt-6 pb-12 sm:pt-16 sm:pb-16 lg:pt-28 lg:pb-14 w-full">
