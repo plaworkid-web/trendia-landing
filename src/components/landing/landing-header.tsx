@@ -47,6 +47,34 @@ import type { MenuItem, AppSettings } from "@/types/landing";
 /** Fallback only: used when the CMS has no navbar menu configured at all. */
 const DEFAULT_PATHS = ["", "/vps", "/models", "/pricing", "/docs"] as const;
 
+/**
+ * The header's ambient glow, as a style object so it can be measured and tuned.
+ *
+ * The ellipse is centred at 50% 34% of a very tall element that starts above the header,
+ * which puts its brightest band across the nav and lets it fall off gradually downward
+ * instead of ending at the header's edge. See the calibration notes in the palette below.
+ */
+const GLOW_STYLE: React.CSSProperties = {
+  /**
+   * The core is LIGHT and only lightly tinted, not a saturated purple.
+   *
+   * This is what makes it read as the homepage's glow rather than a flat band. Measured
+   * at x=756: the homepage is 51 -> 170 -> 181 -> 106 down the page. A saturated purple
+   * core (oklch 0.62 / 0.24) reached only 31 -> 105 -> 102 -> 29, which is why it read as
+   * a dim purple stripe: at that lightness the peak cannot approach the homepage's 181.
+   * Raising the lightness and dropping the chroma lifts the peak without turning the
+   * whole bar into a bright wash.
+   *
+   *   L62 -> 31/105/102/29      L78 -> 37/136/133/34
+   *   L90 -> 43/160/157/40      L97 -> 46/175/172/42
+   *
+   * L90 is the closest to the homepage's 51/170/181/106.
+   */
+  backgroundImage:
+    "radial-gradient(ellipse 78% 26% at 50% 34%, oklch(0.90 0.12 293 / 100%) 0%, " +
+    "oklch(0.76 0.20 293 / 55%) 34%, oklch(0.64 0.24 293 / 18%) 58%, transparent 78%)",
+};
+
 type Variant = "hero" | "page";
 
 export function LandingHeader({
@@ -111,6 +139,7 @@ export function LandingHeader({
   const c = isHero
     ? {
         surface: "",
+        glowStyle: undefined,
         logo: "text-white",
         linkIdle: "text-white/80 hover:text-white",
         linkActive: "text-white/90",
@@ -127,18 +156,65 @@ export function LandingHeader({
         surface: scrolled
           ? "border-b border-border bg-background/80 backdrop-blur-lg"
           : "bg-transparent",
+        /**
+         * An ambient glow behind the header, calibrated against the homepage.
+         *
+         * WHY THIS IS A STYLE OBJECT, NOT A TAILWIND CLASS
+         * It started as an arbitrary Tailwind background utility. That works, but an
+         * arbitrary value is only compiled when Tailwind sees it in the source, so the
+         * gradient could not be changed at runtime to calibrate it - injecting a candidate
+         * class into the DOM produced no style at all, and every calibration attempt read
+         * the same numbers. (The literal utility is not repeated here: Tailwind scans
+         * comments too, and would emit an unused rule for it.) An inline style is inspectable and tunable, which is what this
+         * needs while the value is being fitted.
+         *
+         * WHY IT EXISTS
+         * Measured: on the inner pages the only thing behind the header was `BODY`, at
+         * rgb(0,0,0) - the purple ambient glow sits on `<main>`, which begins BELOW the
+         * header. The homepage's header sits over the hero artwork and measures R=111
+         * behind the nav; the inner pages measured R=6. That difference is what the eye
+         * reads as "the homepage header has something behind it".
+         *
+         * CALIBRATION (R = red channel at the centre of the nav, x=756)
+         *   18% opacity, 60%x100% ellipse   -> R=6     (first attempt; looked unchanged)
+         *   60%, 70%x130%                   -> R=59
+         *   85%, 95%x170%                   -> R=98, but a flat purple wash
+         *   100%, 82%x96%                   -> R=117, but a hard cliff at y=272 where the
+         *                                      element ended, showing as a dark band
+         *
+         * The last one is why the element is now tall: the homepage falls off gradually
+         * (R=241 at y=80 down to 106 at y=180), so the glow needs room to do the same
+         * rather than stopping at the header's edge.
+         */
+        glowStyle: scrolled ? undefined : GLOW_STYLE,
         logo: "text-foreground",
         linkIdle: "text-muted-foreground hover:text-foreground",
-        linkActive: "text-foreground",
-        pill: "bg-foreground/5 ring-1 ring-foreground/10 backdrop-blur",
+        /**
+         * The active link gets its own pill, not just a brighter colour.
+         *
+         * Measured before: active vs idle was a 2.25:1 contrast ratio, which reads as
+         * "slightly brighter text" rather than "you are here". A filled pill is
+         * unambiguous at a glance and does not depend on subtle colour differences.
+         */
+        linkActive: "bg-foreground/15 text-foreground font-semibold",
+        /**
+         * The pill is 10%, not 5%.
+         *
+         * Measured before: `bg-foreground/5` composited to rgb(12,12,12) against the
+         * page's rgb(0,0,0) - a 12/255 difference, which is why the header looked
+         * unchanged after the refactor. The homepage could get away with 5% because it
+         * has a bright purple gradient behind it; the inner pages are flat black, so the
+         * same token disappears.
+         */
+        pill: "bg-foreground/10 ring-1 ring-foreground/15 backdrop-blur",
         iconBtn:
-          "bg-foreground/5 ring-1 ring-foreground/10 backdrop-blur hover:bg-foreground/10 text-muted-foreground",
+          "bg-foreground/10 ring-1 ring-foreground/15 backdrop-blur hover:bg-foreground/15 text-foreground/70",
         cta: "bg-foreground text-background hover:bg-foreground/90",
-        mobileToggle: "bg-foreground/5 ring-1 ring-foreground/10 backdrop-blur text-foreground",
+        mobileToggle: "bg-foreground/10 ring-1 ring-foreground/15 backdrop-blur text-foreground",
         mobilePanel: "bg-background/95 ring-1 ring-border backdrop-blur-xl",
         mobileLink: "text-muted-foreground hover:bg-muted hover:text-foreground",
         mobileBorder: "border-border",
-        mobileIcon: "bg-foreground/5 text-muted-foreground",
+        mobileIcon: "bg-foreground/10 text-foreground/70",
       };
 
   const Logo = () => (
@@ -175,6 +251,17 @@ export function LandingHeader({
       data-landing-header={variant}
       className={`z-50 w-full ${isHero ? "relative" : "sticky top-0"} ${c.surface}`}
     >
+      {/* The ambient glow, behind everything in the header. Absolutely positioned and
+          pointer-transparent so it never intercepts clicks. Only on the `page` variant:
+          the hero already sits over the artwork's own glow. */}
+      {c.glowStyle ? (
+        <span
+          aria-hidden="true"
+          data-header-glow=""
+          style={c.glowStyle}
+          className="pointer-events-none absolute inset-x-0 -top-32 h-[40rem]"
+        />
+      ) : null}
       <div className={isHero ? "mx-6" : "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"}>
         <div className={`flex items-center justify-between ${isHero ? "pt-4" : "h-20"}`}>
           <Logo />
