@@ -43,8 +43,15 @@ import * as React from "react";
  * so editing one without the other fails the suite.
  */
 
-/** Measured by scripts/measure-hero-limb.js. */
-const LIMB = { cx: 719.5, cy: 870.5, r: 671.5 };
+/**
+ * Measured by scripts/measure-hero-limb.js, then lifted so the arc reads higher.
+ *
+ * The measured centre is 870.5, which put the arc at 27.8% of the viewport height. The
+ * first lift (836, then 780) overshot: at 780 the arc sat at 15.2% and crowded the
+ * navigation, leaving the top feeling heavy. 818 lands it around 20.5%, which lifts the
+ * arc clear of the nav without the planet losing the lower two-thirds of the frame.
+ */
+const LIMB = { cx: 719.5, cy: 818, r: 671.5 };
 
 /** Measured and tuned by scripts/build-hero-svg.js and the tune-hero-svg*.js sweeps. */
 const CORE_OFFSET = 78;
@@ -110,14 +117,14 @@ export function HeroBackground({ className }: { className?: string }) {
     const toViewBox = (clientX: number, clientY: number) => {
       const rect = el.getBoundingClientRect();
       if (!rect.width || !rect.height) return null;
-      // `slice` scales to COVER, so the scale is the larger ratio and the axis that
-      // overflows is cropped equally on both sides.
+      // `slice` scales to COVER, so the scale is the larger ratio. With `xMidYMin` the
+      // overflowing horizontal axis is cropped equally on both sides and the overflowing
+      // vertical axis is cropped from the BOTTOM only, so there is no top offset.
       const scale = Math.max(rect.width / W, rect.height / H);
       const offsetX = (W * scale - rect.width) / 2;
-      const offsetY = (H * scale - rect.height) / 2;
       return {
         x: (clientX - rect.left + offsetX) / scale,
-        y: (clientY - rect.top + offsetY) / scale,
+        y: (clientY - rect.top) / scale,
       };
     };
 
@@ -161,7 +168,7 @@ export function HeroBackground({ className }: { className?: string }) {
         viewBox={`0 0 ${W} ${H}`}
         width={W}
         height={H}
-        preserveAspectRatio="xMidYMid slice"
+        preserveAspectRatio="xMidYMin slice"
         role="presentation"
         aria-hidden="true"
         data-hero-art=""
@@ -288,6 +295,29 @@ export function HeroBackground({ className }: { className?: string }) {
           />
         </g>
       </svg>
+
+      {/*
+        The blend into the section below.
+
+        The next section ("Kapabilitas Platform") is pure `#000000`; the hero's own sky
+        fades to a near-black #010105, close but not identical, so a seam showed where
+        they met.
+
+        This is a CSS overlay rather than a rect inside the SVG, because the artwork uses
+        `preserveAspectRatio="slice"`: on a wide viewport the SVG is scaled up and
+        centre-cropped, so a rect at the bottom of the viewBox can fall outside the
+        visible area entirely (measured: 400px cropped away at 3440px wide). An overlay
+        positioned on the element itself always sits exactly at the hero's bottom edge.
+
+        Kept short on purpose. A tall fade reads as its own dark band rather than as one
+        continuous colour, so the ramp is eased: most of the change happens in the last
+        fifth.
+      */}
+      <div
+        aria-hidden="true"
+        data-hero-bottom-fade=""
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[22%] bg-gradient-to-t from-black via-black/70 to-transparent"
+      />
     </div>
   );
 }

@@ -48,32 +48,32 @@
 
     <!-- Clips the inner bleed to the planet, so it only lights the surface. -->
     <clipPath id="heroPlanetClip">
-      <circle cx="719.5" cy="870.5" r="671.5"/>
+      <circle cx="719.5" cy="818" r="671.5"/>
     </clipPath>
   </defs>
 
   <rect width="1440" height="715" fill="url(#heroSky)"/>
 
   <!-- Atmosphere: the limb stroked wide, so the light bleeds off the horizon. -->
-  <circle cx="719.5" cy="870.5" r="731.5" fill="none"
+  <circle cx="719.5" cy="818" r="731.5" fill="none"
           stroke="url(#heroHalo)" stroke-width="120" filter="url(#heroHaloBlur)"/>
 
   <!-- The bright crest: a slightly larger circle, so the peak light sits above the
        horizon where the source has it, not on the limb. -->
-  <circle cx="719.5" cy="870.5" r="749.5" fill="none"
+  <circle cx="719.5" cy="818" r="749.5" fill="none"
           stroke="url(#heroCore)" stroke-width="22" filter="url(#heroCoreBlur)"/>
 
   <!-- The hot spot at the apex. -->
-  <circle cx="719.5" cy="870.5" r="749.5" fill="none"
+  <circle cx="719.5" cy="818" r="749.5" fill="none"
           stroke="url(#heroHot)" stroke-width="16" filter="url(#heroCoreBlur)"/>
 
   <!-- The planet itself, over the inner half of the strokes above. -->
-  <circle cx="719.5" cy="870.5" r="671.5" fill="url(#heroPlanetShade)"/>
+  <circle cx="719.5" cy="818" r="671.5" fill="url(#heroPlanetShade)"/>
 
   <!-- Inner bleed, clipped to the planet so it lights the surface just under the
        horizon. Drawn after the planet, or the planet covers it. -->
   <g clip-path="url(#heroPlanetClip)">
-    <circle cx="719.5" cy="870.5" r="671.5" fill="none"
+    <circle cx="719.5" cy="818" r="671.5" fill="none"
             stroke="url(#heroHalo)" stroke-width="60" filter="url(#heroInnerBlur)"
             opacity="0.15"/>
   </g>

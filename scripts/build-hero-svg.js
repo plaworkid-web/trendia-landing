@@ -45,8 +45,8 @@ const OUT = path.join(PUBLIC, "hero", "hero.svg");
 const W = 1440;
 const H = 715;
 
-/** Measured by scripts/measure-hero-limb.js. */
-const LIMB = { cx: 719.5, cy: 870.5, r: 671.5 };
+/** Measured by scripts/measure-hero-limb.js, then lifted so the arc reads higher. */
+const LIMB = { cx: 719.5, cy: 818, r: 671.5 };
 
 const P = {
   skyTop: "#120d2e",
