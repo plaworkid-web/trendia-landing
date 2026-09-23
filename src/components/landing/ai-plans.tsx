@@ -87,7 +87,13 @@ function formatPrice(plan: AiPlan, isId: boolean): {
       original: money(target.price),
       period,
       discountLabel: plan.discount_label
-        ? `${plan.discount_label} −${plan.discount_percent ?? 0}%`
+        ? // The rule's own name may already carry the percentage — the live rule is
+          // named "Promo Starter 20%", and appending the figure again rendered
+          // "Promo Starter 20% −20%", which reads as a typo. Only add it when the name
+          // does not already state it.
+          /%/.test(plan.discount_label)
+          ? plan.discount_label
+          : `${plan.discount_label} −${plan.discount_percent ?? 0}%`
         : `−${plan.discount_percent ?? 0}%`,
     };
   }
@@ -147,6 +153,27 @@ export function AiPlanCards({ plans, locale = "id" }: AiPlansProps) {
               ? isId ? "Hubungi Sales" : "Contact Sales"
               : isId ? "Mulai" : "Get Started";
 
+            // ── The figure a buyer compares ───────────────────────────────────────
+            // This card listed six technical limits (rpm, tpm, concurrency, model
+            // count, overage behaviour, validity) and never stated the price per
+            // token — the one number that makes two plans comparable. The allowance
+            // and the rate now lead; the limits move below.
+            const idr = plan.prices.find((p) => p.currency_code === "IDR") ?? plan.prices[0];
+            const planPrice = idr?.price ?? 0;
+            const allowance =
+              plan.plan_type === "unlimited" ? null : plan.token_quota ?? 0;
+            const perMillion =
+              allowance && allowance > 0 && planPrice > 0
+                ? (planPrice / allowance) * 1_000_000
+                : null;
+            const money = (amount: number) =>
+              new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: idr?.currency_code ?? "IDR",
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(amount);
+
             return (
               <PricingCard.Card
                 className={cn(
@@ -183,57 +210,88 @@ export function AiPlanCards({ plans, locale = "id" }: AiPlansProps) {
                   </PricingCard.Price>
 
                   {/* Active promotion, so the saving is visible rather than
-                      discovered at checkout. */}
-                  {discountLabel && (
-                    <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                      {discountLabel}
-                    </p>
-                  )}
+                      discovered at checkout.
 
-                  {/* Credits & Rate info */}
-                  <div className="space-y-1 text-xs text-muted-foreground">
-                    <div>{creditsLabel(plan, isId)}</div>
-                    {/* TPM and concurrency matter more than RPM to a technical
-                        buyer, and both were already in the payload but unshown. */}
-                    <div>
-                      {plan.rate_limit_rpm} req/min ·{" "}
-                      {plan.rate_limit_tpm >= 1_000_000
-                        ? `${(plan.rate_limit_tpm / 1_000_000).toFixed(1)}M`
-                        : `${Math.round(plan.rate_limit_tpm / 1000)}K`}{" "}
-                      token/min
-                    </div>
-                    <div>
-                      {isId
-                        ? `${plan.max_concurrent_requests} permintaan bersamaan`
-                        : `${plan.max_concurrent_requests} concurrent requests`}
-                    </div>
-                    {/* How many models the plan unlocks — the main difference
-                        between tiers, previously not shown at all. */}
-                    {plan.allowed_models_count != null ? (
-                      <div>
-                        {isId
-                          ? `${plan.allowed_models_count} model tersedia`
-                          : `${plan.allowed_models_count} models included`}
-                      </div>
-                    ) : (
-                      <div>{isId ? "Semua model" : "All models"}</div>
+                      The slot is reserved even when there is no promotion. Only a
+                      discounted plan has this line, and without the reservation every
+                      card below it shifts: measured, the "Rincian teknis" link sat 32px
+                      lower on the one discounted card than on the other five — the exact
+                      misalignment a row of comparable cards must not have. */}
+                  <div className="flex min-h-[20px] items-center">
+                    {discountLabel && (
+                      <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                        {discountLabel}
+                      </p>
                     )}
-                    {/* What happens when the quota runs out: a hard stop or a
-                        further charge. Shown because the two are very
-                        different for the customer. */}
-                    {plan.overage_policy === "block" ? (
-                      <div>{isId ? "Berhenti saat kuota habis" : "Stops at quota"}</div>
-                    ) : (
-                      <div>{isId ? "Lanjut, kelebihan ditagih" : "Continues, overage billed"}</div>
-                    )}
-                    {plan.is_trial && plan.trial_duration_days ? (
-                      <div>
-                        {isId
-                          ? `Berlaku ${plan.trial_duration_days} hari`
-                          : `Valid ${plan.trial_duration_days} days`}
-                      </div>
-                    ) : null}
                   </div>
+
+                  {/* ── What one million tokens costs ─────────────────────────────
+                      The one figure that makes two plans comparable, and it was
+                      missing entirely while six rate limits were listed.
+
+                      The slot is reserved even when a plan has no rate (Free, PAYG,
+                      Enterprise), because otherwise everything below it shifts: measured,
+                      the "Rincian teknis" link sat at 132px on the cards without a rate
+                      and 212px on the one with it, so the row could not be scanned down
+                      a column. A fixed-height slot costs nothing and lines them up. */}
+                  <div className="mt-2 flex min-h-[26px] items-center">
+                    {perMillion !== null && (
+                      <p className="inline-flex w-fit items-center rounded-md bg-muted px-2 py-1 text-xs font-medium tabular-nums">
+                        {money(perMillion)}{" "}
+                        {isId ? "per 1 juta token" : "per 1M tokens"}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* ── Reference detail, folded away ─────────────────────────────
+                      Real and sometimes needed, but six of them above the fold is
+                      what made these cards hard to compare. A native <details>
+                      keeps them one click away with no state and no JavaScript. */}
+                  <details className="mt-3 text-xs text-muted-foreground [&_summary]:cursor-pointer">
+                    <summary className="hover:text-foreground">
+                      {isId ? "Rincian teknis" : "Technical details"}
+                    </summary>
+                    <div className="mt-2 space-y-1">
+                      <div>{creditsLabel(plan, isId)}</div>
+                      <div>
+                        {plan.rate_limit_rpm} {isId ? "req/menit" : "req/min"} ·{" "}
+                        {plan.rate_limit_tpm >= 1_000_000
+                          ? `${(plan.rate_limit_tpm / 1_000_000).toFixed(1)}M`
+                          : `${Math.round(plan.rate_limit_tpm / 1000)}K`}{" "}
+                        {isId ? "token/menit" : "tokens/min"}
+                      </div>
+                      <div>
+                        {isId
+                          ? `${plan.max_concurrent_requests} permintaan bersamaan`
+                          : `${plan.max_concurrent_requests} concurrent requests`}
+                      </div>
+                      <div>
+                        {plan.allowed_models_count != null
+                          ? isId
+                            ? `${plan.allowed_models_count} model tersedia`
+                            : `${plan.allowed_models_count} models included`
+                          : isId
+                            ? "Semua model"
+                            : "All models"}
+                      </div>
+                      <div>
+                        {plan.overage_policy === "block"
+                          ? isId
+                            ? "Berhenti saat kuota habis"
+                            : "Stops at quota"
+                          : isId
+                            ? "Lanjut, kelebihan ditagih"
+                            : "Continues, overage billed"}
+                      </div>
+                      {plan.is_trial && plan.trial_duration_days ? (
+                        <div>
+                          {isId
+                            ? `Berlaku ${plan.trial_duration_days} hari`
+                            : `Valid ${plan.trial_duration_days} days`}
+                        </div>
+                      ) : null}
+                    </div>
+                  </details>
 
                   <Link
                     href={`${portalUrl}/register?plan=${encodeURIComponent(plan.slug)}`}
