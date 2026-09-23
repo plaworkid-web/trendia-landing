@@ -22,10 +22,17 @@
       <stop offset="0" stop-color="#ffffff" stop-opacity="0"/><stop offset="0.42" stop-color="#ffffff" stop-opacity="0.55"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="1"/><stop offset="0.58" stop-color="#ffffff" stop-opacity="0.55"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
     </linearGradient>
 
+    <!-- The planet's own shading. A flat fill reads as a cut-out disc; the source
+         shades the body, so the visible cap is lit near its edge and fades inward. -->
+    <radialGradient id="heroPlanetShade" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#010104"/><stop offset="0.45" stop-color="#030016"/><stop offset="0.72" stop-color="#060124"/><stop offset="0.86" stop-color="#090232"/><stop offset="0.94" stop-color="#0d0929"/><stop offset="1" stop-color="#171241"/>
+    </radialGradient>
+
     <radialGradient id="heroCursor" cx="50%" cy="50%" r="50%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.30"/>
-      <stop offset="0.34" stop-color="#b07cff" stop-opacity="0.18"/>
-      <stop offset="0.66" stop-color="#4714d9" stop-opacity="0.07"/>
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.85"/>
+      <stop offset="0.22" stop-color="#e4c6ff" stop-opacity="0.6"/>
+      <stop offset="0.45" stop-color="#a86dff" stop-opacity="0.35"/>
+      <stop offset="0.7" stop-color="#4714d9" stop-opacity="0.16"/>
       <stop offset="1" stop-color="#4714d9" stop-opacity="0"/>
     </radialGradient>
 
@@ -61,7 +68,7 @@
           stroke="url(#heroHot)" stroke-width="16" filter="url(#heroCoreBlur)"/>
 
   <!-- The planet itself, over the inner half of the strokes above. -->
-  <circle cx="719.5" cy="870.5" r="671.5" fill="#030014"/>
+  <circle cx="719.5" cy="870.5" r="671.5" fill="url(#heroPlanetShade)"/>
 
   <!-- Inner bleed, clipped to the planet so it lights the surface just under the
        horizon. Drawn after the planet, or the planet covers it. -->

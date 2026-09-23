@@ -80,33 +80,64 @@ export function HeroBackground({ className }: { className?: string }) {
   const [active, setActive] = React.useState(false);
 
   /**
-   * Write the pointer position to CSS custom properties on the wrapper, not to React
-   * state: `pointermove` fires up to 60 times a second and re-rendering the hero that
-   * often would stutter for a decoration. The browser repaints the gradient without
-   * React being involved. Same approach as PlanetCard.
+   * The listeners go on the enclosing <section>, not on this wrapper.
    *
-   * The coordinates are converted to VIEWBOX units. The first version wrote raw CSS
-   * pixels, which the SVG read as viewBox units - so on a 1512px-wide hero the light
-   * landed at x=756 of a 1440-unit viewBox instead of under the pointer. It also has to
-   * account for `preserveAspectRatio="slice"`, which crops the overflowing axis.
+   * The wrapper is `z-0` and the hero content sits above it at `z-10`, so the wrapper
+   * only ever receives pointer events over the artwork itself. Moving the mouse across
+   * the headline, the description or the buttons - which is most of the hero - produced
+   * no events at all, so the light never appeared where anyone would actually move the
+   * pointer. Measured with real CDP mouse movement: zero pointermove events reached the
+   * wrapper. Dispatching synthetic events straight at the element, which is what the
+   * first version of the test did, hid this completely.
+   *
+   * The <section> spans the whole hero and sits underneath the content, so it sees every
+   * pointer move over the hero.
+   *
+   * The position is written to CSS custom properties, not React state: `pointermove`
+   * fires up to 60 times a second and re-rendering the hero that often would stutter for
+   * a decoration. The browser repaints the gradient without React being involved.
+   *
+   * The coordinates are converted to VIEWBOX units. Writing raw CSS pixels puts the
+   * light at the wrong place, because the SVG reads them as viewBox units; they only
+   * agree when the element happens to be exactly viewBox-sized. `preserveAspectRatio`
+   * "slice" also crops the overflowing axis, which has to be subtracted.
    */
-  const handleMove = React.useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+  React.useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const rect = el.getBoundingClientRect();
-    if (!rect.width || !rect.height) return;
+    const surface = el.closest("section") ?? el;
 
-    // `slice` scales to COVER, so the scale is the larger of the two ratios and the
-    // axis that overflows is cropped equally on both sides.
-    const scale = Math.max(rect.width / W, rect.height / H);
-    const offsetX = (W * scale - rect.width) / 2;
-    const offsetY = (H * scale - rect.height) / 2;
+    const toViewBox = (clientX: number, clientY: number) => {
+      const rect = el.getBoundingClientRect();
+      if (!rect.width || !rect.height) return null;
+      // `slice` scales to COVER, so the scale is the larger ratio and the axis that
+      // overflows is cropped equally on both sides.
+      const scale = Math.max(rect.width / W, rect.height / H);
+      const offsetX = (W * scale - rect.width) / 2;
+      const offsetY = (H * scale - rect.height) / 2;
+      return {
+        x: (clientX - rect.left + offsetX) / scale,
+        y: (clientY - rect.top + offsetY) / scale,
+      };
+    };
 
-    const vbX = (event.clientX - rect.left + offsetX) / scale;
-    const vbY = (event.clientY - rect.top + offsetY) / scale;
+    const onMove = (event: PointerEvent) => {
+      const point = toViewBox(event.clientX, event.clientY);
+      if (!point) return;
+      el.style.setProperty("--hero-x", `${point.x.toFixed(1)}px`);
+      el.style.setProperty("--hero-y", `${point.y.toFixed(1)}px`);
+      setActive(true);
+    };
+    const onLeave = () => setActive(false);
 
-    el.style.setProperty("--hero-x", `${vbX.toFixed(1)}px`);
-    el.style.setProperty("--hero-y", `${vbY.toFixed(1)}px`);
+    surface.addEventListener("pointermove", onMove);
+    surface.addEventListener("pointerenter", onMove);
+    surface.addEventListener("pointerleave", onLeave);
+    return () => {
+      surface.removeEventListener("pointermove", onMove);
+      surface.removeEventListener("pointerenter", onMove);
+      surface.removeEventListener("pointerleave", onLeave);
+    };
   }, []);
 
   const coreR = LIMB.r + CORE_OFFSET;
@@ -116,9 +147,6 @@ export function HeroBackground({ className }: { className?: string }) {
     <div
       ref={ref}
       data-hero-background=""
-      onPointerMove={handleMove}
-      onPointerEnter={() => setActive(true)}
-      onPointerLeave={() => setActive(false)}
       className={className}
       style={
         {
@@ -173,6 +201,28 @@ export function HeroBackground({ className }: { className?: string }) {
             <stop offset="1" stopColor="#4714d9" stopOpacity="0" />
           </radialGradient>
 
+          {/*
+            The planet's own shading, which is what makes it read as a sphere rather
+            than a flat disc.
+
+            Measured from the source (scripts/measure-hero-planet-body.js): the body is
+            NOT a flat fill. Luminance falls with depth inside the limb - 5.2 in the first
+            120px, 3.0 at 120-240, down to 1.0 at 480-600. So the visible cap is brightest
+            near its edge and fades into shadow toward the interior.
+
+            The gradient is centred on the limb circle, so offset 1 is the limb itself.
+            The visible part of the planet is the cap above y~199, which corresponds to
+            offsets ~0.7-1.0; the stops are dense there because that is where it shows.
+          */}
+          <radialGradient id="heroPlanetShade" cx="50%" cy="50%" r="50%">
+            <stop offset="0" stopColor="#010104" />
+            <stop offset="0.45" stopColor="#030016" />
+            <stop offset="0.72" stopColor="#060124" />
+            <stop offset="0.86" stopColor="#090232" />
+            <stop offset="0.94" stopColor="#0d0929" />
+            <stop offset="1" stopColor="#171241" />
+          </radialGradient>
+
           <filter id="heroHaloBlur" x="-40%" y="-40%" width="180%" height="180%">
             <feGaussianBlur stdDeviation={HALO_BLUR} />
           </filter>
@@ -223,7 +273,10 @@ export function HeroBackground({ className }: { className?: string }) {
           style={{ transition: "opacity 500ms ease" }}
         />
 
-        <circle cx={LIMB.cx} cy={LIMB.cy} r={LIMB.r} fill="#030014" />
+        {/* The planet. Filled with its own shading rather than a flat colour, so the
+            visible cap reads as the lit surface of a sphere fading into shadow - the
+            source does this, and a flat fill looked like a cut-out. */}
+        <circle data-hero-planet="" cx={LIMB.cx} cy={LIMB.cy} r={LIMB.r} fill="url(#heroPlanetShade)" />
 
         {/* A faint bleed onto the planet's own surface, clipped to it. Present at the
             sides in the source but not at the crest, where the cut is hard. */}

@@ -119,6 +119,16 @@ const arcStops = (bright, mid, edge) => [
 /** The crest gradient: white at the apex, blue-violet where the arc curves away. */
 const CORE_ARC = ["#ffffff", "#dcb6ff", "#4a5fd8"];
 
+/** The planet's own shading: light near the limb, falling into shadow inward. */
+const PLANET_SHADE = [
+  [0, "#010104"],
+  [0.45, "#030016"],
+  [0.72, "#060124"],
+  [0.86, "#090232"],
+  [0.94, "#0d0929"],
+  [1, "#171241"],
+];
+
 const stopXml = (list) =>
   list
     .map(([o, c, a]) => `<stop offset="${o}" stop-color="${c}"${a != null ? ` stop-opacity="${a}"` : ""}/>`)
@@ -153,10 +163,17 @@ function buildSvg(p = P, limb = LIMB) {
       ${stopXml([[0, "#ffffff", 0], [0.42, "#ffffff", 0.55], [0.5, "#ffffff", 1], [0.58, "#ffffff", 0.55], [1, "#ffffff", 0]])}
     </linearGradient>
 
+    <!-- The planet's own shading. A flat fill reads as a cut-out disc; the source
+         shades the body, so the visible cap is lit near its edge and fades inward. -->
+    <radialGradient id="heroPlanetShade" cx="50%" cy="50%" r="50%">
+      ${stopXml(PLANET_SHADE.map(([o, c]) => [o, c]))}
+    </radialGradient>
+
     <radialGradient id="heroCursor" cx="50%" cy="50%" r="50%">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.30"/>
-      <stop offset="0.34" stop-color="#b07cff" stop-opacity="0.18"/>
-      <stop offset="0.66" stop-color="#4714d9" stop-opacity="0.07"/>
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.85"/>
+      <stop offset="0.22" stop-color="#e4c6ff" stop-opacity="0.6"/>
+      <stop offset="0.45" stop-color="#a86dff" stop-opacity="0.35"/>
+      <stop offset="0.7" stop-color="#4714d9" stop-opacity="0.16"/>
       <stop offset="1" stop-color="#4714d9" stop-opacity="0"/>
     </radialGradient>
 
@@ -192,7 +209,7 @@ function buildSvg(p = P, limb = LIMB) {
           stroke="url(#heroHot)" stroke-width="${p.hotWidth}" filter="url(#heroCoreBlur)"/>
 
   <!-- The planet itself, over the inner half of the strokes above. -->
-  <circle cx="${limb.cx}" cy="${limb.cy}" r="${limb.r}" fill="${p.planetFill}"/>
+  <circle cx="${limb.cx}" cy="${limb.cy}" r="${limb.r}" fill="url(#heroPlanetShade)"/>
 
   <!-- Inner bleed, clipped to the planet so it lights the surface just under the
        horizon. Drawn after the planet, or the planet covers it. -->
