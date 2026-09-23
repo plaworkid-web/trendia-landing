@@ -383,21 +383,6 @@ html[data-glass="off"] .glass-card {
   }
 }
 
-/* Counter-rotation for the hero orbit badges.
- *
- * Each badge sits inside a ring that turns (`spin`), so without this the logo turns
- * with the ring and is permanently tilted. The animation runs the same duration in
- * the opposite direction, leaving the mark upright while it travels. The translate
- * keeps the badge centred on its ring position, which a bare rotate would undo. */
-@keyframes orbit-counter {
-  from {
-    transform: translate(-50%, -50%) rotate(0deg);
-  }
-  to {
-    transform: translate(-50%, -50%) rotate(-360deg);
-  }
-}
-
 .animate-fade-slide-in-1 {
   animation: fadeSlideIn 0.8s ease-out forwards;
   animation-delay: 0.1s;

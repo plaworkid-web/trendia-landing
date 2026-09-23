@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useTheme } from '@/components/providers/theme-provider';
 import { Globe, Moon, Sun } from 'lucide-react';
 import { HeroBackground } from '@/components/ui/hero-background';
-import OrbitingCirclesGlobe from '@/components/ui/orbiting-circles-02';
 
 interface NavLink {
     label: string;
@@ -66,7 +65,6 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
     return (
         <section className="w-full isolate min-h-screen overflow-hidden relative">
             <HeroBackground className="absolute inset-0 z-0" />
-            <OrbitingCirclesGlobe />
             <div className="pointer-events-none absolute inset-0 ring-1 ring-black/30" />
 
             <header className="z-10 xl:top-4 relative">
