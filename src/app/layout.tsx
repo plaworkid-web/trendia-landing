@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { HeroBackground } from "@/components/ui/hero-background";
 import { fetchAppSettings, fetchAppearance } from "@/lib/api";
 import "./globals.css";
 
@@ -59,7 +60,29 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans">
-        <ThemeProvider appearance={appearance}>{children}</ThemeProvider>
+        {/*
+          The hero artwork as the page background, so every section sits on the same scene
+          rather than on flat black. Fixed, so it stays behind the content while scrolling,
+          and `z-0` with the content wrapper at `z-10` keeps it behind everything.
+
+          `bottomFade={false}`: that fade exists to blend the hero band into the section
+          below it, and a fixed layer has no section below it — its bottom edge only meets
+          the viewport bottom on a page shorter than the screen, where it would read as a
+          stray dark band.
+
+          `aria-hidden` and `pointer-events-none` because it is decoration; the cursor
+          light inside it still works, since it listens on its own container.
+        */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-0 overflow-hidden"
+        >
+          <HeroBackground className="absolute inset-0" />
+        </div>
+
+        <div className="relative z-10 flex min-h-full flex-1 flex-col">
+          <ThemeProvider appearance={appearance}>{children}</ThemeProvider>
+        </div>
       </body>
     </html>
   );

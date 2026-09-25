@@ -3,12 +3,12 @@
 import * as React from "react";
 
 /**
- * The hero artwork, as inline SVG, with a cursor-following light behind the planet.
+ * The hero artwork: a planet's lit limb with a cursor-following light behind it.
  *
  * WHY SVG RATHER THAN THE PNG IT REPLACED
  *  * It scales to any viewport with no upscaling. The PNG was 1440px wide and had to
  *    fill a 3440px monitor.
- *  * It is 4.5KB instead of 511KB, and needs no format negotiation or per-breakpoint
+ *  * It is ~5KB instead of 511KB, and needs no format negotiation or per-breakpoint
  *    crops — one file covers every width.
  *  * Its layers can be moved. A raster cannot put a light behind its own subject.
  *
@@ -26,6 +26,17 @@ import * as React from "react";
  * covers the planet. Inlining lets the cursor layer be painted between the arc and the
  * planet, which is the only arrangement where it reads as light coming from behind.
  *
+ * ONE INSTANCE, MOUNTED ONCE
+ * This is the page background: a single fixed layer behind every section on the landing
+ * and on the portal. It is deliberately NOT also drawn inside the hero band, because two
+ * instances cannot be made to agree — the band scrolls and a fixed layer does not, so
+ * their sky gradients sit at different offsets and a seam appears where the band ends
+ * (measured: a luminance step of +10.6 in dark mode, -26.2 in light, at exactly the
+ * band's bottom edge). One layer has no boundary to hide.
+ *
+ * A side benefit of mounting it once: the cursor light works across the whole page, not
+ * just the first screen.
+ *
  * THE GEOMETRY
  * Every number here was measured, not chosen by eye:
  *  * `LIMB` is the planet's edge, found by tracing the last lit row per column and
@@ -39,8 +50,18 @@ import * as React from "react";
  *    near-white from x=540 to x=900 and dim by x=960.
  *
  * `scripts/build-hero-svg.js` holds the same numbers and writes the standalone
- * `public/hero/hero.svg`; `tests/test_landing_product_pages.py` asserts the two agree,
- * so editing one without the other fails the suite.
+ * `public/hero/hero.svg`; the test suite asserts the two agree, so editing one without
+ * the other fails.
+ *
+ * TWO THEMES, ONE ARTWORK
+ * Both surfaces have a light mode, so every colour is a CSS custom property rather than a
+ * literal: the gradient stops read `var(--hero-sky-0)` and the theme swap happens in CSS,
+ * with no JavaScript, no re-render, and no server/client mismatch. The dark values are the
+ * measured ones; the light values are a separate wash defined alongside them.
+ *
+ * This file is duplicated verbatim into the portal (`src/components/ui/hero-background.tsx`)
+ * because the two apps share no workspace package, and a test asserts the copies are
+ * byte-identical so they cannot drift apart.
  */
 
 /**
@@ -87,32 +108,29 @@ export function HeroBackground({ className }: { className?: string }) {
   const [active, setActive] = React.useState(false);
 
   /**
-   * The listeners go on the enclosing <section>, not on this wrapper.
+   * The listeners go on `window`, not on this wrapper.
    *
-   * The wrapper is `z-0` and the hero content sits above it at `z-10`, so the wrapper
-   * only ever receives pointer events over the artwork itself. Moving the mouse across
-   * the headline, the description or the buttons - which is most of the hero - produced
-   * no events at all, so the light never appeared where anyone would actually move the
-   * pointer. Measured with real CDP mouse movement: zero pointermove events reached the
-   * wrapper. Dispatching synthetic events straight at the element, which is what the
-   * first version of the test did, hid this completely.
+   * The wrapper sits inside a `pointer-events-none` layer (it is decoration, and it must not
+   * intercept clicks meant for the page), so it receives no pointer events at all — measured:
+   * zero `pointermove` events reached it, and the light never appeared. Dispatching synthetic
+   * events straight at the element, which is what the first version of the test did, hid this
+   * completely.
    *
-   * The <section> spans the whole hero and sits underneath the content, so it sees every
-   * pointer move over the hero.
+   * Window-level is also what makes the light follow the pointer over the headline, the
+   * buttons and every section below, rather than only over the artwork itself.
    *
-   * The position is written to CSS custom properties, not React state: `pointermove`
-   * fires up to 60 times a second and re-rendering the hero that often would stutter for
-   * a decoration. The browser repaints the gradient without React being involved.
+   * The position is written to CSS custom properties, not React state: `pointermove` fires up
+   * to 60 times a second and re-rendering the page that often would stutter for a decoration.
+   * The browser repaints the gradient without React being involved.
    *
-   * The coordinates are converted to VIEWBOX units. Writing raw CSS pixels puts the
-   * light at the wrong place, because the SVG reads them as viewBox units; they only
-   * agree when the element happens to be exactly viewBox-sized. `preserveAspectRatio`
-   * "slice" also crops the overflowing axis, which has to be subtracted.
+   * The coordinates are converted to VIEWBOX units. Writing raw CSS pixels puts the light at
+   * the wrong place, because the SVG reads them as viewBox units; they only agree when the
+   * element happens to be exactly viewBox-sized. `preserveAspectRatio` "slice" also crops the
+   * overflowing axis, which has to be subtracted.
    */
   React.useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const surface = el.closest("section") ?? el;
 
     const toViewBox = (clientX: number, clientY: number) => {
       const rect = el.getBoundingClientRect();
@@ -136,14 +154,19 @@ export function HeroBackground({ className }: { className?: string }) {
       setActive(true);
     };
     const onLeave = () => setActive(false);
+    // The pointer leaving the window has no `pointerleave` on the document, so it is
+    // detected by the event having nowhere to go.
+    const onOut = (event: PointerEvent) => {
+      if (event.relatedTarget === null) setActive(false);
+    };
 
-    surface.addEventListener("pointermove", onMove);
-    surface.addEventListener("pointerenter", onMove);
-    surface.addEventListener("pointerleave", onLeave);
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("pointerout", onOut);
+    window.addEventListener("blur", onLeave);
     return () => {
-      surface.removeEventListener("pointermove", onMove);
-      surface.removeEventListener("pointerenter", onMove);
-      surface.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerout", onOut);
+      window.removeEventListener("blur", onLeave);
     };
   }, []);
 
@@ -176,36 +199,44 @@ export function HeroBackground({ className }: { className?: string }) {
       >
         <defs>
           <linearGradient id="heroSky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#120d2e" />
-            <stop offset="0.14" stopColor="#0b0620" />
-            <stop offset="0.34" stopColor="#070126" />
-            <stop offset="0.62" stopColor="#04001a" />
-            <stop offset="1" stopColor="#000102" />
+            <stop offset="0" stopColor="var(--hero-sky-0)" />
+            <stop offset="0.14" stopColor="var(--hero-sky-1)" />
+            <stop offset="0.34" stopColor="var(--hero-sky-2)" />
+            <stop offset="0.62" stopColor="var(--hero-sky-3)" />
+            <stop offset="1" stopColor="var(--hero-sky-4)" />
           </linearGradient>
 
           <linearGradient id="heroHalo" x1="0" y1="0" x2="1" y2="0">
-            {arcStops("#b98cff", "#6a4fd0", "#332470")}
+            {arcStops(
+              "var(--hero-halo-bright)",
+              "var(--hero-halo-mid)",
+              "var(--hero-halo-edge)",
+            )}
           </linearGradient>
 
           <linearGradient id="heroCore" x1="0" y1="0" x2="1" y2="0">
-            {arcStops("#ffffff", "#dcb6ff", "#4a5fd8")}
+            {arcStops(
+              "var(--hero-core-bright)",
+              "var(--hero-core-mid)",
+              "var(--hero-core-edge)",
+            )}
           </linearGradient>
 
           {/* Confined to the apex, so the blow-out does not run along the whole arc. */}
           <linearGradient id="heroHot" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stopColor="#ffffff" stopOpacity="0" />
-            <stop offset="0.42" stopColor="#ffffff" stopOpacity="0.6" />
-            <stop offset="0.5" stopColor="#ffffff" stopOpacity="1" />
-            <stop offset="0.58" stopColor="#ffffff" stopOpacity="0.6" />
-            <stop offset="1" stopColor="#ffffff" stopOpacity="0" />
+            <stop offset="0" stopColor="var(--hero-hot)" stopOpacity="0" />
+            <stop offset="0.42" stopColor="var(--hero-hot)" stopOpacity="0.6" />
+            <stop offset="0.5" stopColor="var(--hero-hot)" stopOpacity="1" />
+            <stop offset="0.58" stopColor="var(--hero-hot)" stopOpacity="0.6" />
+            <stop offset="1" stopColor="var(--hero-hot)" stopOpacity="0" />
           </linearGradient>
 
           <radialGradient id="heroCursor" cx="50%" cy="50%" r="50%">
-            <stop offset="0" stopColor="#ffffff" stopOpacity="0.85" />
-            <stop offset="0.22" stopColor="#e4c6ff" stopOpacity="0.6" />
-            <stop offset="0.45" stopColor="#a86dff" stopOpacity="0.35" />
-            <stop offset="0.7" stopColor="#4714d9" stopOpacity="0.16" />
-            <stop offset="1" stopColor="#4714d9" stopOpacity="0" />
+            <stop offset="0" stopColor="var(--hero-cursor-core)" stopOpacity="0.85" />
+            <stop offset="0.22" stopColor="var(--hero-cursor-mid)" stopOpacity="0.6" />
+            <stop offset="0.45" stopColor="var(--hero-cursor-violet)" stopOpacity="0.35" />
+            <stop offset="0.7" stopColor="var(--hero-cursor-blue)" stopOpacity="0.16" />
+            <stop offset="1" stopColor="var(--hero-cursor-blue)" stopOpacity="0" />
           </radialGradient>
 
           {/*
@@ -213,7 +244,7 @@ export function HeroBackground({ className }: { className?: string }) {
             than a flat disc.
 
             Measured from the source (scripts/measure-hero-planet-body.js): the body is
-            NOT a flat fill. Luminance falls with depth inside the limb - 5.2 in the first
+            NOT a flat fill. Luminance falls with depth inside the limb — 5.2 in the first
             120px, 3.0 at 120-240, down to 1.0 at 480-600. So the visible cap is brightest
             near its edge and fades into shadow toward the interior.
 
@@ -222,12 +253,12 @@ export function HeroBackground({ className }: { className?: string }) {
             offsets ~0.7-1.0; the stops are dense there because that is where it shows.
           */}
           <radialGradient id="heroPlanetShade" cx="50%" cy="50%" r="50%">
-            <stop offset="0" stopColor="#010104" />
-            <stop offset="0.45" stopColor="#030016" />
-            <stop offset="0.72" stopColor="#060124" />
-            <stop offset="0.86" stopColor="#090232" />
-            <stop offset="0.94" stopColor="#0d0929" />
-            <stop offset="1" stopColor="#171241" />
+            <stop offset="0" stopColor="var(--hero-planet-0)" />
+            <stop offset="0.45" stopColor="var(--hero-planet-1)" />
+            <stop offset="0.72" stopColor="var(--hero-planet-2)" />
+            <stop offset="0.86" stopColor="var(--hero-planet-3)" />
+            <stop offset="0.94" stopColor="var(--hero-planet-4)" />
+            <stop offset="1" stopColor="var(--hero-planet-5)" />
           </radialGradient>
 
           <filter id="heroHaloBlur" x="-40%" y="-40%" width="180%" height="180%">
@@ -281,7 +312,7 @@ export function HeroBackground({ className }: { className?: string }) {
         />
 
         {/* The planet. Filled with its own shading rather than a flat colour, so the
-            visible cap reads as the lit surface of a sphere fading into shadow - the
+            visible cap reads as the lit surface of a sphere fading into shadow — the
             source does this, and a flat fill looked like a cut-out. */}
         <circle data-hero-planet="" cx={LIMB.cx} cy={LIMB.cy} r={LIMB.r} fill="url(#heroPlanetShade)" />
 
@@ -295,29 +326,6 @@ export function HeroBackground({ className }: { className?: string }) {
           />
         </g>
       </svg>
-
-      {/*
-        The blend into the section below.
-
-        The next section (the capabilities grid) is pure `#000000`; the hero's own sky
-        fades to a near-black #010105, close but not identical, so a seam showed where
-        they met.
-
-        This is a CSS overlay rather than a rect inside the SVG, because the artwork uses
-        `preserveAspectRatio="slice"`: on a wide viewport the SVG is scaled up and
-        centre-cropped, so a rect at the bottom of the viewBox can fall outside the
-        visible area entirely (measured: 400px cropped away at 3440px wide). An overlay
-        positioned on the element itself always sits exactly at the hero's bottom edge.
-
-        Kept short on purpose. A tall fade reads as its own dark band rather than as one
-        continuous colour, so the ramp is eased: most of the change happens in the last
-        fifth.
-      */}
-      <div
-        aria-hidden="true"
-        data-hero-bottom-fade=""
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[22%] bg-gradient-to-t from-black via-black/70 to-transparent"
-      />
     </div>
   );
 }
