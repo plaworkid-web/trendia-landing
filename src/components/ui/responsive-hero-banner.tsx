@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { HeroBackground } from '@/components/ui/hero-background';
 import { LandingHeader } from '@/components/landing/landing-header';
 import type { AppSettings, MenuItem } from '@/types/landing';
 import type { Locale } from '@/lib/site';
@@ -37,16 +38,7 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
 }) => {
     return (
         <section className="w-full isolate min-h-screen overflow-hidden relative flex flex-col">
-            {/*
-                NO artwork here. It is the single fixed page background (`HeroBackground` in
-                the root layout), which shows through this transparent band.
-
-                Two instances cannot be made to agree: this band scrolls and the background
-                layer is fixed, so their sky gradients sit at different offsets and a seam
-                appears at the band's bottom edge — measured as a luminance step of +10.6 in
-                dark mode and -26.2 in light, at exactly that boundary. One layer has no
-                boundary to hide, and the cursor light then works across the whole page.
-            */}
+            <HeroBackground className="absolute inset-0 z-0" />
             <div className="pointer-events-none absolute inset-0 ring-1 ring-black/30" />
 
             {/* The same header the inner pages use, in its `hero` variant: transparent

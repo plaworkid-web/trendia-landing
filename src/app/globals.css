@@ -279,14 +279,17 @@
 }
 
 /* ── Hero artwork palette ──────────────────────────────────────────────────────
-   The hero is used twice: as the hero band, and as the page background behind every
-   section. Both surfaces have a light and a dark mode, so every colour the artwork
-   paints is a variable rather than a literal — the theme swap is pure CSS, with no
-   JavaScript, no re-render, and no server/client mismatch.
+   The artwork appears on two surfaces and both have a light and a dark mode: the
+   landing's hero band, and the portal's login page (which carries a ThemeToggle).
+   So every colour it paints is a variable rather than a literal — the theme swap
+   is pure CSS, with no JavaScript, no re-render, and no server/client mismatch.
 
-   The dark values are the ones measured against the source image (the stops come from
-   its horizontal profile at y=140). The light values are a separate wash: the same
-   composition at a brightness that body text can sit on. */
+   The dark values are the ones measured against the source image (the stops come
+   from its horizontal profile at y=140). The light values are a separate wash: the
+   same composition at a brightness that body text can sit on.
+
+   Identical to the portal's block; the component that reads them is duplicated into
+   both apps and a test asserts the copies stay byte-identical. */
 
 :root {
   --hero-sky-0: #eef1fb;
