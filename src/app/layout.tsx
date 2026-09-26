@@ -3,6 +3,7 @@ import { Inter, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { HeroBackground } from "@/components/ui/hero-background";
 import { fetchAppSettings, fetchAppearance } from "@/lib/api";
+import { BRAND, BRAND_ASSETS, resolveBrandValue } from "@/lib/brand";
 import "./globals.css";
 
 /**
@@ -38,12 +39,24 @@ const instrumentSerif = Instrument_Serif({
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await fetchAppSettings();
   return {
-    title: settings?.app_name ?? "VPS & AI Platform",
-    description:
-      settings?.meta_description ??
-      "High-performance VPS hosting and AI API platform for modern developers.",
-    keywords: settings?.meta_keywords ?? "VPS, AI, API, cloud, hosting",
-    icons: settings?.favicon_url ? { icon: settings.favicon_url } : undefined,
+    title: resolveBrandValue(settings?.app_name, BRAND.name),
+    description: resolveBrandValue(settings?.meta_description, BRAND.description),
+    keywords: resolveBrandValue(settings?.meta_keywords, BRAND.keywords),
+    /*
+      Both icons are declared, deliberately.
+      `icons.icon` emits the CMS png; the `.ico` below is the file every browser requests by
+      convention (`/favicon.ico`) regardless of what this tag says. Leaving that file to Next.js
+      means it serves the scaffold icon — which is exactly what was happening: the served
+      /favicon.ico was byte-identical to `src/app/favicon.ico`.
+      `apple` covers iOS home-screen bookmarks, which ignore the plain `icon` entry.
+    */
+    icons: {
+      icon: [
+        { url: resolveBrandValue(settings?.favicon_url, BRAND_ASSETS.favicon), type: "image/png" },
+        { url: BRAND_ASSETS.faviconIco, sizes: "any" },
+      ],
+      apple: BRAND_ASSETS.favicon,
+    },
   };
 }
 

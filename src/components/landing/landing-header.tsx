@@ -21,6 +21,7 @@ import {
   type Locale,
   type ResolvedNavItem,
 } from "@/lib/site";
+import { BRAND, BRAND_ASSETS, resolveBrandValue } from "@/lib/brand";
 import type { MenuItem, AppSettings } from "@/types/landing";
 /**
  * The landing site's header, in one place.
@@ -94,7 +95,7 @@ export function LandingHeader({
   const pathname = usePathname();
   const t = copy[locale].nav;
 
-  const brandName = appSettings?.app_name || "Trendia";
+  const brandName = resolveBrandValue(appSettings?.app_name, BRAND.name);
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -140,7 +141,6 @@ export function LandingHeader({
     ? {
         surface: "",
         glowStyle: undefined,
-        logo: "text-white",
         linkIdle: "text-white/80 hover:text-white",
         linkActive: "text-white/90",
         pill: "bg-white/5 ring-1 ring-white/10 backdrop-blur",
@@ -187,7 +187,6 @@ export function LandingHeader({
          * rather than stopping at the header's edge.
          */
         glowStyle: scrolled ? undefined : GLOW_STYLE,
-        logo: "text-foreground",
         linkIdle: "text-muted-foreground hover:text-foreground",
         /**
          * The active link gets its own pill, not just a brighter colour.
@@ -217,11 +216,18 @@ export function LandingHeader({
         mobileIcon: "bg-foreground/10 text-foreground/70",
       };
 
-  const Logo = () => (
-    <Link href={localizedPath(locale)} className="flex shrink-0 items-center" aria-label={brandName}>
-      {appSettings?.logo_dark_url || appSettings?.logo_light_url ? (
+  const Logo = () => {
+    /*
+      The CMS logo when present, the bundled copy otherwise. Falling back to a text wordmark was the
+      previous behaviour and it is wrong for a brand mark: the site then shows the name in body type
+      where every other page shows the logo.
+    */
+    const dark = resolveBrandValue(appSettings?.logo_dark_url, BRAND_ASSETS.logoDark);
+    const light = resolveBrandValue(appSettings?.logo_light_url, BRAND_ASSETS.logoLight);
+    return (
+      <Link href={localizedPath(locale)} className="flex shrink-0 items-center" aria-label={brandName}>
         <Image
-          src={(isHero ? appSettings?.logo_dark_url || appSettings?.logo_light_url : appSettings?.logo_light_url || appSettings?.logo_dark_url)!}
+          src={isHero ? dark : light}
           alt={brandName}
           width={210}
           height={56}
@@ -229,22 +235,20 @@ export function LandingHeader({
           className={isHero ? "h-14 w-auto" : "h-14 w-auto dark:hidden"}
           priority
         />
-      ) : (
-        <span className={`type-h3 ${c.logo}`}>{brandName}</span>
-      )}
-      {!isHero && appSettings?.logo_dark_url && (
-        <Image
-          src={appSettings.logo_dark_url}
-          alt={brandName}
-          width={210}
-          height={56}
-          style={{ width: "auto" }}
-          className="hidden h-14 w-auto dark:block"
-          priority
-        />
-      )}
-    </Link>
-  );
+        {!isHero && (
+          <Image
+            src={dark}
+            alt={brandName}
+            width={210}
+            height={56}
+            style={{ width: "auto" }}
+            className="hidden h-14 w-auto dark:block"
+            priority
+          />
+        )}
+      </Link>
+    );
+  };
 
   return (
     <header

@@ -12,6 +12,7 @@ import {
 	type ResolvedNavItem,
 } from '@/lib/site';
 import type { AppSettings, CompanyProfile, MenuItem } from '@/types/landing';
+import { BRAND, BRAND_ASSETS, resolveBrandValue } from '@/lib/brand';
 
 interface FooterLink {
 	title: string;
@@ -142,7 +143,11 @@ export function Footer({
 }) {
 	const isId = locale === 'id';
 	const footerLinks = buildSections(menuItems, locale, company, isId);
-	const brandName = appSettings?.app_name || 'Trendia';
+	const brandName = resolveBrandValue(appSettings?.app_name, BRAND.name);
+	/* The CMS logo when present, the bundled copy otherwise — never a text wordmark, so the footer
+	   and the header show the same mark. */
+	const logoDark = resolveBrandValue(appSettings?.logo_dark_url, BRAND_ASSETS.logoDark);
+	const logoLight = resolveBrandValue(appSettings?.logo_light_url, BRAND_ASSETS.logoLight);
 	const tagline = company?.tagline;
 	return (
 		<footer className="md:rounded-t-6xl relative w-full max-w-6xl mx-auto flex flex-col items-center justify-center rounded-t-4xl border-t bg-[radial-gradient(35%_128px_at_50%_0%,theme(backgroundColor.white/8%),transparent)] px-6 py-12 lg:py-16">
@@ -151,15 +156,8 @@ export function Footer({
 			<div className="grid w-full gap-8 xl:grid-cols-3 xl:gap-8">
 				<AnimatedContainer className="space-y-4">
 					<a href={localizedPath(locale)} className="inline-flex items-center" aria-label={brandName}>
-						{appSettings?.logo_dark_url && (
-							<Image src={appSettings.logo_dark_url} alt={brandName} width={210} height={56} style={{ width: 'auto' }} className="hidden h-14 w-auto dark:block" />
-						)}
-						{appSettings?.logo_light_url && (
-							<Image src={appSettings.logo_light_url} alt={brandName} width={210} height={56} style={{ width: 'auto' }} className="block h-14 w-auto dark:hidden" />
-						)}
-						{!appSettings?.logo_light_url && !appSettings?.logo_dark_url && (
-							<span className="type-h3">{brandName}</span>
-						)}
+						<Image src={logoDark} alt={brandName} width={210} height={56} style={{ width: 'auto' }} className="hidden h-14 w-auto dark:block" />
+						<Image src={logoLight} alt={brandName} width={210} height={56} style={{ width: 'auto' }} className="block h-14 w-auto dark:hidden" />
 					</a>
 					{tagline && (
 						<p className="text-muted-foreground max-w-xs text-sm">{tagline}</p>

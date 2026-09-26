@@ -1,6 +1,7 @@
 import ResponsiveHeroBanner from "@/components/ui/responsive-hero-banner";
 import { copy, localizedPath, type Locale } from "@/lib/site";
 import type { AppSettings, MenuItem } from "@/types/landing";
+import { BRAND, resolveBrandValue } from "@/lib/brand";
 
 /**
  * The homepage hero.
@@ -20,7 +21,7 @@ export function Hero({
   menuItems?: MenuItem[];
 }) {
   const t = copy[locale];
-  const brandName = appSettings?.app_name || "Trendia";
+  const brandName = resolveBrandValue(appSettings?.app_name, BRAND.name);
 
   return (
     <ResponsiveHeroBanner
