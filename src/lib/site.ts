@@ -13,7 +13,7 @@ export const aiApiBaseUrl = (
 ).replace(/\/$/, "");
 
 export const contactUrl =
-  process.env.NEXT_PUBLIC_CONTACT_URL || "mailto:sales@trendia.id";
+  process.env.NEXT_PUBLIC_CONTACT_URL || "mailto:support@plapod.web.id";
 
 export function localizedPath(locale: Locale, path = "") {
   const normalized = path === "/" ? "" : path.startsWith("/") ? path : `/${path}`;

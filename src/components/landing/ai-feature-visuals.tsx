@@ -34,7 +34,7 @@ export function aiFeatureVisuals(isId: boolean): ProductFeature[] {
             <div className="space-y-1 p-3 text-muted-foreground">
               <p><span className="text-foreground">model:</span> &quot;gpt-4.1&quot;</p>
               <p className="text-foreground/40">↓ ubah satu baris</p>
-              <p><span className="text-foreground">model:</span> &quot;claude-opus-4.6&quot;</p>
+              <p><span className="text-foreground">model:</span> &quot;kimi-k3&quot;</p>
             </div>
           </div>
         </div>
@@ -70,8 +70,8 @@ export function aiFeatureVisuals(isId: boolean): ProductFeature[] {
       visual: (
         <div className="w-full max-w-[240px] space-y-1.5">
           {[
-            ["DeepSeek", "Rp 1.800"],
-            ["Claude", "Rp 60.000"],
+            ["DeepSeek", "Rp 2.000"],
+            ["Kimi K3", "Rp 26.000"],
           ].map(([name, price]) => (
             <div
               key={name}
