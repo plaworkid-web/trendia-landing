@@ -45,8 +45,15 @@ import type { MenuItem, AppSettings } from "@/types/landing";
  * mode - that difference is deliberate and load-bearing.
  */
 
-/** Fallback only: used when the CMS has no navbar menu configured at all. */
-const DEFAULT_PATHS = ["", "/vps", "/models", "/pricing", "/docs"] as const;
+/**
+ * Fallback only: used when the CMS has no navbar menu configured at all.
+ *
+ * `/vps` is absent on purpose. When the CMS is unreachable this list is what a visitor sees, and
+ * VPS is not on sale yet — a hardcoded entry here would advertise a product the operator has
+ * switched off, and it is exactly the path that kept VPS in the navbar after the CMS menu was
+ * disabled. The VPS entry belongs to the CMS menu, which the operator controls.
+ */
+const DEFAULT_PATHS = ["", "/models", "/pricing", "/docs"] as const;
 
 /**
  * The header's ambient glow, as a style object so it can be measured and tuned.
@@ -112,7 +119,10 @@ export function LandingHeader({
 
   // One source of truth for the items: the CMS menu, with a static fallback.
   const managed = navbarItems(menuItems, locale);
-  const defaultLabels = [t.home, t.vps, t.models, t.pricing, t.docs];
+  // `defaultLabels` is index-aligned with DEFAULT_PATHS, which no longer contains /vps, so
+  // the VPS label is dropped to keep the two lists the same length. A label with no path
+  // would render as a link to nowhere.
+  const defaultLabels = [t.home, t.models, t.pricing, t.docs];
   const navItems: ResolvedNavItem[] = managed.length
     ? managed
     : DEFAULT_PATHS.map((path, index) => ({

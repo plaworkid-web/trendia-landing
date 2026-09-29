@@ -232,6 +232,12 @@ export interface AppSettings {
   // {year} and {app_name} are substituted at render.
   copyright_text?: string | null;
   maintenance_mode: boolean;
+  // Launch gate for the VPS product line, an operator setting. `false` means VPS is not
+  // on sale yet, so no customer-facing surface may mention it. Read through
+  // `vpsVisible()` in lib/site.ts rather than inline, so one place decides.
+  vps_storefront_enabled?: boolean;
+  // Portal menu keys the operator switched off (hrefs and `group:<key>`).
+  hidden_portal_menus?: string[] | null;
 }
 
 export interface AppearanceSettings {

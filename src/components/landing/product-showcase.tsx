@@ -24,10 +24,18 @@ import { localizedPath, type Locale } from "@/lib/site";
  * links to, which lists the same features in full — so the card was previewing a
  * preview. The reference is Linear's homepage figure cards ("FIG 0.1" … "FIG 0.3").
  */
-export function ProductShowcase({ locale }: { locale: Locale }) {
+export function ProductShowcase({
+  locale,
+  showVps = true,
+}: {
+  locale: Locale;
+  showVps?: boolean;
+}) {
   const isId = locale === "id";
 
-  const products = [
+  // The VPS card is dropped while the launch gate is off, so the section shows only what is
+  // actually on sale instead of a card leading to a page that redirects.
+  const allProducts = [
     {
       key: "vps",
       href: localizedPath(locale, "/vps"),
@@ -51,6 +59,7 @@ export function ProductShowcase({ locale }: { locale: Locale }) {
       cta: isId ? "Lihat layanan AI" : "See AI service",
     },
   ];
+  const products = showVps ? allProducts : allProducts.filter((p) => p.key !== "vps");
 
   return (
     <section className="section-shell">
@@ -64,7 +73,11 @@ export function ProductShowcase({ locale }: { locale: Locale }) {
           }
         />
 
-        <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2">
+        <div
+          className={`mx-auto mt-12 grid max-w-5xl gap-6 ${
+            products.length > 1 ? "md:grid-cols-2" : "md:max-w-2xl"
+          }`}
+        >
           {products.map(({ key, href, kind, figure, title, description, cta }) => (
             <PlanetCard key={key} className="h-full" shape="rounded-xl" surface="bg-background" radius={520}>
               <Card className="glass-card flex h-full flex-col">

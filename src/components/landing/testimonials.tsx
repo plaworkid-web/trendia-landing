@@ -78,7 +78,7 @@ export function Testimonials({
     <ClientsSection
       tagLabel={t.tag}
       title={t.title}
-      description={isId ? `Pengalaman pelanggan menggunakan VPS hosting dan AI API ${brandName}.` : `See what customers say about ${brandName} VPS hosting and AI API.`}
+      description={isId ? `Pengalaman pelanggan menggunakan AI API ${brandName}.` : `See what customers say about ${brandName} AI API.`}
       stats={stats}
       testimonials={cards}
       primaryActionLabel={t.primary}

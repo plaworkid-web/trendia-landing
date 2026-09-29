@@ -106,6 +106,18 @@ export const copy = {
       description: "Deploy server virtual berperforma tinggi dan akses berbagai model AI melalui satu platform terpadu. Infrastruktur dan kecerdasan yang tumbuh bersama produk Anda.",
       primary: "Lihat Paket VPS",
       secondary: "Jelajahi AI API",
+      // Shown while the VPS launch gate is off. The copy must not promise a product that is
+      // not on sale, so this is a separate set of strings rather than the same words with the
+      // VPS parts stripped — stripping leaves sentences about "infrastructure" that no longer
+      // mean anything.
+      aiOnly: {
+        badge: "Satu endpoint untuk semua model AI",
+        title: "AI API Platform",
+        titleLine2: "Untuk Developer Modern",
+        description: "Akses berbagai model AI terkemuka lewat satu endpoint yang kompatibel dengan OpenAI, dengan harga per model yang terbuka dan saldo berbasis kredit.",
+        primary: "Lihat Paket AI",
+        secondary: "Jelajahi Model",
+      },
     },
     integrations: {
       title: "Satu API, Semua Model AI Terdepan",
@@ -113,8 +125,8 @@ export const copy = {
       action: "Lihat Katalog Model",
     },
     pricing: {
-      title: "Pilih Infrastruktur yang Anda Butuhkan",
-      description: "Paket VPS fleksibel dan akses AI berbasis kredit untuk setiap tahap pengembangan.",
+      title: "Pilih Paket yang Anda Butuhkan",
+      description: "Paket AI berbasis kredit untuk setiap tahap pengembangan, dengan harga per model yang terbuka.",
       vps: "VPS Hosting",
       ai: "AI API",
     },
@@ -145,12 +157,12 @@ export const copy = {
     },
     docs: {
       title: "Mulai membangun dalam beberapa menit.",
-      description: "Panduan AI API yang sesuai endpoint {brand} serta alur awal penggunaan VPS.",
+      description: "Panduan AI API: endpoint {brand}, alur awal, dan contoh pemakaian.",
     },
     partners: { title: "Didukung teknologi terpercaya" },
     faq: {
       title: "Pertanyaan yang sering diajukan",
-      description: "Jawaban singkat tentang VPS, AI API, dan cara memulai.",
+      description: "Jawaban singkat tentang AI API dan cara memulai.",
     },
     blog: {
       title: "Wawasan terbaru",
@@ -185,6 +197,14 @@ export const copy = {
       description: "Deploy high-performance virtual servers and access leading AI models through one unified platform. Infrastructure and intelligence that scale with your product.",
       primary: "Explore VPS Plans",
       secondary: "Explore AI API",
+      aiOnly: {
+        badge: "One endpoint for every AI model",
+        title: "AI API Platform",
+        titleLine2: "For Modern Developers",
+        description: "Reach leading AI models through one OpenAI-compatible endpoint, with per-model pricing in the open and credit-based balance.",
+        primary: "See AI Plans",
+        secondary: "Explore Models",
+      },
     },
     integrations: {
       title: "One API, Every Leading AI Model",
@@ -192,8 +212,8 @@ export const copy = {
       action: "Browse Model Catalog",
     },
     pricing: {
-      title: "Choose the Infrastructure You Need",
-      description: "Flexible VPS packages and credit-based AI access for every stage of development.",
+      title: "Choose the Plan You Need",
+      description: "Credit-based AI packages for every stage of development, with per-model pricing in the open.",
       vps: "VPS Hosting",
       ai: "AI API",
     },
@@ -224,12 +244,12 @@ export const copy = {
     },
     docs: {
       title: "Start building in minutes.",
-      description: "AI API guidance matching {brand}'s live endpoints plus a practical VPS getting-started flow.",
+      description: "AI API guidance: {brand}'s live endpoints, a getting-started flow, and working examples.",
     },
     partners: { title: "Powered by trusted technology" },
     faq: {
       title: "Frequently asked questions",
-      description: "Quick answers about VPS, AI API, and how to get started.",
+      description: "Quick answers about the AI API and how to get started.",
     },
     blog: {
       title: "Latest insights",
@@ -256,3 +276,18 @@ export const copy = {
     common: { loading: "Loading...", copy: "Copy", copied: "Copied", getStarted: "Get started" },
   },
 } as const;
+
+/**
+ * Is the VPS product line on sale?
+ *
+ * One place decides, because VPS is mentioned on eight different surfaces (navbar, footer,
+ * hero, product showcase, CTA, testimonial copy, the /vps page, the pricing page) and a
+ * half-hidden product is worse than a visible one: a customer who follows a link to a page
+ * with no plans reads it as a broken site, not as "not launched yet".
+ *
+ * Defaults to VISIBLE when the setting is missing, so a failed settings fetch cannot hide a
+ * product the operator is selling. Hiding must be explicit.
+ */
+export function vpsVisible(appSettings?: { vps_storefront_enabled?: boolean } | null): boolean {
+  return appSettings?.vps_storefront_enabled !== false;
+}

@@ -60,8 +60,8 @@ function ProductPanel({
   );
 }
 
-function getPanels(brandName: string) {
- return [
+function getPanels(brandName: string, showVps = true) {
+ const panels = [
   {
     id: "vps",
     label: "VPS",
@@ -111,6 +111,7 @@ function getPanels(brandName: string) {
     ),
   },
  ];
+ return showVps ? panels : panels.filter((p) => p.id !== "vps");
 }
 
 const logoClass =
@@ -133,14 +134,31 @@ const logos = [
   ),
 }));
 
-export function CtaSection({ locale, brandName = "Trendia" }: { locale: Locale; brandName?: string }) {
+export function CtaSection({
+  locale,
+  brandName = "Trendia",
+  showVps = true,
+}: {
+  locale: Locale;
+  brandName?: string;
+  showVps?: boolean;
+}) {
   const isId = locale === "id";
-  const panels = getPanels(brandName);
+  const panels = getPanels(brandName, showVps);
   return (
     <PreviewSwitchHero
-      badge={{ tag: brandName, label: isId ? "VPS dan AI dalam satu platform" : "VPS and AI in one platform" }}
+      badge={{
+        tag: brandName,
+        label: showVps
+          ? (isId ? "VPS dan AI dalam satu platform" : "VPS and AI in one platform")
+          : (isId ? "Satu endpoint untuk semua model AI" : "One endpoint for every AI model"),
+      }}
       title={isId ? "Bangun lebih cepat tanpa infrastruktur yang terpisah-pisah" : "Build faster without fragmented infrastructure"}
-      description={isId ? `Deploy VPS berperforma tinggi, gunakan berbagai model AI, dan pantau semuanya dari satu workspace ${brandName}.` : `Deploy high-performance VPS, access leading AI models, and monitor everything from one ${brandName} workspace.`}
+      description={
+        showVps
+          ? (isId ? `Deploy VPS berperforma tinggi, gunakan berbagai model AI, dan pantau semuanya dari satu workspace ${brandName}.` : `Deploy high-performance VPS, access leading AI models, and monitor everything from one ${brandName} workspace.`)
+          : (isId ? `Akses berbagai model AI lewat satu endpoint yang kompatibel dengan OpenAI, dengan harga per model yang terbuka.` : `Access leading AI models through one OpenAI-compatible endpoint, with per-model pricing in the open.`)
+      }
       ratings={[
         { source: "deployment", score: "<60s" },
         { source: "uptime", score: "99.9%" },

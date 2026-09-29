@@ -1,5 +1,5 @@
 import ResponsiveHeroBanner from "@/components/ui/responsive-hero-banner";
-import { copy, localizedPath, type Locale } from "@/lib/site";
+import { copy, localizedPath, vpsVisible, type Locale } from "@/lib/site";
 import type { AppSettings, MenuItem } from "@/types/landing";
 import { BRAND, resolveBrandValue } from "@/lib/brand";
 
@@ -23,19 +23,25 @@ export function Hero({
   const t = copy[locale];
   const brandName = resolveBrandValue(appSettings?.app_name, BRAND.name);
 
+  // One switch decides the whole hero: while VPS is gated off, the copy must not promise it, so the
+  // aiOnly strings replace the badge, title, description and CTA text together. Mixing (e.g. the VPS
+  // title with an AI button) reads as a mistake.
+  const showVps = vpsVisible(appSettings);
+  const h = showVps ? t.hero : t.hero.aiOnly;
+
   return (
     <ResponsiveHeroBanner
       locale={locale}
       appSettings={appSettings}
       menuItems={menuItems}
       badgeLabel={brandName}
-      badgeText={t.hero.badge}
-      title={t.hero.title}
-      titleLine2={t.hero.titleLine2}
-      description={t.hero.description}
-      primaryButtonText={t.hero.primary}
-      primaryButtonHref={localizedPath(locale, "/vps")}
-      secondaryButtonText={t.hero.secondary}
+      badgeText={h.badge}
+      title={h.title}
+      titleLine2={h.titleLine2}
+      description={h.description}
+      primaryButtonText={h.primary}
+      primaryButtonHref={localizedPath(locale, showVps ? "/vps" : "/ai")}
+      secondaryButtonText={h.secondary}
       secondaryButtonHref={localizedPath(locale, "/models")}
     />
   );

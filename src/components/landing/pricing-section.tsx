@@ -13,10 +13,20 @@ interface PricingSectionProps {
   vpsPlans: VpsPlan[];
   locale: Locale;
   asPage?: boolean;
+  /** Launch gate for VPS: when off, the VPS tab is removed and AI becomes the default. */
+  showVps?: boolean;
 }
 
-export function PricingSection({ aiPlans, vpsPlans, locale, asPage = false }: PricingSectionProps) {
-  const [activeTab, setActiveTab] = useState<"vps" | "ai">("vps");
+export function PricingSection({
+  aiPlans,
+  vpsPlans,
+  locale,
+  asPage = false,
+  showVps = true,
+}: PricingSectionProps) {
+  // Default to whichever product is actually on sale. Defaulting to "vps" while the gate is off
+  // would open the page on an empty tab.
+  const [activeTab, setActiveTab] = useState<"vps" | "ai">(showVps ? "vps" : "ai");
   const t = copy[locale].pricing;
 
   return (
@@ -24,7 +34,7 @@ export function PricingSection({ aiPlans, vpsPlans, locale, asPage = false }: Pr
       id="pricing"
       className="relative overflow-hidden bg-muted/30 py-20 sm:py-28"
     >
-      <span id="vps-plans" className="absolute top-0" aria-hidden="true" />
+      {showVps && <span id="vps-plans" className="absolute top-0" aria-hidden="true" />}
       <span id="ai-plans" className="absolute top-0" aria-hidden="true" />
 
       <div
@@ -56,6 +66,7 @@ export function PricingSection({ aiPlans, vpsPlans, locale, asPage = false }: Pr
         </div>
 
         <div className="mx-auto mt-8 flex w-fit rounded-full border bg-background/70 p-1 shadow-sm backdrop-blur">
+          {showVps && (
           <button
             type="button"
             onClick={() => setActiveTab("vps")}
@@ -69,6 +80,7 @@ export function PricingSection({ aiPlans, vpsPlans, locale, asPage = false }: Pr
             <Server className="size-4" />
             {t.vps}
           </button>
+          )}
           <button
             type="button"
             onClick={() => setActiveTab("ai")}
@@ -85,7 +97,11 @@ export function PricingSection({ aiPlans, vpsPlans, locale, asPage = false }: Pr
         </div>
 
         <div className="mt-12">
-          {activeTab === "vps" ? <VpsPlanCards plans={vpsPlans} locale={locale} /> : <AiPlanCards plans={aiPlans} locale={locale} />}
+          {showVps && activeTab === "vps" ? (
+            <VpsPlanCards plans={vpsPlans} locale={locale} />
+          ) : (
+            <AiPlanCards plans={aiPlans} locale={locale} />
+          )}
         </div>
       </div>
     </section>

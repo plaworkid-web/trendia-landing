@@ -8,6 +8,7 @@ import {
 	footerItems,
 	localizedPath,
 	portalUrl,
+	vpsVisible,
 	type Locale,
 	type ResolvedNavItem,
 } from '@/lib/site';
@@ -38,13 +39,15 @@ function socialIcon(platform: string) {
 	return SOCIAL_ICONS[key];
 }
 
-function getDefaultSections(locale: Locale): FooterSection[] {
+function getDefaultSections(locale: Locale, showVps = true): FooterSection[] {
 	const isId = locale === 'id';
 	return [
 		{
 			label: isId ? 'Produk' : 'Product',
 			links: [
-				{ title: 'VPS', href: localizedPath(locale, '/vps') },
+				// VPS is behind a launch gate. Filtering here (rather than after the fact) keeps the
+				// Product column honest under either setting.
+				...(showVps ? [{ title: 'VPS', href: localizedPath(locale, '/vps') }] : []),
 				{ title: isId ? 'Model AI' : 'AI Models', href: localizedPath(locale, '/models') },
 				{ title: isId ? 'Harga' : 'Pricing', href: localizedPath(locale, '/pricing') },
 				{ title: isId ? 'Dokumentasi' : 'Docs', href: localizedPath(locale, '/docs') },
@@ -63,7 +66,10 @@ function getDefaultSections(locale: Locale): FooterSection[] {
 			links: [
 				{ title: 'OpenAI SDK', href: `${localizedPath(locale, '/docs')}#openai-sdk` },
 				{ title: 'Chat Completions', href: `${localizedPath(locale, '/docs')}#chat` },
-				{ title: 'VPS Quickstart', href: `${localizedPath(locale, '/docs')}#vps` },
+				// The docs anchor is VPS-specific, so it follows the same gate as the /vps page.
+				...(showVps
+					? [{ title: 'VPS Quickstart', href: `${localizedPath(locale, '/docs')}#vps` }]
+					: []),
 			],
 		},
 	];
@@ -74,8 +80,15 @@ function buildSections(
 	locale: Locale,
 	company: CompanyProfile | null | undefined,
 	isId: boolean,
+	showVps = true,
 ): FooterSection[] {
-	const managed = footerItems(menuItems, locale);
+	// A VPS entry that survives in the CMS menu while the product is gated would still render here,
+	// so the filter applies to the CMS list too, not only to the built-in fallback.
+	const managed = footerItems(menuItems, locale).filter((item) => {
+		if (showVps) return true;
+		const href = String((item as { href?: string }).href ?? '');
+		return !/\/vps(\/|$)/i.test(href);
+	});
 	const sections: FooterSection[] = [];
 
 	if (managed.length > 0) {
@@ -92,7 +105,7 @@ function buildSections(
 			],
 		});
 	} else {
-		sections.push(...getDefaultSections(locale));
+		sections.push(...getDefaultSections(locale, showVps));
 	}
 
 	const contactLinks: FooterLink[] = [];
@@ -142,7 +155,7 @@ export function Footer({
 	company?: CompanyProfile | null;
 }) {
 	const isId = locale === 'id';
-	const footerLinks = buildSections(menuItems, locale, company, isId);
+	const footerLinks = buildSections(menuItems, locale, company, isId, vpsVisible(appSettings));
 	const brandName = resolveBrandValue(appSettings?.app_name, BRAND.name);
 	/* The CMS logo when present, the bundled copy otherwise — never a text wordmark, so the footer
 	   and the header show the same mark. */

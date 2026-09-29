@@ -10,7 +10,7 @@ import { BlogSection } from "@/components/landing/blog-section";
 import { CtaSection } from "@/components/landing/cta-section";
 import { Footer } from "@/components/ui/footer-section";
 import { LocaleDocument } from "@/components/providers/locale-document";
-import type { Locale } from "@/lib/site";
+import { vpsVisible, type Locale } from "@/lib/site";
 
 export async function HomePage({ locale }: { locale: Locale }) {
   // `fetchVpsPlans` is gone with the pricing table: the homepage no longer lists
@@ -36,7 +36,7 @@ export async function HomePage({ locale }: { locale: Locale }) {
             (/vps and /ai) that carries the feature list next to the price list, so a
             visitor compares one product at a time instead of skimming a tabbed table
             that showed neither in full. */}
-        <ProductShowcase locale={locale} />
+        <ProductShowcase locale={locale} showVps={vpsVisible(appSettings)} />
         <Partners locale={locale} />
         <Testimonials
           testimonials={landingData?.testimonials ?? []}
@@ -55,7 +55,7 @@ export async function HomePage({ locale }: { locale: Locale }) {
             <FaqSection faqs={landingData?.faqs ?? []} locale={locale} embedded />
           </div>
         </section>
-        <CtaSection locale={locale} brandName={appSettings?.app_name} />
+        <CtaSection locale={locale} brandName={appSettings?.app_name} showVps={vpsVisible(appSettings)} />
       </main>
       <Footer
         locale={locale}
