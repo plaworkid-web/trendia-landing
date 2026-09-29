@@ -1,52 +1,32 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useSyncExternalStore,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, type ReactNode } from "react";
 import type { AppearanceSettings } from "@/types/landing";
 
-type Theme = "light" | "dark";
+/**
+ * The landing is dark-only.
+ *
+ * There is no light theme to switch to, so nothing here reads `localStorage`, `prefers-color-scheme` or
+ * a CMS mode. That matters for correctness, not just for looks: the page's colours are authored against
+ * a dark canvas (a translucent white-on-dark glass over a near-black background), so a "light" render is
+ * not a supported state that merely looks worse — it is an unstyled one, which is how a visitor on a
+ * light-mode OS used to land on washed-out text and invisible glass borders.
+ *
+ * `resolvedTheme` and `setTheme` stay in the context so existing callers keep compiling; `setTheme` is a
+ * deliberate no-op rather than a silent light switch, and the header no longer renders the toggle.
+ */
+type Theme = "dark";
 
 interface ThemeContextValue {
   resolvedTheme: Theme;
   setTheme: (theme: Theme) => void;
 }
 
-const STORAGE_KEY = "theme";
-const THEME_EVENT = "trendia-theme-change";
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
+/** Kept for API compatibility with callers that asked the OS. The answer is always dark now. */
 export function systemTheme(): Theme {
-  if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
-function getTheme(): Theme {
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (stored === "light" || stored === "dark") return stored;
-  return systemTheme();
-}
-
-function subscribe(onStoreChange: () => void) {
-  const media = window.matchMedia("(prefers-color-scheme: dark)");
-  const handleStorage = (event: StorageEvent) => {
-    if (event.key === STORAGE_KEY) onStoreChange();
-  };
-
-  media.addEventListener("change", onStoreChange);
-  window.addEventListener("storage", handleStorage);
-  window.addEventListener(THEME_EVENT, onStoreChange);
-
-  return () => {
-    media.removeEventListener("change", onStoreChange);
-    window.removeEventListener("storage", handleStorage);
-    window.removeEventListener(THEME_EVENT, onStoreChange);
-  };
+  return "dark";
 }
 
 export function ThemeProvider({
@@ -56,25 +36,25 @@ export function ThemeProvider({
   children: ReactNode;
   appearance?: AppearanceSettings | null;
 }) {
-  const resolvedTheme = useSyncExternalStore(subscribe, getTheme, () => "light" as Theme);
-
-  useEffect(() => {
-    if (window.localStorage.getItem(STORAGE_KEY)) return;
-    const mode = appearance?.default_mode;
-    if (mode === "dark" || mode === "light") {
-      window.localStorage.setItem(STORAGE_KEY, mode);
-      window.dispatchEvent(new Event(THEME_EVENT));
-    }
-  }, [appearance?.default_mode]);
-
+  // Dark is forced on every render of the document element, and any previously stored preference —
+  // which a returning visitor may still carry from when the toggle existed — is removed so it cannot
+  // take effect on a later visit.
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.toggle("dark", resolvedTheme === "dark");
-    root.style.colorScheme = resolvedTheme;
+    root.classList.add("dark");
+    root.style.colorScheme = "dark";
 
+    try {
+      window.localStorage.removeItem("theme");
+      window.localStorage.setItem("theme", "dark");
+    } catch {
+      // Private mode can throw on storage access; the class above is what actually paints the page.
+    }
+
+    // The dark_* colours are the only ones applied now; a light_* value would describe a theme that
+    // no longer exists.
     const colors = appearance?.colors ?? {};
-    const isDark = resolvedTheme === "dark";
-    const pick = (key: string) => colors[isDark ? `dark_${key}` : `light_${key}`] ?? colors[key];
+    const pick = (key: string) => colors[`dark_${key}`] ?? colors[key];
 
     const mapping: Array<[string, string | undefined]> = [
       ["--primary", pick("primary")],
@@ -101,15 +81,13 @@ export function ThemeProvider({
     }
 
     root.dataset.glass = appearance?.glassmorphism_enabled === false ? "off" : "on";
-  }, [resolvedTheme, appearance]);
+  }, [appearance]);
 
-  const setTheme = useCallback((theme: Theme) => {
-    window.localStorage.setItem(STORAGE_KEY, theme);
-    window.dispatchEvent(new Event(THEME_EVENT));
-  }, []);
+  // A no-op that keeps the shape of the old API. Flipping a class here would undo the block above.
+  const setTheme = useCallback((_theme: Theme) => {}, []);
 
   return (
-    <ThemeContext.Provider value={{ resolvedTheme, setTheme }}>
+    <ThemeContext.Provider value={{ resolvedTheme: "dark", setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

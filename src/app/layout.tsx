@@ -41,6 +41,9 @@ export async function generateMetadata(): Promise<Metadata> {
     title: resolveBrandValue(settings?.app_name, BRAND.name),
     description: resolveBrandValue(settings?.meta_description, BRAND.description),
     keywords: resolveBrandValue(settings?.meta_keywords, BRAND.keywords),
+    // Dark-only: the browser's own UI (mobile address bar, task switcher) is tinted to match, so the
+    // page does not sit under a light bar. It cannot follow a theme that no longer exists.
+    themeColor: "#000000",
     /*
       Both icons are declared, deliberately.
       `icons.icon` emits the CMS png; the `.ico` below is the file every browser requests by
@@ -68,7 +71,12 @@ export default async function RootLayout({
   return (
     <html
       lang="id"
-      className={`${inter.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
+      // `dark` is on the SERVER-rendered element, not added later by JavaScript. The provider's effect
+      // also sets it, but that runs after hydration — so without it here the first paint used the
+      // `:root` light tokens (near-white background) and the page flashed white before turning dark.
+      // `colorScheme: "dark"` does the same for the browser's own chrome (scrollbars, form controls).
+      className={`dark ${inter.variable} ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
+      style={{ colorScheme: "dark" }}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans">

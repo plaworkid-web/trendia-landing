@@ -4,9 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Globe, Menu, Moon, Sun } from "lucide-react";
+import { Globe, Menu } from "lucide-react";
 
-import { useTheme } from "@/components/providers/theme-provider";
 import {
   Sheet,
   SheetContent,
@@ -96,7 +95,6 @@ export function LandingHeader({
   menuItems?: MenuItem[];
   variant: Variant;
 }) {
-  const { resolvedTheme, setTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
   const pathname = usePathname();
@@ -314,14 +312,6 @@ export function LandingHeader({
               </Link>
             </div>
 
-            <button
-              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-              className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors ${c.iconBtn}`}
-              aria-label={locale === "id" ? "Ganti tema" : "Toggle theme"}
-            >
-              {resolvedTheme === "dark" ? <Moon className="size-4" /> : <Sun className="size-4" />}
-            </button>
-
             <Link
               href={languageHref}
               className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors ${c.iconBtn}`}
@@ -334,13 +324,6 @@ export function LandingHeader({
 
           {/* Mobile menu */}
           <div className="flex items-center gap-2 md:hidden">
-            <button
-              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-              className={`inline-flex h-9 w-9 items-center justify-center rounded-full transition-colors ${c.iconBtn}`}
-              aria-label={locale === "id" ? "Ganti tema" : "Toggle theme"}
-            >
-              {resolvedTheme === "dark" ? <Moon className="size-4" /> : <Sun className="size-4" />}
-            </button>
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger
                 render={
