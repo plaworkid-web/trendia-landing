@@ -76,10 +76,28 @@ const GLOW_STYLE: React.CSSProperties = {
    *   L90 -> 43/160/157/40      L97 -> 46/175/172/42
    *
    * L90 is the closest to the homepage's 51/170/181/106.
+   *
+   * ── Hue moved 293 -> 278, and the core's chroma 0.12 -> 0.16 (blue-violet) ───────────────────
+   *
+   * 293 is purple; the request was a blue-violet shine. Two changes, not one: rotate the hue AND give
+   * the core enough chroma to show, because at lightness 0.90 a chroma of 0.12 leaves almost no colour
+   * to see.
+   *
+   * Measured on the live page over the pixels the glow itself brightens (with the element hidden, then
+   * shown, and the difference taken — the gradients are composited over a dark page, so the literal
+   * colour is not what a visitor sees):
+   *
+   *     hue 293  ->  added light R+65.7 G+48.0 B+83.3, hue 270.2°, blue-red +17.6   (purple)
+   *     hue 265  ->  added light R+40.5 G+55.7 B+83.7, hue 218.9°, blue-red +43.2   (overshot to blue)
+   *     hue 278  ->  added light R+53.8 G+51.7 B+83.4, hue 244.0°, blue-red +29.6   (blue-violet)
+   *
+   * 265 was the first attempt and overshot: it landed past blue-violet into plain blue, so the hue was
+   * pulled back to 278. The luminance calibration above still holds — lightness is untouched at every
+   * stop (peak luma 107.1 vs 107.7), so the band is the same brightness and only its tint moved.
    */
   backgroundImage:
-    "radial-gradient(ellipse 78% 26% at 50% 34%, oklch(0.90 0.12 293 / 100%) 0%, " +
-    "oklch(0.76 0.20 293 / 55%) 34%, oklch(0.64 0.24 293 / 18%) 58%, transparent 78%)",
+    "radial-gradient(ellipse 78% 26% at 50% 34%, oklch(0.90 0.16 278 / 100%) 0%, " +
+    "oklch(0.76 0.20 278 / 55%) 34%, oklch(0.64 0.24 278 / 18%) 58%, transparent 78%)",
 };
 
 type Variant = "hero" | "page";
