@@ -339,10 +339,23 @@
 
   --hero-hot: #ffffff;
 
+  /* ── The cursor light, tuned towards a blue-violet ──────────────────────────────────────────────
+     The stops used to run white -> lavender -> violet -> indigo, so the middle of the glow read as
+     PINK-ish and the visible tint was a soft purple. The request was a slightly blue-violet shine, so
+     the warm side is pulled towards blue while the core stays white (it is the highlight of the arc's
+     inner ring — tinting it would dull the arc, not the glow) and the violet stop keeps the two ends
+     from separating into a plain blue.
+
+       mid    #e4c6ff -> #c9d0ff   (R drops 27, B stays) — removes the pink cast
+       blue   #4714d9 -> #3a1fd6   (blue-violet, one step bluer, same depth)
+
+     Only the dark block is touched: the landing renders `<html class="dark">`, so `:root` is never
+     what a visitor sees. `--hero-cursor-violet` is deliberately unchanged — it is the link between the
+     white core and the new blue, and moving it too would flatten the ramp into a single hue. */
   --hero-cursor-core: #ffffff;
-  --hero-cursor-mid: #e4c6ff;
+  --hero-cursor-mid: #c9d0ff;
   --hero-cursor-violet: #a86dff;
-  --hero-cursor-blue: #4714d9;
+  --hero-cursor-blue: #3a1fd6;
 
   --hero-planet-0: #010104;
   --hero-planet-1: #030016;
