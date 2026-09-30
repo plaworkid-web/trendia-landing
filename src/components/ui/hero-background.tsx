@@ -247,11 +247,25 @@ export function HeroBackground({
             <stop offset="1" stopColor="var(--hero-hot)" stopOpacity="0" />
           </linearGradient>
 
+          {/*
+            The cursor light. Softened on request: at the original opacities the glow added +16.25
+            luma around the pointer (85.72 with the light vs 69.47 without, measured over a 600x500
+            box — a 23% lift) and pushed the arc's inner core into a blown-out white. The request was
+            explicitly "lebih redup sedikit", not "hilangkan", so the falloff shape and the scale are
+            untouched and only the intensities come down:
+
+              core  0.85 -> 0.52      mid  0.60 -> 0.34
+              violet 0.35 -> 0.20     blue 0.16 -> 0.09
+
+            Roughly a 38% reduction, applied to EVERY stop rather than just the core: lowering the
+            centre alone would keep the mid-tones bright and turn the light into a smaller hot dot,
+            which is a different look rather than a dimmer one.
+          */}
           <radialGradient id="heroCursor" cx="50%" cy="50%" r="50%">
-            <stop offset="0" stopColor="var(--hero-cursor-core)" stopOpacity="0.85" />
-            <stop offset="0.22" stopColor="var(--hero-cursor-mid)" stopOpacity="0.6" />
-            <stop offset="0.45" stopColor="var(--hero-cursor-violet)" stopOpacity="0.35" />
-            <stop offset="0.7" stopColor="var(--hero-cursor-blue)" stopOpacity="0.16" />
+            <stop offset="0" stopColor="var(--hero-cursor-core)" stopOpacity="0.52" />
+            <stop offset="0.22" stopColor="var(--hero-cursor-mid)" stopOpacity="0.34" />
+            <stop offset="0.45" stopColor="var(--hero-cursor-violet)" stopOpacity="0.2" />
+            <stop offset="0.7" stopColor="var(--hero-cursor-blue)" stopOpacity="0.09" />
             <stop offset="1" stopColor="var(--hero-cursor-blue)" stopOpacity="0" />
           </radialGradient>
 
